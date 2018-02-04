@@ -37,6 +37,8 @@ public class LoginActivity extends Activity {
             public void onClick(View view) {
                 Log.d(TAG, "Visitor button clicked");
                 // TODO: Need to go to a view for visitors
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
             }
         });
 
