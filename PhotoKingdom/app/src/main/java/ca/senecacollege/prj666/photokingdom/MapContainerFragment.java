@@ -1,13 +1,19 @@
 package ca.senecacollege.prj666.photokingdom;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 
 
 /**
@@ -18,7 +24,7 @@ import android.view.ViewGroup;
  * Use the {@link MapContainerFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MapContainerFragment extends Fragment {
+public class MapContainerFragment extends Fragment implements OnMapReadyCallback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -29,7 +35,10 @@ public class MapContainerFragment extends Fragment {
     private String mParam2;
 
     private static final String TAG = "MapContainerFragment";
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private static final int PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
 
+    private GoogleMap mGoogleMap;
     private OnFragmentInteractionListener mListener;
 
     public MapContainerFragment() {
@@ -67,7 +76,46 @@ public class MapContainerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_map_container, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_map_container, container, false);
+        initMap();
+        return rootView;
+    }
+
+    private void initMap() {
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
+
+        // check if null
+        if (mapFragment == null) {
+            mapFragment = SupportMapFragment.newInstance();
+            getFragmentManager().beginTransaction().replace(R.id.mapFragment, mapFragment).commit();
+        }
+        mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mGoogleMap = googleMap;
+        updateLocationUI();
+    }
+
+    public void checkPermission(){
+        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            Log.i("checkPermission", "Not enough permission");
+            // add request permission on runtime if failed
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+        }
+    }
+
+    private void updateLocationUI(){
+        if(mGoogleMap != null){
+            checkPermission();
+            mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
+            mGoogleMap.setMyLocationEnabled(true);
+            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
