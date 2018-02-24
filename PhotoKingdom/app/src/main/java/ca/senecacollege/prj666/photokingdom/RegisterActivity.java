@@ -1,9 +1,14 @@
 package ca.senecacollege.prj666.photokingdom;
 
+import android.*;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,6 +42,7 @@ public class RegisterActivity extends AppCompatActivity
     private static final String TAG = "RegisterActivity";
 
     // Request code
+    private static final int PERMISSION_REQUEST_READ_EXTERNAL_STORAGE = 0;
     private static final int ACTION_PICK_REQUEST = 1;
 
     // Avatar image uri
@@ -83,9 +89,7 @@ public class RegisterActivity extends AppCompatActivity
         mImageViewAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Show images from devices
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, ACTION_PICK_REQUEST);
+                selectAvatarImage();
             }
         });
 
@@ -108,6 +112,43 @@ public class RegisterActivity extends AppCompatActivity
                 dialog.show(getSupportFragmentManager(), "CityDialogFragment");
             }
         });
+    }
+
+    /**
+     * Check a permission to read images from storage
+     * Then, show images or request the permission
+     */
+    private void selectAvatarImage() {
+        // Check a permission to read images
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+            showImages();
+        } else {
+            // Request the permission
+            ActivityCompat.requestPermissions(this,
+                    new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE },
+                    PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        // Check a request result
+        if (requestCode == PERMISSION_REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showImages();
+            }
+        }
+    }
+
+    /**
+     * Show images from storage to select an image
+     */
+    private void showImages() {
+        // Show images
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, ACTION_PICK_REQUEST);
     }
 
     @Override
