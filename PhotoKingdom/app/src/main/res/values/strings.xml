@@ -12,6 +12,7 @@
     <string name="avatar">Avatar</string>
     <string name="registration">Registration</string>
     <string name="submit">Submit</string>
+    <string name="view_photowar">View photowar</string>
 
     <string-array name="array_gender">
         <item>Gender</item>
