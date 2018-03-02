@@ -22,7 +22,14 @@
     <string name="title_home">Live Feed</string>
     <string name="title_dashboard">Map</string>
     <string name="title_notifications">User</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="button_ok">OK</string>
+    <string name="choose_continent">Choose a continent</string>
+    <string name="choose_country">Choose a country</string>
+    <string name="choose_province">Choose a province</string>
+    <string name="choose_city">Choose a city</string>
+    <string name="choose_gender">Choose a gender</string>
+    <string name="required_all_information">All information is required</string>
+    <string name="password_not_match">Passwords do not match</string>
+    <string name="avatar_upload_fail">Avatar image upload failed</string>
+    <string name="user_register_failed">Register failed</string>
 </resources>
