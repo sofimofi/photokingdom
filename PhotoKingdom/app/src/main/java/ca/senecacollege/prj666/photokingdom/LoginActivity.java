@@ -7,16 +7,32 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import ca.senecacollege.prj666.photokingdom.models.LoginInfo;
+import ca.senecacollege.prj666.photokingdom.models.Resident;
+import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
+import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
+import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class LoginActivity extends Activity {
     private static final String TAG = "LoginActivity";
 
-    private EditText editTextEmail;
-    private EditText editTextPassword;
+    // Widgets
+    private EditText mEditTextEmail;
+    private EditText mEditTextPassword;
+    private ProgressBar mProgressBar;
+
+    // Login
+    private Resident mResident;
+    private ResidentSessionManager mSessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +42,15 @@ public class LoginActivity extends Activity {
             setContentView(R.layout.activity_login);
 
             // Email and password
-            editTextEmail = (EditText) findViewById(R.id.editTextEmail);
-            editTextPassword = (EditText) findViewById(R.id.editTextPassword);
+            mEditTextEmail = (EditText) findViewById(R.id.editTextEmail);
+            mEditTextPassword = (EditText) findViewById(R.id.editTextPassword);
+            mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
+
+            // Check login
+            mSessionManager = new ResidentSessionManager(this);
+            if (mSessionManager.isLoggedIn()) {
+                startMainActivity();
+            }
 
             // Login
             findViewById(R.id.buttonLogin).setOnClickListener(new View.OnClickListener() {
@@ -60,14 +83,84 @@ public class LoginActivity extends Activity {
     }
 
     private void requestLogin() {
-        String email = editTextEmail.getText().toString().trim();
-        String password = editTextPassword.getText().toString().trim();
+        String email = mEditTextEmail.getText().toString().trim();
+        String password = mEditTextPassword.getText().toString().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Enter the email and password", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.msg_enter_email_password, Toast.LENGTH_LONG).show();
         } else {
-            Log.d(TAG, "[requestLogin] Email: " + email + ", Password: " + password);
-            // TODO: Need to request for login
+            checkLogin(email, password);
+        }
+    }
+    private void checkLogin(String email, String password) {
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        LoginInfo info = new LoginInfo(email, password);
+
+        showProgressBar();
+
+        Call<Resident> call = service.loginResident(info);
+        call.enqueue(new Callback<Resident>() {
+            @Override
+            public void onResponse(Call<Resident> call, Response<Resident> response) {
+                hideProgressBar();
+
+                if (response.isSuccessful()) {
+                    // Login
+                    mResident = response.body();
+                    loginResident();
+                } else {
+                    try {
+                        Log.d(TAG, "[checkLogin] " + response.errorBody().string());
+                        logoutResident();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    Toast.makeText(getApplicationContext(), R.string.error_login, Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Resident> call, Throwable t) {
+                Log.d(TAG, "[checkLogin:onFailure]" + t.getMessage());
+                hideProgressBar();
+                logoutResident();
+            }
+        });
+    }
+
+    private void loginResident() {
+        if (mSessionManager != null) {
+            if (mResident != null) {
+                mSessionManager.loginResident(mResident);
+                startMainActivity();
+            } else {
+                logoutResident();
+            }
+        }
+    }
+
+    private void logoutResident() {
+        if (mSessionManager != null) {
+            mSessionManager.logoutResident();
+        }
+    }
+
+    private void startMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void showProgressBar() {
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideProgressBar() {
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(View.GONE);
         }
     }
 

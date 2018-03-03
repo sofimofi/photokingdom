@@ -5,6 +5,7 @@ import java.util.List;
 import ca.senecacollege.prj666.photokingdom.models.AvatarImage;
 import ca.senecacollege.prj666.photokingdom.models.Continent;
 import ca.senecacollege.prj666.photokingdom.models.Country;
+import ca.senecacollege.prj666.photokingdom.models.LoginInfo;
 import ca.senecacollege.prj666.photokingdom.models.Province;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import okhttp3.MultipartBody;
@@ -26,6 +27,9 @@ public interface PhotoKingdomService {
 
     @POST("api/residents")
     Call<Resident> createResident(@Body Resident resident);
+
+    @POST("api/residents/login")
+    Call<Resident> loginResident(@Body LoginInfo info);
 
     // TODO: get residentId ?
     @GET("api/residents/{id}")

@@ -36,7 +36,8 @@
     <string name="versus">vs.</string>
     <string name="winner">Winner:</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="msg_enter_email_password">Enter the email and password</string>
+
+    <string name="error_login">Login failed</string>
 
 </resources>
