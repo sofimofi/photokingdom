@@ -20,6 +20,10 @@ public class Resident {
     private String avatarImagePath;
     @SerializedName("CityId")
     private int cityId;
+    @SerializedName("CityName")
+    private String city;
+    @SerializedName("Title")
+    private String title;
 
     public Resident(String userName, String email, String password, String gender, int cityId) {
         this.userName = userName;
@@ -85,4 +89,16 @@ public class Resident {
     public void setCityId(int cityId) {
         this.cityId = cityId;
     }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) { this.city = city; }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) { this.title = title; }
 }

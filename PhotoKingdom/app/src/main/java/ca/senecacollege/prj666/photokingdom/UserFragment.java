@@ -1,15 +1,32 @@
 package ca.senecacollege.prj666.photokingdom;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import static android.content.ContentValues.TAG;
+import com.squareup.picasso.Picasso;
+
+import ca.senecacollege.prj666.photokingdom.models.Resident;
+import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
+import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -33,6 +50,18 @@ public class UserFragment extends Fragment {
     private static final String TAG = "UserFragment";
 
     private OnFragmentInteractionListener mListener;
+
+    private Resident mResident;
+
+    private TextView mTextViewName;
+    private TextView mTextViewEmail;
+    private TextView mTextViewGender;
+    private TextView mTextViewCity;
+    private TextView mTextViewTitle;
+    private TextView mTextViewPoint;
+    private ImageView mImageViewAvatar;
+    private ProgressBar mProgressBar;
+    private LinearLayout mLinearLayout;
 
     public UserFragment() {
         // Required empty public constructor
@@ -63,13 +92,103 @@ public class UserFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setTitle(R.string.userprofile);
+    }
+
+    /**
+     * call api/resident/{id}
+     * @param residentId
+     */
+    private void getResident(int residentId){
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<Resident> call = service.getResident(residentId);
+
+        mProgressBar.setVisibility(View.VISIBLE);
+        call.enqueue(new Callback<Resident>() {
+            @Override
+            public void onResponse(Call<Resident> call, Response<Resident> response) {
+
+                if (response.isSuccessful() && response.body() != null) {
+                    mResident = response.body();
+                    setUserProfile();
+                } else {
+                    try {
+                        Log.d(TAG, response.errorBody().string());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    mProgressBar.setVisibility(View.GONE);
+                    mLinearLayout.setVisibility(View.VISIBLE);
+                    Toast.makeText(getContext(), "User does not exist", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Resident> call, Throwable t) {
+                mProgressBar.setVisibility(View.GONE);
+                mLinearLayout.setVisibility(View.VISIBLE);
+                Log.d(TAG, "[getResident:onFailure] " + t.getMessage());
+            }
+        });
+    }
+
+    private void setUserProfile() {
+        mTextViewName.setText(mResident.getUserName());
+        mTextViewEmail.setText(mResident.getEmail());
+        if(mResident.getGender().equals("M"))
+            mTextViewGender.setText("Male");
+        else
+            mTextViewGender.setText("Female");
+        mTextViewCity.setText(mResident.getCity());
+        mTextViewTitle.setText(mResident.getTitle());
+        mTextViewPoint.setText("0");
+
+        String imgPath = mResident.getAvatarImagePath();
+        String imgUrl = RetrofitServiceGenerator.getBaseUrl() + "/" + imgPath;
+        Picasso.with(getContext()).load(imgUrl)
+                .error(R.mipmap.ic_launcher)
+                .into(mImageViewAvatar, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        mProgressBar.setVisibility(View.GONE);
+                        mLinearLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onError() {
+                        mProgressBar.setVisibility(View.GONE);
+                        mLinearLayout.setVisibility(View.VISIBLE);
+                        Toast.makeText(getContext(), "Error loading avatar", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_user, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_user, container, false);
+
+        // references to widgets
+        mTextViewName = rootView.findViewById(R.id.name_user);
+        mTextViewEmail = rootView.findViewById(R.id.email_user);
+        mTextViewGender = rootView.findViewById(R.id.gender_user);
+        mTextViewCity = rootView.findViewById(R.id.city_user);
+        mTextViewTitle = rootView.findViewById(R.id.title_user);
+        mTextViewPoint = rootView.findViewById(R.id.point_user);
+        mImageViewAvatar = rootView.findViewById(R.id.avatar_user);
+
+        mProgressBar = rootView.findViewById(R.id.progressBar_user);
+        mLinearLayout = rootView.findViewById(R.id.container_user);
+        mLinearLayout.setVisibility(View.INVISIBLE);
+
+        // load user
+        getResident(3);
+
+        return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

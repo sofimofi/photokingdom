@@ -27,6 +27,10 @@ public interface PhotoKingdomService {
     @POST("api/residents")
     Call<Resident> createResident(@Body Resident resident);
 
+    // TODO: get residentId ?
+    @GET("api/residents/{id}")
+    Call<Resident> getResident(@Path("id") int residentId);
+
     @GET("api/continents")
     Call<List<Continent>> getContinents();
 

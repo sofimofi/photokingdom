@@ -13,15 +13,16 @@
     <string name="registration">Registration</string>
     <string name="submit">Submit</string>
     <string name="view_photowar">View photowar</string>
+    <string name="userprofile">User Profile</string>
 
     <string-array name="array_gender">
         <item>Gender</item>
         <item>Male</item>
         <item>Female</item>
     </string-array>
-    <string name="title_home">Live Feed</string>
-    <string name="title_dashboard">Map</string>
-    <string name="title_notifications">User</string>
+    <string name="livefeed">Live Feed</string>
+    <string name="map">Map</string>
+    <string name="nav_user">User</string>
     <string name="button_ok">OK</string>
     <string name="choose_continent">Choose a continent</string>
     <string name="choose_country">Choose a country</string>
