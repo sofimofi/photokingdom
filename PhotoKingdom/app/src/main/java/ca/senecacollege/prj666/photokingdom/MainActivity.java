@@ -1,12 +1,17 @@
 package ca.senecacollege.prj666.photokingdom;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,4 +53,30 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager.beginTransaction().replace(R.id.frameLayout, new LiveFeedFragment()).commit();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                // Logout resident
+                ResidentSessionManager manager = new ResidentSessionManager(this);
+                manager.logoutResident();
+
+                // Move to LoginActivity
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }
