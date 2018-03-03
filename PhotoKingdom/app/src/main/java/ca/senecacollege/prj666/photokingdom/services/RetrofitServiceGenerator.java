@@ -7,8 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Service generator to create a retrofit service
  */
 public class RetrofitServiceGenerator {
-    //private static final String BASE_URL = "https://photokingdom-api.azurewebsites.net/";
-    private static final String BASE_URL = "http://192.168.0.30:4002/";
+    private static final String BASE_URL = "https://photokingdom-api.azurewebsites.net/";
 
     private static Retrofit.Builder builder =
             new Retrofit.Builder()
