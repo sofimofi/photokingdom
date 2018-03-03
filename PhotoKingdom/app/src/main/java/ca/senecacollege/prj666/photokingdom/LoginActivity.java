@@ -3,7 +3,9 @@ package ca.senecacollege.prj666.photokingdom;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -49,7 +51,15 @@ public class LoginActivity extends Activity {
             // Check login
             mSessionManager = new ResidentSessionManager(this);
             if (mSessionManager.isLoggedIn()) {
-                startMainActivity();
+                // Auto-login preference in Settings
+                SharedPreferences settingsPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+                boolean isAutoLogin = settingsPrefs.getBoolean("pref_auto_login", true);
+                if (isAutoLogin) {
+                    startMainActivity();
+                } else {
+                    mEditTextEmail.setText(mSessionManager.getResident().getEmail());
+                    mEditTextPassword.requestFocus();
+                }
             }
 
             // Login

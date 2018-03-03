@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import ca.senecacollege.prj666.photokingdom.fragments.SettingsFragment;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -64,6 +65,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.settings:
+                // Move to SettingsFragment
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frameLayout, new SettingsFragment())
+                        .addToBackStack(null)
+                        .commit();
+
+                return true;
             case R.id.logout:
                 // Logout resident
                 ResidentSessionManager manager = new ResidentSessionManager(this);

@@ -2,6 +2,7 @@
     <string name="app_name">PhotoKingdom</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
+    <string name="auto_login">Auto-login</string>
     <string name="visitor">Visitor</string>
     <string name="register">Register</string>
     <string name="email">Email</string>
@@ -36,6 +37,7 @@
     <string name="user_register_failed">Register failed</string>
     <string name="versus">vs.</string>
     <string name="winner">Winner:</string>
+    <string name="settings">Settings</string>
 
     <string name="msg_enter_email_password">Enter the email and password</string>
 
