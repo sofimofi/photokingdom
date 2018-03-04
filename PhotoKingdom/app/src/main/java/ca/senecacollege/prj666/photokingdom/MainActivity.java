@@ -1,6 +1,7 @@
 package ca.senecacollege.prj666.photokingdom;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
@@ -17,6 +18,11 @@ import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Fragments
+    private LiveFeedFragment mLiveFeedFragment;
+    private MapContainerFragment mMapContainerFragment;
+    private UserFragment mUserFragment;
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -30,12 +36,20 @@ public class MainActivity extends AppCompatActivity {
             // switch to selected fragment
             switch (item.getItemId()) {
                 case R.id.navigation_livefeed:
-                    transaction.replace(R.id.frameLayout, new LiveFeedFragment())
+                    if (mLiveFeedFragment == null) {
+                        mLiveFeedFragment = new LiveFeedFragment();
+                    }
+
+                    transaction.replace(R.id.frameLayout, mLiveFeedFragment)
                             .addToBackStack(null)
                             .commit();
                     return true;
                 case R.id.navigation_map:
-                    transaction.replace(R.id.frameLayout, new MapContainerFragment())
+                    if (mMapContainerFragment == null) {
+                        mMapContainerFragment = new MapContainerFragment();
+                    }
+
+                    transaction.replace(R.id.frameLayout, mMapContainerFragment)
                             .addToBackStack(null)
                             .commit();
                     return true;
@@ -44,7 +58,11 @@ public class MainActivity extends AppCompatActivity {
                     ResidentSessionManager sessionManager =
                             new ResidentSessionManager(getApplicationContext());
                     if (sessionManager.isLoggedIn()) {
-                        transaction.replace(R.id.frameLayout, new UserFragment())
+                        if (mUserFragment == null) {
+                            mUserFragment = new UserFragment();
+                        }
+
+                        transaction.replace(R.id.frameLayout, mUserFragment)
                                 .addToBackStack(null)
                                 .commit();
                     } else {
@@ -102,6 +120,20 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == MapContainerFragment.PERMISSIONS_REQUEST_ACCESS_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Initialize Google Map if requested permissions granted
+                if (mMapContainerFragment != null) {
+                    mMapContainerFragment.initMapWithCurrentLocation();
+                }
+            }
         }
     }
 }

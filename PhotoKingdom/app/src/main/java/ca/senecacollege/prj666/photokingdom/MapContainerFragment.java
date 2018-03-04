@@ -2,8 +2,10 @@ package ca.senecacollege.prj666.photokingdom;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -13,9 +15,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 
 /**
@@ -37,8 +45,11 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private String mParam2;
 
     private static final String TAG = "MapContainerFragment";
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private static final int PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
+    static final int PERMISSIONS_REQUEST_ACCESS_LOCATION = 1;
+
+    // Current location
+    private FusedLocationProviderClient mFusedLocationClient;
+    private Location mCurrentLocation;
 
     private GoogleMap mGoogleMap;
     private OnFragmentInteractionListener mListener;
@@ -75,6 +86,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         actionBar.setTitle(R.string.map);
+
+        // Get current location
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
     }
 
     @Override
@@ -82,7 +96,13 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_map_container, container, false);
-        initMap();
+
+        // Initialize a map if permissions are granted
+        //initMap();
+        if (checkPermission()) {
+            initMapWithCurrentLocation();
+        }
+
         return rootView;
     }
 
@@ -97,29 +117,80 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
+    /**
+     * Get device's current location
+     * Initialize Google Map
+     */
+    public void initMapWithCurrentLocation() {
+        try {
+            if (mFusedLocationClient != null) {
+                mFusedLocationClient.getLastLocation()
+                        .addOnCompleteListener(getActivity(), new OnCompleteListener<Location>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Location> task) {
+                                if (task.isSuccessful() && task.getResult() != null) {
+                                    mCurrentLocation = task.getResult();
+                                    initMap();
+                                }
+                            }
+                        });
+            } else {
+                initMap();
+            }
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         updateLocationUI();
     }
 
-    public void checkPermission(){
+    public boolean checkPermission(){
         if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             Log.i("checkPermission", "Not enough permission");
             // add request permission on runtime if failed
-            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION
+                    },
+                    PERMISSIONS_REQUEST_ACCESS_LOCATION);
+
+            return false;
         }
+
+        return true;
     }
 
     private void updateLocationUI(){
         if(mGoogleMap != null){
-            checkPermission();
-            mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
-            mGoogleMap.setMyLocationEnabled(true);
-            mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+            //checkPermission();
+            try {
+                mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
+                mGoogleMap.setMyLocationEnabled(true);
+                mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+                if (mCurrentLocation != null) {
+                    /*
+                        Zoom level:
+                            1: World
+                            5: Landmass/continent
+                            10: City
+                            15: Streets
+                            20: Buildings
+                        https://developers.google.com/maps/documentation/android-api/views#zoom
+                     */
+                    LatLng latLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+                }
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
         }
     }
 
