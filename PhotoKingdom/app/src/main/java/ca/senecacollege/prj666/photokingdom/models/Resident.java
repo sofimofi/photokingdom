@@ -25,6 +25,9 @@ public class Resident {
     @SerializedName("Title")
     private String title;
 
+    public Resident() {
+    }
+
     public Resident(String userName, String email, String password, String gender, int cityId) {
         this.userName = userName;
         this.gender = gender;

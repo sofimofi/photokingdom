@@ -154,6 +154,8 @@ public class CityDialogFragment extends DialogFragment implements AdapterView.On
             for (int i = 0; i < mContinents.size(); i++) {
                 mContinentAdapter.add(mContinents.get(i).getName());
             }
+
+            mSpinnerContinent.setEnabled(true);
         }
     }
 
@@ -189,12 +191,14 @@ public class CityDialogFragment extends DialogFragment implements AdapterView.On
      */
     private void setCountries() {
         mCountryAdapter.clear();
-        mCountryAdapter.add(getString(R.string.choose_country));
+        mCountryAdapter.add(getString(R.string.msg_choose_country));
 
         if (mCountries != null) {
             for (int i = 0; i < mCountries.size(); i++) {
                 mCountryAdapter.add(mCountries.get(i).getName());
             }
+
+            mSpinnerCountry.setEnabled(true);
         }
     }
 
@@ -230,12 +234,14 @@ public class CityDialogFragment extends DialogFragment implements AdapterView.On
      */
     private void setProvinces() {
         mProvinceAdapter.clear();
-        mProvinceAdapter.add(getString(R.string.choose_province));
+        mProvinceAdapter.add(getString(R.string.msg_choose_province));
 
         if (mProvinces != null) {
             for (int i = 0; i < mProvinces.size(); i++) {
                 mProvinceAdapter.add(mProvinces.get(i).getName());
             }
+
+            mSpinnerProvince.setEnabled(true);
         }
     }
 
@@ -271,12 +277,14 @@ public class CityDialogFragment extends DialogFragment implements AdapterView.On
      */
     private void setCities() {
         mCityAdapter.clear();
-        mCityAdapter.add(getString(R.string.choose_city));
+        mCityAdapter.add(getString(R.string.msg_choose_city));
 
         if (mCities != null) {
             for (int i = 0; i < mCities.size(); i++) {
                 mCityAdapter.add(mCities.get(i).getName());
             }
+
+            mSpinnerCity.setEnabled(true);
         }
     }
 
@@ -288,9 +296,10 @@ public class CityDialogFragment extends DialogFragment implements AdapterView.On
         // Continent
         mSpinnerContinent = (Spinner)view.findViewById(R.id.spinnerContinent);
         mSpinnerContinent.setOnItemSelectedListener(this);
+        mSpinnerContinent.setEnabled(false);
 
         List<String> continentEntries = new ArrayList<String>();
-        continentEntries.add(getString(R.string.choose_continent));
+        continentEntries.add(getString(R.string.msg_choose_continent));
         mContinentAdapter = new ArrayAdapter<String>(getContext(),
                 android.R.layout.simple_spinner_dropdown_item, continentEntries);
 
@@ -301,7 +310,7 @@ public class CityDialogFragment extends DialogFragment implements AdapterView.On
         mSpinnerCountry.setOnItemSelectedListener(this);
 
         List<String> countryEntries = new ArrayList<String>();
-        countryEntries.add(getString(R.string.choose_country));
+        countryEntries.add(getString(R.string.msg_choose_country));
         mCountryAdapter = new ArrayAdapter<String>(getContext(),
                 android.R.layout.simple_spinner_dropdown_item,  countryEntries);
 
@@ -313,7 +322,7 @@ public class CityDialogFragment extends DialogFragment implements AdapterView.On
         mSpinnerProvince.setOnItemSelectedListener(this);
 
         List<String> provinceEntries = new ArrayList<String>();
-        provinceEntries.add(getString(R.string.choose_province));
+        provinceEntries.add(getString(R.string.msg_choose_province));
         mProvinceAdapter = new ArrayAdapter<String>(getContext(),
                 android.R.layout.simple_spinner_dropdown_item,  provinceEntries);
 
@@ -325,7 +334,7 @@ public class CityDialogFragment extends DialogFragment implements AdapterView.On
         mSpinnerCity.setOnItemSelectedListener(this);
 
         List<String> cityEntries = new ArrayList<String>();
-        cityEntries.add(getString(R.string.choose_city));
+        cityEntries.add(getString(R.string.msg_choose_city));
         mCityAdapter = new ArrayAdapter<String>(getContext(),
                 android.R.layout.simple_spinner_dropdown_item,  cityEntries);
         mSpinnerCity.setAdapter(mCityAdapter);

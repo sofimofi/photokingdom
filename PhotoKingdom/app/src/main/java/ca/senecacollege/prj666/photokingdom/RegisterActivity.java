@@ -27,6 +27,7 @@ import ca.senecacollege.prj666.photokingdom.models.City;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
+import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -219,13 +220,13 @@ public class RegisterActivity extends AppCompatActivity
         // TODO: Validate email type and the email doesn't exist
         if (username.isEmpty() || email.isEmpty() ||
                 password.isEmpty() || confirm.isEmpty() || mCity == null) {
-            Toast.makeText(this, R.string.required_all_information, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.msg_required_all_information, Toast.LENGTH_LONG).show();
             return false;
         } else if (password.equals(confirm) == false) {
-            Toast.makeText(this, R.string.password_not_match, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.msg_password_not_match, Toast.LENGTH_LONG).show();
             return false;
         } else if (genderPos == 0){
-            Toast.makeText(this, R.string.choose_gender, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.msg_choose_gender, Toast.LENGTH_LONG).show();
             return false;
         }
 
@@ -275,7 +276,7 @@ public class RegisterActivity extends AppCompatActivity
                         // Create a resident with a uploaded avatar image path
                         createResident(avatarPath);
                     } else {
-                        Toast.makeText(getApplicationContext(), R.string.avatar_upload_fail, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), R.string.error_avatar_upload, Toast.LENGTH_LONG).show();
 
                         // Create a resident without an avatar image
                         createResident(null);
@@ -284,7 +285,7 @@ public class RegisterActivity extends AppCompatActivity
 
                 @Override
                 public void onFailure(Call<AvatarImage> call, Throwable t) {
-                    Toast.makeText(getApplicationContext(), R.string.avatar_upload_fail, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.error_avatar_upload, Toast.LENGTH_LONG).show();
 
                     // Create a resident without an avatar image
                     createResident(null);
@@ -303,7 +304,7 @@ public class RegisterActivity extends AppCompatActivity
      */
     private void createResident(String avatarPath) {
         if (mResident == null) {
-            Toast.makeText(getApplicationContext(), R.string.user_register_failed, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), R.string.error_user_register, Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -322,10 +323,12 @@ public class RegisterActivity extends AppCompatActivity
                     String email = response.body().getEmail();
                     Toast.makeText(getApplicationContext(), "[" + email + "] registered", Toast.LENGTH_LONG).show();
 
-                    // Move to LoginActivity
-                    // TODO: Change to login automatically after login function implemented
-                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                    intent.putExtra("email", email);
+                    // Login registered resident
+                    ResidentSessionManager sessionManager = new ResidentSessionManager(getApplicationContext());
+                    sessionManager.loginResident(response.body());
+
+                    // Move to MainActivity
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
@@ -335,7 +338,7 @@ public class RegisterActivity extends AppCompatActivity
                         e.printStackTrace();
                     }
 
-                    Toast.makeText(getApplicationContext(), R.string.user_register_failed, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.error_user_register, Toast.LENGTH_LONG).show();
                 }
             }
 
