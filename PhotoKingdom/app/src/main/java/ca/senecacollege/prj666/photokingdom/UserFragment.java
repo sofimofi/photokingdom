@@ -24,6 +24,7 @@ import com.squareup.picasso.Picasso;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
+import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,20 +39,17 @@ import retrofit2.Response;
  * create an instance of this fragment.
  */
 public class UserFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private static final String TAG = "UserFragment";
 
     private OnFragmentInteractionListener mListener;
 
+    // Resident
+    private static final String ARG_RESIDENT_ID = "residentId";
+    private int mResidentId;
     private Resident mResident;
+
+    // Session manager for current resident
+    private ResidentSessionManager mSessionManager;
 
     private TextView mTextViewName;
     private TextView mTextViewEmail;
@@ -71,16 +69,17 @@ public class UserFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * We can use this method when other resident's profile is displayed
+     * instead of current logged-in resident's profile
+     * e.g.) UserFragment fragment = UserFragment.newInstance(1);
+     *
+     * @param residentId
      * @return A new instance of fragment UserFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static UserFragment newInstance(String param1, String param2) {
+    public static UserFragment newInstance(int residentId) {
         UserFragment fragment = new UserFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putInt(ARG_RESIDENT_ID, residentId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -89,8 +88,11 @@ public class UserFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            // Id for other resident
+            mResidentId = getArguments().getInt(ARG_RESIDENT_ID);
+        } else {
+            // Session manager for current resident
+            mSessionManager = new ResidentSessionManager(getContext());
         }
 
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
@@ -146,24 +148,25 @@ public class UserFragment extends Fragment {
         mTextViewTitle.setText(mResident.getTitle());
         mTextViewPoint.setText("0");
 
-        String imgPath = mResident.getAvatarImagePath();
-        String imgUrl = RetrofitServiceGenerator.getBaseUrl() + "/" + imgPath;
-        Picasso.with(getContext()).load(imgUrl)
-                .error(R.mipmap.ic_launcher)
-                .into(mImageViewAvatar, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-                        mProgressBar.setVisibility(View.GONE);
-                        mLinearLayout.setVisibility(View.VISIBLE);
-                    }
+        if (mResident.getAvatarImagePath() != null) {
+            Picasso.with(getContext()).load(mResident.getAvatarImagePath())
+                    .error(R.mipmap.ic_launcher)
+                    .into(mImageViewAvatar, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                        }
 
-                    @Override
-                    public void onError() {
-                        mProgressBar.setVisibility(View.GONE);
-                        mLinearLayout.setVisibility(View.VISIBLE);
-                        Toast.makeText(getContext(), "Error loading avatar", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                        @Override
+                        public void onError() {
+                            Toast.makeText(getContext(), "Error loading avatar", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+        }
+
+        // Hide ProgressBar
+        mProgressBar.setVisibility(View.GONE);
+        mLinearLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -183,10 +186,17 @@ public class UserFragment extends Fragment {
 
         mProgressBar = rootView.findViewById(R.id.progressBar_user);
         mLinearLayout = rootView.findViewById(R.id.container_user);
-        mLinearLayout.setVisibility(View.INVISIBLE);
 
         // load user
-        getResident(3);
+        if (mSessionManager != null && mSessionManager.isLoggedIn()) {
+            // Current resident
+            mResident = mSessionManager.getResident();
+            setUserProfile();
+        } else {
+            // Other resident
+            mLinearLayout.setVisibility(View.INVISIBLE);
+            getResident(mResidentId);
+        }
 
         return rootView;
     }
