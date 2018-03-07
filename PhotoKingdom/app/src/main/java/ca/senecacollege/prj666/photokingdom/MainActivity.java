@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import ca.senecacollege.prj666.photokingdom.fragments.SettingsFragment;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
@@ -25,16 +26,31 @@ public class MainActivity extends AppCompatActivity {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
 
+            // TODO: Select an item on navigation when selected fragment created to go to back
             // switch to selected fragment
             switch (item.getItemId()) {
                 case R.id.navigation_livefeed:
-                    transaction.replace(R.id.frameLayout, new LiveFeedFragment()).commit();
+                    transaction.replace(R.id.frameLayout, new LiveFeedFragment())
+                            .addToBackStack(null)
+                            .commit();
                     return true;
                 case R.id.navigation_map:
-                    transaction.replace(R.id.frameLayout, new MapContainerFragment()).commit();
+                    transaction.replace(R.id.frameLayout, new MapContainerFragment())
+                            .addToBackStack(null)
+                            .commit();
                     return true;
                 case R.id.navigation_user:
-                    transaction.replace(R.id.frameLayout, new UserFragment()).commit();
+                    // Check resident logged-in
+                    ResidentSessionManager sessionManager =
+                            new ResidentSessionManager(getApplicationContext());
+                    if (sessionManager.isLoggedIn()) {
+                        transaction.replace(R.id.frameLayout, new UserFragment())
+                                .addToBackStack(null)
+                                .commit();
+                    } else {
+                        Toast.makeText(getApplicationContext(),
+                                R.string.msg_visitor_doesnot_have_profile, Toast.LENGTH_LONG).show();
+                    }
                     return true;
             }
             return false;

@@ -33,6 +33,7 @@
     <string name="msg_required_all_information">All information is required</string>
     <string name="msg_password_not_match">Passwords do not match</string>
     <string name="msg_enter_email_password">Enter the email and password</string>
+    <string name="msg_visitor_doesnot_have_profile">A visitor doesn\'t have a profile</string>
 
     <!-- Errors -->
     <string name="error_avatar_upload">Avatar image upload failed</string>
