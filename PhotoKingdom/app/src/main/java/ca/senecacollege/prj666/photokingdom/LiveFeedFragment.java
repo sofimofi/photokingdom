@@ -38,7 +38,7 @@ public class LiveFeedFragment extends Fragment {
     // RecyclerView
     private RecyclerView mRecyclerView;
     private LiveFeedsAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManger;
+    private RecyclerView.LayoutManager mLayoutManager;
     
     private OnFragmentInteractionListener mListener;
 
@@ -87,8 +87,8 @@ public class LiveFeedFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
 
         // Set RecyclerView layout
-        mLayoutManger = new LinearLayoutManager(getContext());
-        mRecyclerView.setLayoutManager(mLayoutManger);
+        mLayoutManager = new LinearLayoutManager(getContext());
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
         // Set data
         // TODO: Change to real data from PhotoKingdomAPI

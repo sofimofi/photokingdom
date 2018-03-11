@@ -15,33 +15,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ca.senecacollege.prj666.photokingdom.R;
-import ca.senecacollege.prj666.photokingdom.adapters.PingsAdapter;
-import ca.senecacollege.prj666.photokingdom.models.Ping;
+import ca.senecacollege.prj666.photokingdom.adapters.PhotowarQueueAdapter;
+import ca.senecacollege.prj666.photokingdom.models.PhotowarQueueItem;
 
 /**
- * Fragment for ping list
+ * Fragment for photowar queue
  *
  * @author Wonho
  */
-public class PingsFragment extends Fragment {
+public class PhotowarQueueFragment extends Fragment {
 
-    // RecyclerView
     private RecyclerView mRecyclerView;
-    private PingsAdapter mAdapter;
+    private PhotowarQueueAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    public PingsFragment() {
+    public PhotowarQueueFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_pings, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_photowar_queue, container, false);
 
         // Set the title
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-        actionBar.setTitle(R.string.ping_list);
+        actionBar.setTitle(R.string.photowar_queue);
 
         // RecyclerView
         mRecyclerView = (RecyclerView)rootView.findViewById(R.id.recyclerView);
@@ -53,17 +52,18 @@ public class PingsFragment extends Fragment {
 
         // Set data
         // TODO: Change to real data from PhotoKingdomAPI
-        List<Ping> pings = new ArrayList<Ping>();
+        List<PhotowarQueueItem> photowarQueueItems = new ArrayList<PhotowarQueueItem>();
         for (int i = 0; i < 20; i++) {
-            Ping ping = new Ping();
-            ping.setPingDate("3/" + (i + 1));
-            ping.setExpiryDate("3/" + (i + 10));
-            ping.setAttractionName("Attraction " + i);
-            pings.add(ping);
+            PhotowarQueueItem photowarQueueItem = new PhotowarQueueItem();
+            photowarQueueItem.setDate("3/" + (i + 1));
+            photowarQueueItem.setImgResId(R.mipmap.ic_launcher);
+            photowarQueueItem.setName("Name " + i);
+
+            photowarQueueItems.add(photowarQueueItem);
         }
 
         // Set RecyclerView adapter
-        mAdapter = new PingsAdapter(pings);
+        mAdapter = new PhotowarQueueAdapter(photowarQueueItems);
         mRecyclerView.setAdapter(mAdapter);
 
         return rootView;
