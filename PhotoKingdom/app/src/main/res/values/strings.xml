@@ -24,6 +24,7 @@
     <string name="winner">Winner:</string>
     <string name="settings">Settings</string>
     <string name="ping_list">Ping List</string>
+    <string name="history">History</string>
 
     <!-- Messages -->
     <string name="msg_choose_continent">Choose a continent</string>

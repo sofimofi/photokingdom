@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import ca.senecacollege.prj666.photokingdom.fragments.AttractionDetailsFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.PingsFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.SettingsFragment;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
@@ -119,11 +120,19 @@ public class MainActivity extends AppCompatActivity {
                 finish();
 
                 return true;
-            // TODO: Remove test menu
+            // TODO: Remove test menus
             case R.id.test_ping_list:
                 // Move to PingsFragment
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.frameLayout, new PingsFragment())
+                        .addToBackStack(null)
+                        .commit();
+
+                return true;
+            case R.id.test_attraction_details:
+                // Move to AttractionDetailsFragment
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frameLayout, new AttractionDetailsFragment())
                         .addToBackStack(null)
                         .commit();
 
