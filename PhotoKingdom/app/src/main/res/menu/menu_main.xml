@@ -6,4 +6,10 @@
     <item
         android:id="@+id/logout"
         android:title="@string/logout" />
+    <!-- TODO: Remove test menu -->
+    <item
+        android:title="------------------------------" />
+    <item
+        android:id="@+id/test_ping_list"
+        android:title="[TEST] Ping List" />
 </menu>
