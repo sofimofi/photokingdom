@@ -25,6 +25,7 @@ import ca.senecacollege.prj666.photokingdom.models.Ping;
  */
 public class PingsFragment extends Fragment {
 
+    // RecyclerView
     private RecyclerView mRecyclerView;
     private PingsAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManger;
@@ -46,9 +47,11 @@ public class PingsFragment extends Fragment {
         mRecyclerView = (RecyclerView)rootView.findViewById(R.id.recyclerView);
         mRecyclerView.setHasFixedSize(true);
 
+        // Set RecyclerView layout
         mLayoutManger = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(mLayoutManger);
 
+        // Set data
         // TODO: Change to real data from PhotoKingdomAPI
         List<Ping> pings = new ArrayList<Ping>();
         for (int i = 0; i < 20; i++) {
@@ -59,6 +62,7 @@ public class PingsFragment extends Fragment {
             pings.add(ping);
         }
 
+        // Set RecyclerView adapter
         mAdapter = new PingsAdapter(pings);
         mRecyclerView.setAdapter(mAdapter);
 

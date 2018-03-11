@@ -19,9 +19,10 @@ import ca.senecacollege.prj666.photokingdom.models.Ping;
  */
 public class PingsAdapter extends RecyclerView.Adapter<PingsAdapter.ViewHolder> {
 
+    // Pings data
     private List<Ping> mPings;
 
-    // ViewHolder
+    // ViewHolder for an item
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView textViewPingDate;
@@ -32,6 +33,7 @@ public class PingsAdapter extends RecyclerView.Adapter<PingsAdapter.ViewHolder> 
         public ViewHolder(View itemView) {
             super(itemView);
 
+            // Set references for views
             textViewPingDate = (TextView)itemView.findViewById(R.id.textViewPingDate);
             textViewExpiryDate = (TextView)itemView.findViewById(R.id.textViewExpiryDate);
             textViewAttractionName = (TextView)itemView.findViewById(R.id.textViewAttractionName);
@@ -44,6 +46,7 @@ public class PingsAdapter extends RecyclerView.Adapter<PingsAdapter.ViewHolder> 
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        // Layout inflation
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_ping, parent, false);
 
@@ -52,6 +55,7 @@ public class PingsAdapter extends RecyclerView.Adapter<PingsAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        // Set views
         holder.textViewPingDate.setText(mPings.get(position).getPingDate());
         holder.textViewExpiryDate.setText(mPings.get(position).getExpiryDate());
         holder.textViewAttractionName.setText(mPings.get(position).getAttractionName());
