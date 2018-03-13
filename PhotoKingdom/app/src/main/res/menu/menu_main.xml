@@ -6,4 +6,16 @@
     <item
         android:id="@+id/logout"
         android:title="@string/logout" />
+    <!-- TODO: Remove test menus -->
+    <item
+        android:title="------------------------------" />
+    <item
+        android:id="@+id/test_ping_list"
+        android:title="[TEST] Ping List" />
+    <item
+        android:id="@+id/test_attraction_details"
+        android:title="[TEST] Attraction Details" />
+    <item
+        android:id="@+id/test_photowar_queue"
+        android:title="[TEST] Photowar Queue" />
 </menu>

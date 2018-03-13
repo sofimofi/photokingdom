@@ -6,19 +6,22 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ca.senecacollege.prj666.photokingdom.adapters.LiveFeedsAdapter;
+import ca.senecacollege.prj666.photokingdom.models.LiveFeed;
+
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link LiveFeedFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link LiveFeedFragment#newInstance} factory method to
- * create an instance of this fragment.
+ *
  */
 public class LiveFeedFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -32,6 +35,11 @@ public class LiveFeedFragment extends Fragment {
 
     private static final String TAG = "LiveFeedFragment";
 
+    // RecyclerView
+    private RecyclerView mRecyclerView;
+    private LiveFeedsAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    
     private OnFragmentInteractionListener mListener;
 
     public LiveFeedFragment() {
@@ -72,7 +80,40 @@ public class LiveFeedFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_live_feed, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_live_feed, container, false);
+
+        // RecyclerView
+        mRecyclerView = (RecyclerView)rootView.findViewById(R.id.recyclerView);
+        mRecyclerView.setHasFixedSize(true);
+
+        // Set RecyclerView layout
+        mLayoutManager = new LinearLayoutManager(getContext());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        // Set data
+        // TODO: Change to real data from PhotoKingdomAPI
+        List<LiveFeed> feeds = new ArrayList<LiveFeed>();
+        for (int i = 0; i < 20; i++) {
+            LiveFeed feed = new LiveFeed();
+            feed.setDate("3/" + (i + 1));
+            if (i % 3 == 0) {
+                feed.setMsg("Photowar " + i);
+                feed.setImgRes1(R.mipmap.ic_launcher_round);
+                feed.setImgRes2(R.mipmap.ic_launcher);
+            } else {
+                feed.setMsg("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam ac enim vel enim malesuada gravida.");
+            }
+            feed.setName1("Name1 - " + i);
+            feed.setName2("Name2 - " + i);
+
+            feeds.add(feed);
+        }
+
+        // Set RecyclerView adapter
+        mAdapter = new LiveFeedsAdapter(feeds);
+        mRecyclerView.setAdapter(mAdapter);
+
+        return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
