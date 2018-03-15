@@ -1,6 +1,5 @@
 package ca.senecacollege.prj666.photokingdom;
 
-import android.*;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -19,24 +18,21 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.io.File;
-
 import ca.senecacollege.prj666.photokingdom.fragments.CityDialogFragment;
-import ca.senecacollege.prj666.photokingdom.models.AvatarImage;
 import ca.senecacollege.prj666.photokingdom.models.City;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
+import ca.senecacollege.prj666.photokingdom.utils.UploadManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
  * Activity to create user
+ *
+ * @author Wonho
  */
 public class RegisterActivity extends AppCompatActivity
         implements CityDialogFragment.OnCitySelectedListener {
@@ -256,43 +252,33 @@ public class RegisterActivity extends AppCompatActivity
     }
 
     /**
-     * Create a user with an avatar image
+     * Create a user with an avatar image using UploadManager
      */
     private void createResidentWithAvatar() {
         if (mAvatarUri != null) {
-            // Create a multipart request body
-            File file = new File(getRealPathFromURI(mAvatarUri));
-            RequestBody requestFile = RequestBody.create(MediaType.parse(getContentResolver().getType(mAvatarUri)), file);
-            MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
-
-            // Execute a request to upload an avatar image
-            Call<AvatarImage> uploadImageCall = service.uploadAvatarImage(body);
-            uploadImageCall.enqueue(new Callback<AvatarImage>() {
+            // UploadManager
+            UploadManager manager = new UploadManager(this);
+            manager.setOnUploadListener(new UploadManager.OnUploadListener() {
                 @Override
-                public void onResponse(Call<AvatarImage> call, Response<AvatarImage> response) {
-                    if (response.isSuccessful()) {
-                        String avatarPath = response.body().getPath();
-
-                        // Create a resident with a uploaded avatar image path
-                        createResident(avatarPath);
-                    } else {
-                        Toast.makeText(getApplicationContext(), R.string.error_avatar_upload, Toast.LENGTH_LONG).show();
-
-                        // Create a resident without an avatar image
-                        createResident(null);
-                    }
+                public void onUploaded(String path) {
+                    // Create a resident with a uploaded avatar image path
+                    createResident(path);
                 }
 
                 @Override
-                public void onFailure(Call<AvatarImage> call, Throwable t) {
+                public void onFailure(String error) {
                     Toast.makeText(getApplicationContext(), R.string.error_avatar_upload, Toast.LENGTH_LONG).show();
 
                     // Create a resident without an avatar image
                     createResident(null);
                 }
             });
-        }
-        else {
+
+            // Upload an avatar
+            manager.uploadImage(mAvatarUri);
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.error_avatar_upload, Toast.LENGTH_LONG).show();
+
             // Create a resident without an avatar image
             createResident( null);
         }
@@ -333,7 +319,7 @@ public class RegisterActivity extends AppCompatActivity
                     finish();
                 } else {
                     try {
-                        Log.d(TAG, response.errorBody().string());
+                        Log.d(TAG, "[createResident:onResponse] " + response.errorBody().string());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

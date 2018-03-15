@@ -3,9 +3,11 @@ package ca.senecacollege.prj666.photokingdom.models;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Model class for an avatar image
+ * Model class for an image
+ *
+ * @author Wonho
  */
-public class AvatarImage {
+public class Image {
     @SerializedName("Path")
     private String path;
 
