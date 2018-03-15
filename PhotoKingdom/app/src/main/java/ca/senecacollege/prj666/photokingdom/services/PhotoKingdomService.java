@@ -2,7 +2,7 @@ package ca.senecacollege.prj666.photokingdom.services;
 
 import java.util.List;
 
-import ca.senecacollege.prj666.photokingdom.models.AvatarImage;
+import ca.senecacollege.prj666.photokingdom.models.Image;
 import ca.senecacollege.prj666.photokingdom.models.Continent;
 import ca.senecacollege.prj666.photokingdom.models.Country;
 import ca.senecacollege.prj666.photokingdom.models.LoginInfo;
@@ -19,11 +19,13 @@ import retrofit2.http.Path;
 
 /**
  * Retrofit service interface for PhotokingdomAPI
+ *
+ * @author Wonho
  */
 public interface PhotoKingdomService {
     @Multipart
-    @POST("upload/avatar")
-    Call<AvatarImage> uploadAvatarImage(@Part MultipartBody.Part file);
+    @POST("upload/images")
+    Call<Image> uploadImage(@Part MultipartBody.Part file);
 
     @POST("api/residents")
     Call<Resident> createResident(@Body Resident resident);

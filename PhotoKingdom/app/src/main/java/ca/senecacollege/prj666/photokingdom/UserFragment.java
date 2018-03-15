@@ -149,7 +149,9 @@ public class UserFragment extends Fragment {
         mTextViewPoint.setText("0");
 
         if (mResident.getAvatarImagePath() != null) {
-            Picasso.with(getContext()).load(mResident.getAvatarImagePath())
+            String imgPath = mResident.getAvatarImagePath();
+            String imgUrl = RetrofitServiceGenerator.getBaseUrl() + imgPath;
+            Picasso.with(getContext()).load(imgUrl)
                     .error(R.mipmap.ic_launcher)
                     .into(mImageViewAvatar, new com.squareup.picasso.Callback() {
                         @Override

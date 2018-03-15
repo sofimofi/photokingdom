@@ -5,6 +5,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Service generator to create a retrofit service
+ *
+ * @author Wonho
  */
 public class RetrofitServiceGenerator {
     private static final String BASE_URL = "https://photokingdom-api.azurewebsites.net/";
