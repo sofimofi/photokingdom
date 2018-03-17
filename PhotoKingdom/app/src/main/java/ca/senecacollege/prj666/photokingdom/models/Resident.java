@@ -4,8 +4,12 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Model class for a resident
+ *
+ * @author Wonho
  */
 public class Resident {
+    @SerializedName("Id")
+    private int id;
     @SerializedName("UserName")
     private String userName;
     @SerializedName("Gender")
@@ -35,6 +39,14 @@ public class Resident {
         this.password = password;
         this.cityId = cityId;
         this.isActive = 1;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getUserName() {

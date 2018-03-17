@@ -12,8 +12,10 @@ import ca.senecacollege.prj666.photokingdom.models.Resident;
 public class ResidentSessionManager {
     private static final String TAG = "LoginSessionManager";
 
+    // SharedPreferences
     private static final String PREF_RESIDENT_SESSION = "ResidentSessionPref";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_ID = "id";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_GENDER = "gender";
     private static final String KEY_EMAIL = "email";
@@ -43,6 +45,7 @@ public class ResidentSessionManager {
 
 
     public void setResident(Resident resident) {
+        mEditor.putInt(KEY_ID, resident.getId());
         mEditor.putString(KEY_USERNAME, resident.getUserName());
         mEditor.putString(KEY_GENDER, resident.getGender());
         mEditor.putString(KEY_EMAIL, resident.getEmail());
@@ -56,6 +59,7 @@ public class ResidentSessionManager {
 
     public Resident getResident() {
         Resident resident = new Resident();
+        resident.setId(mSharedPref.getInt(KEY_ID, 0));
         resident.setUserName(mSharedPref.getString(KEY_USERNAME, null));
         resident.setGender(mSharedPref.getString(KEY_GENDER, null));
         resident.setEmail(mSharedPref.getString(KEY_EMAIL, null));
@@ -66,6 +70,7 @@ public class ResidentSessionManager {
 
         return resident;
     }
+
 
     public void loginResident(Resident resident) {
         setResident(resident);

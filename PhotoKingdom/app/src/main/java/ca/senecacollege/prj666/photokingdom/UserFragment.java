@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import ca.senecacollege.prj666.photokingdom.fragments.PingsFragment;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
@@ -60,6 +62,7 @@ public class UserFragment extends Fragment {
     private ImageView mImageViewAvatar;
     private ProgressBar mProgressBar;
     private LinearLayout mLinearLayout;
+    private Button mButtonPingList;
 
     public UserFragment() {
         // Required empty public constructor
@@ -185,6 +188,7 @@ public class UserFragment extends Fragment {
         mTextViewTitle = rootView.findViewById(R.id.title_user);
         mTextViewPoint = rootView.findViewById(R.id.point_user);
         mImageViewAvatar = rootView.findViewById(R.id.avatar_user);
+        mButtonPingList = (Button)rootView.findViewById(R.id.buttonPingList);
 
         mProgressBar = rootView.findViewById(R.id.progressBar_user);
         mLinearLayout = rootView.findViewById(R.id.container_user);
@@ -199,6 +203,20 @@ public class UserFragment extends Fragment {
             mLinearLayout.setVisibility(View.INVISIBLE);
             getResident(mResidentId);
         }
+
+        // Button click
+        mButtonPingList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ResidentSessionManager manager = new ResidentSessionManager(getContext());
+                int residentId = manager.getResident().getId();
+                // Move to PingsFragment
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frameLayout, PingsFragment.newInstance(residentId))
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
 
         return rootView;
     }
