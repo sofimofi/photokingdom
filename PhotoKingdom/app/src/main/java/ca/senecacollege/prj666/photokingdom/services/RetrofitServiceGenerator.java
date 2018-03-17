@@ -9,9 +9,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * @author Wonho
  */
 public class RetrofitServiceGenerator {
-    //private static final String BASE_URL = "https://photokingdom-api.azurewebsites.net/";
-    private static final String BASE_URL = "http://192.168.0.24:4002/";
-
+    private static final String BASE_URL = "https://photokingdom-api.azurewebsites.net/";
+    
     private static Retrofit.Builder builder =
             new Retrofit.Builder()
                     .baseUrl(BASE_URL)
