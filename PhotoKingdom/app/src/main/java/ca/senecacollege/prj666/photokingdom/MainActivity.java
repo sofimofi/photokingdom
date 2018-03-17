@@ -122,14 +122,6 @@ public class MainActivity extends AppCompatActivity {
 
                 return true;
             // TODO: Remove test menus
-            case R.id.test_ping_list:
-                // Move to PingsFragment
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frameLayout, new PingsFragment())
-                        .addToBackStack(null)
-                        .commit();
-
-                return true;
             case R.id.test_attraction_details:
                 // Move to AttractionDetailsFragment
                 getSupportFragmentManager().beginTransaction()

@@ -22,9 +22,8 @@
 
             <TextView
                 android:id="@+id/textViewPingDate"
-                android:layout_width="0dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="PingDate"
                 android:textAlignment="center" />
 
@@ -32,15 +31,14 @@
                 android:id="@+id/textViewAttractionName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="4"
+                android:layout_weight="1"
                 android:text="AttractionName"
                 android:textAlignment="center" />
 
             <TextView
                 android:id="@+id/textViewExpiryDate"
-                android:layout_width="0dp"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="ExpiryDate"
                 android:textAlignment="center" />
         </LinearLayout>

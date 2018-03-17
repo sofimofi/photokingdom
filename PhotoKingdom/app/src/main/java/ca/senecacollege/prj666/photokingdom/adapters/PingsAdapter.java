@@ -1,6 +1,5 @@
 package ca.senecacollege.prj666.photokingdom.adapters;
 
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +10,7 @@ import java.util.List;
 
 import ca.senecacollege.prj666.photokingdom.R;
 import ca.senecacollege.prj666.photokingdom.models.Ping;
+import ca.senecacollege.prj666.photokingdom.utils.DateUtil;
 
 /**
  * Adapter for RecyclerView in PingsFragment
@@ -18,8 +18,7 @@ import ca.senecacollege.prj666.photokingdom.models.Ping;
  * @author Wonho
  */
 public class PingsAdapter extends RecyclerView.Adapter<PingsAdapter.ViewHolder> {
-
-    // Pings data
+    // Ping list data
     private List<Ping> mPings;
 
     // ViewHolder for an item
@@ -28,7 +27,6 @@ public class PingsAdapter extends RecyclerView.Adapter<PingsAdapter.ViewHolder> 
         TextView textViewPingDate;
         TextView textViewExpiryDate;
         TextView textViewAttractionName;
-        CardView cardView;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -54,15 +52,36 @@ public class PingsAdapter extends RecyclerView.Adapter<PingsAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        String pingDate = mPings.get(position).getPingDate();
+        String expiryDate = mPings.get(position).getExpiryDate();
+
         // Set views
-        holder.textViewPingDate.setText(mPings.get(position).getPingDate());
-        holder.textViewExpiryDate.setText(mPings.get(position).getExpiryDate());
-        holder.textViewAttractionName.setText(mPings.get(position).getAttractionName());
+        holder.textViewPingDate.setText(DateUtil.parseDateString(pingDate));
+        holder.textViewExpiryDate.setText(DateUtil.getExpiresIn(pingDate, expiryDate));
+        holder.textViewAttractionName.setText(mPings.get(position).getAttraction().getName());
+
+        // Item click
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnItemClickListener.onItemClick(view, holder.getAdapterPosition());
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return mPings.size();
+    }
+
+    // Listener to click an item
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
+    }
+    private OnItemClickListener mOnItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener itemClickListener) {
+        mOnItemClickListener = itemClickListener;
     }
 }

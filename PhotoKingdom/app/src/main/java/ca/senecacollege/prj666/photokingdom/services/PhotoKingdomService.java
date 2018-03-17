@@ -6,6 +6,7 @@ import ca.senecacollege.prj666.photokingdom.models.Image;
 import ca.senecacollege.prj666.photokingdom.models.Continent;
 import ca.senecacollege.prj666.photokingdom.models.Country;
 import ca.senecacollege.prj666.photokingdom.models.LoginInfo;
+import ca.senecacollege.prj666.photokingdom.models.Ping;
 import ca.senecacollege.prj666.photokingdom.models.Province;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import okhttp3.MultipartBody;
@@ -36,6 +37,9 @@ public interface PhotoKingdomService {
     // TODO: get residentId ?
     @GET("api/residents/{id}")
     Call<Resident> getResident(@Path("id") int residentId);
+
+    @GET("api/residents/{id}/pings")
+    Call<List<Ping>> getPings(@Path("id") int residentId);
 
     @GET("api/continents")
     Call<List<Continent>> getContinents();
