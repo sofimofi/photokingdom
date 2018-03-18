@@ -2,11 +2,13 @@ package ca.senecacollege.prj666.photokingdom;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,49 +36,71 @@ public class MainActivity extends AppCompatActivity {
             // Call FragmentManager
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
+            Fragment fragment = null;
+
+            // set corresponding title and bottom nav highlight using back button
+            fragmentManager.addOnBackStackChangedListener(
+                    new FragmentManager.OnBackStackChangedListener() {
+                        public void onBackStackChanged() {
+                            // Update your UI here.
+                            Fragment f = getSupportFragmentManager().findFragmentById(R.id.frameLayout);
+                            ActionBar actionBar = getSupportActionBar();
+                            BottomNavigationView nav = findViewById(R.id.navigation);
+
+                            if(f instanceof LiveFeedFragment){
+                                actionBar.setTitle(R.string.livefeed);
+                                nav.getMenu().findItem(R.id.navigation_livefeed).setChecked(true);
+                            }else if(f instanceof MapContainerFragment) {
+                                actionBar.setTitle(R.string.map);
+                                nav.getMenu().findItem(R.id.navigation_map).setChecked(true);
+                            }else if(f instanceof UserFragment){
+                                actionBar.setTitle(R.string.userprofile);
+                                nav.getMenu().findItem(R.id.navigation_user).setChecked(true);
+                            }
+                        }
+                    });
 
             // TODO: Select an item on navigation when selected fragment created to go to back
             // switch to selected fragment
             switch (item.getItemId()) {
                 case R.id.navigation_livefeed:
-                    if (mLiveFeedFragment == null) {
-                        mLiveFeedFragment = new LiveFeedFragment();
-                    }
-
-                    transaction.replace(R.id.frameLayout, mLiveFeedFragment)
-                            .addToBackStack(null)
-                            .commit();
-                    return true;
+                    fragment = new LiveFeedFragment();
+                    break;
                 case R.id.navigation_map:
-                    if (mMapContainerFragment == null) {
-                        mMapContainerFragment = new MapContainerFragment();
-                    }
-
-                    transaction.replace(R.id.frameLayout, mMapContainerFragment)
-                            .addToBackStack(null)
-                            .commit();
-                    return true;
+                    fragment = new MapContainerFragment();
+                    break;
                 case R.id.navigation_user:
                     // Check resident logged-in
                     ResidentSessionManager sessionManager =
                             new ResidentSessionManager(getApplicationContext());
                     if (sessionManager.isLoggedIn()) {
-                        if (mUserFragment == null) {
-                            mUserFragment = new UserFragment();
-                        }
-
-                        transaction.replace(R.id.frameLayout, mUserFragment)
-                                .addToBackStack(null)
-                                .commit();
+                        fragment = new UserFragment();
                     } else {
                         Toast.makeText(getApplicationContext(),
                                 R.string.msg_visitor_doesnot_have_profile, Toast.LENGTH_LONG).show();
                     }
-                    return true;
+                    break;
+            }
+
+            if(fragment != null){
+                transaction.replace(R.id.frameLayout, fragment)
+                        .addToBackStack(null)
+                        .commit();
+                return true;
             }
             return false;
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        // prevent press back to exit program
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            super.onBackPressed();
+        } else {
+            //Toast.makeText(getApplicationContext(),"already at first frame", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,9 +110,10 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        // Switch to live feed by default
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.frameLayout, new LiveFeedFragment()).commit();
+        // Switch to live feed by default if no fragment is presented
+        if(getSupportFragmentManager().findFragmentById(R.id.frameLayout) == null){
+            getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new LiveFeedFragment()).commit();
+        }
     }
 
     @Override
@@ -97,6 +122,18 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.menu_main, menu);
 
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+        invalidateOptionsMenu();
+        ResidentSessionManager manager = new ResidentSessionManager(this);
+        if (manager.isLoggedIn()){
+            menu.findItem(R.id.logout).setTitle(R.string.logout);
+        }else{
+            menu.findItem(R.id.logout).setTitle(R.string.login);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override

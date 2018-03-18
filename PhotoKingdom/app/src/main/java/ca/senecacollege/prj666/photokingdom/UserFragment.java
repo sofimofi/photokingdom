@@ -1,35 +1,42 @@
 package ca.senecacollege.prj666.photokingdom;
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import ca.senecacollege.prj666.photokingdom.fragments.PhotoAlbumFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.PingsFragment;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
+import ca.senecacollege.prj666.photokingdom.utils.UploadManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -47,8 +54,14 @@ public class UserFragment extends Fragment {
 
     // Resident
     private static final String ARG_RESIDENT_ID = "residentId";
+    private static final int PERMISSION_REQUEST_READ_EXTERNAL_STORAGE = 0;
+    private static final int ACTION_PICK_REQUEST = 1;
+
+
     private int mResidentId;
     private Resident mResident;
+    private Uri mAvatarUri;
+    private PhotoKingdomService service;
 
     // Session manager for current resident
     private ResidentSessionManager mSessionManager;
@@ -60,8 +73,6 @@ public class UserFragment extends Fragment {
     private TextView mTextViewTitle;
     private TextView mTextViewPoint;
     private ImageView mImageViewAvatar;
-    private ProgressBar mProgressBar;
-    private LinearLayout mLinearLayout;
     private Button mButtonPingList;
 
     public UserFragment() {
@@ -107,10 +118,9 @@ public class UserFragment extends Fragment {
      * @param residentId
      */
     private void getResident(int residentId){
-        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
         Call<Resident> call = service.getResident(residentId);
 
-        mProgressBar.setVisibility(View.VISIBLE);
         call.enqueue(new Callback<Resident>() {
             @Override
             public void onResponse(Call<Resident> call, Response<Resident> response) {
@@ -125,16 +135,12 @@ public class UserFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-                    mProgressBar.setVisibility(View.GONE);
-                    mLinearLayout.setVisibility(View.VISIBLE);
                     Toast.makeText(getContext(), "User does not exist", Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Resident> call, Throwable t) {
-                mProgressBar.setVisibility(View.GONE);
-                mLinearLayout.setVisibility(View.VISIBLE);
                 Log.d(TAG, "[getResident:onFailure] " + t.getMessage());
             }
         });
@@ -143,35 +149,18 @@ public class UserFragment extends Fragment {
     private void setUserProfile() {
         mTextViewName.setText(mResident.getUserName());
         mTextViewEmail.setText(mResident.getEmail());
-        if(mResident.getGender().equals("M"))
+        if(mResident.getGender().equals("M")) {
             mTextViewGender.setText("Male");
-        else
+        }else {
             mTextViewGender.setText("Female");
+        }
         mTextViewCity.setText(mResident.getCity());
         mTextViewTitle.setText(mResident.getTitle());
         mTextViewPoint.setText("0");
 
         if (mResident.getAvatarImagePath() != null) {
-            String imgPath = mResident.getAvatarImagePath();
-            String imgUrl = RetrofitServiceGenerator.getBaseUrl() + imgPath;
-            Picasso.with(getContext()).load(imgUrl)
-                    .error(R.mipmap.ic_launcher)
-                    .into(mImageViewAvatar, new com.squareup.picasso.Callback() {
-                        @Override
-                        public void onSuccess() {
-                        }
-
-                        @Override
-                        public void onError() {
-                            Toast.makeText(getContext(), "Error loading avatar", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
+            loadImage(mResident.getAvatarImagePath());
         }
-
-        // Hide ProgressBar
-        mProgressBar.setVisibility(View.GONE);
-        mLinearLayout.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -190,9 +179,6 @@ public class UserFragment extends Fragment {
         mImageViewAvatar = rootView.findViewById(R.id.avatar_user);
         mButtonPingList = (Button)rootView.findViewById(R.id.buttonPingList);
 
-        mProgressBar = rootView.findViewById(R.id.progressBar_user);
-        mLinearLayout = rootView.findViewById(R.id.container_user);
-
         // load user
         if (mSessionManager != null && mSessionManager.isLoggedIn()) {
             // Current resident
@@ -200,7 +186,6 @@ public class UserFragment extends Fragment {
             setUserProfile();
         } else {
             // Other resident
-            mLinearLayout.setVisibility(View.INVISIBLE);
             getResident(mResidentId);
         }
 
@@ -218,7 +203,127 @@ public class UserFragment extends Fragment {
             }
         });
 
+        mImageViewAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Update your avatar?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                requestImagePermission();
+                                updateAvatar();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .show();
+
+            }
+        });
+
+        Button buttonphotoAlbum = rootView.findViewById(R.id.buttonPhotoAlbum);
+        buttonphotoAlbum.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frameLayout, new PhotoAlbumFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
         return rootView;
+    }
+
+    private void requestImagePermission() {
+        if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE },
+                    PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                updateAvatar();
+            }
+        }
+    }
+
+    private void updateAvatar(){
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        startActivityForResult(intent, ACTION_PICK_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ACTION_PICK_REQUEST && resultCode == RESULT_OK) {
+            if (data != null) {
+                mAvatarUri = data.getData();
+                uploadAvatar();
+            }
+        }
+    }
+
+    private void uploadAvatar(){
+        if (mAvatarUri != null) {
+            UploadManager manager = new UploadManager(getActivity());
+            manager.setOnUploadListener(new UploadManager.OnUploadListener() {
+                @Override
+                public void onUploaded(String path) {
+                    // TODO: remove current avatar file on server, saving new path to db
+
+                    if(mResident.getAvatarImagePath() != null) {
+                        String curAvatarPath = mResident.getAvatarImagePath();
+                        Log.i("Current Avatar Path ", curAvatarPath);
+
+                        String curAvatarUrl = RetrofitServiceGenerator.getBaseUrl() + curAvatarPath;
+                        Log.i("Current Avatar Url ", curAvatarUrl);
+
+                    }
+                    // store in shared preference
+                    mResident.setAvatarImagePath(path);
+                    mSessionManager.setResident(mResident);
+                    loadImage(path);
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    Toast.makeText(getContext(), R.string.error_avatar_upload, Toast.LENGTH_LONG).show();
+                }
+            });
+
+            manager.uploadImage(mAvatarUri);
+        } else {
+            Toast.makeText(getContext(), R.string.error_avatar_upload, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void loadImage(String imagePath){
+        String imageUrl = RetrofitServiceGenerator.getBaseUrl() + imagePath;
+        Picasso.with(getContext()).load(imageUrl)
+                .error(R.mipmap.ic_launcher)
+                .into(mImageViewAvatar, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                    }
+
+                    @Override
+                    public void onError() {
+                        //Toast.makeText(getContext(), R.string.error_avatar_upload, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -235,8 +340,6 @@ public class UserFragment extends Fragment {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             Log.d(TAG,"User fragment created");
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
         }
     }
 

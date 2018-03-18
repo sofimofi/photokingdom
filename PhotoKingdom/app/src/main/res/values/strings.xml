@@ -27,6 +27,7 @@
     <string name="history">History</string>
     <string name="photowar_queue">Photowar Queue</string>
     <string name="attraction">Attraction</string>
+    <string name="photo_album">Photo Album</string>
 
     <!-- Messages -->
     <string name="msg_choose_continent">Choose a continent</string>
