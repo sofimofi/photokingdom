@@ -283,12 +283,15 @@ public class UserFragment extends Fragment {
                 @Override
                 public void onUploaded(String path) {
                     // TODO: remove current avatar file on server, saving new path to db
-                    String curAvatarPath = mResident.getAvatarImagePath();
-                    Log.i("Current Avatar Path ", curAvatarPath);
 
-                    String curAvatarUrl = RetrofitServiceGenerator.getBaseUrl() + curAvatarPath;
-                    Log.i("Current Avatar Url ", curAvatarUrl);
+                    if(mResident.getAvatarImagePath() != null) {
+                        String curAvatarPath = mResident.getAvatarImagePath();
+                        Log.i("Current Avatar Path ", curAvatarPath);
 
+                        String curAvatarUrl = RetrofitServiceGenerator.getBaseUrl() + curAvatarPath;
+                        Log.i("Current Avatar Url ", curAvatarUrl);
+
+                    }
                     // store in shared preference
                     mResident.setAvatarImagePath(path);
                     mSessionManager.setResident(mResident);
