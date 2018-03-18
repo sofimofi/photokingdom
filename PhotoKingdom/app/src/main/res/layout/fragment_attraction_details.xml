@@ -25,14 +25,16 @@
             style="@style/Widget.AppCompat.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ping" />
+            android:text="Ping"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/buttonUpload"
             style="@style/Widget.AppCompat.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Upload" />
+            android:text="Upload"
+            android:visibility="gone" />
     </LinearLayout>
 
     <FrameLayout
@@ -51,7 +53,8 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
-            android:src="@drawable/war" />
+            android:src="@drawable/war"
+            android:visibility="gone" />
     </FrameLayout>
 
     <TextView

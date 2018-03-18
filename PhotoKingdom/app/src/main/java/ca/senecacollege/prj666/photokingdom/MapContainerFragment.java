@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import ca.senecacollege.prj666.photokingdom.adapters.MapMarkerInfoWindowAdapter;
+import ca.senecacollege.prj666.photokingdom.fragments.AttractionDetailsFragment;
 import ca.senecacollege.prj666.photokingdom.models.AttractionForMapView;
 import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
 import ca.senecacollege.prj666.photokingdom.models.LatLngBoundaries;
@@ -293,6 +294,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     public void onInfoWindowClick(Marker marker){
         String googlePlaceId = (String) marker.getTag();
         Log.d(TAG, "---> Clicked on Info Window for place " + googlePlaceId);
+
+        // Open attraction details view with the title
+        openAttractionDetailsView(marker.getTitle());
     }
 
     @Override
@@ -385,6 +389,14 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                 e.printStackTrace();
             }
         }
+    }
+
+    private void openAttractionDetailsView(String name) {
+        // Move to AttractionDetailsFragment
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.frameLayout, AttractionDetailsFragment.newInstance(name, false))
+                .addToBackStack(null)
+                .commit();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
