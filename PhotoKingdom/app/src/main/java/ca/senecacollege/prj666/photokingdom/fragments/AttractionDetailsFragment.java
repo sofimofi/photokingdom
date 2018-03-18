@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import ca.senecacollege.prj666.photokingdom.R;
+import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 
 /**
  * Fragment for attraction details
@@ -26,6 +27,7 @@ public class AttractionDetailsFragment extends Fragment {
 
     private String mName;
     private boolean mIsPinged;
+    private ResidentSessionManager mSessionManager;
 
     public static AttractionDetailsFragment newInstance(String name, boolean isPinged) {
         // Create an instance
@@ -48,6 +50,8 @@ public class AttractionDetailsFragment extends Fragment {
             mName = getArguments().getString(ATTRACTION_NAME);
             mIsPinged = getArguments().getBoolean(IS_PINGED);
         }
+
+        mSessionManager = new ResidentSessionManager(getContext());
     }
 
     @Override
@@ -63,10 +67,16 @@ public class AttractionDetailsFragment extends Fragment {
         TextView textView = (TextView)rootView.findViewById(R.id.textViewName);
         textView.setText(mName);
 
-        Button button = (Button)rootView.findViewById(R.id.buttonPing);
-        if (mIsPinged == true) {
-            // No ping button if this fragment opened from ping list
-            button.setVisibility(View.GONE);
+        // Buttons are visible if the user logged-in
+        if (mSessionManager.isLoggedIn()) {
+            if (mIsPinged == false) {
+                // Ping button is visible if this fragment opened from map (not ping list)
+                Button buttonPing = (Button)rootView.findViewById(R.id.buttonPing);
+                buttonPing.setVisibility(View.VISIBLE);
+            }
+
+            Button buttonUpload = (Button)rootView.findViewById(R.id.buttonUpload);
+            buttonUpload.setVisibility(View.VISIBLE);
         }
 
         return rootView;
