@@ -24,6 +24,16 @@ public class Attraction {
     @SerializedName("CityId")
     private int cityId;
 
+    public Attraction(int id, String googlePlaceId, String name, double lat, double lng, int isActive, int cityId){
+        this.id = id;
+        this.googlePlaceId = googlePlaceId;
+        this.name = name;
+        this.lat = lat;
+        this.lng = lng;
+        this.isActive = isActive;
+        this.cityId = cityId;
+    }
+
     public int getId() {
         return id;
     }
