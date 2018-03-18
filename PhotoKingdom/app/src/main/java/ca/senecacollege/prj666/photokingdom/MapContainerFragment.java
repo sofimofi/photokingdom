@@ -56,7 +56,8 @@ import ca.senecacollege.prj666.photokingdom.services.GooglePlacesApiManager;
  * create an instance of this fragment.
  */
 public class MapContainerFragment extends Fragment implements OnMapReadyCallback, OnGooglePlacesApiTaskCompleted,
-        GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnCameraMoveListener {
+        GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnCameraMoveListener,
+        GoogleMap.OnCameraIdleListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -197,7 +198,8 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 //        mGoogleMap.setInfoWindowAdapter(new MapMarkerInfoWindowAdapter());
         mGoogleMap.setOnInfoWindowClickListener(this);
         mGoogleMap.setOnMarkerClickListener(this);
-        mGoogleMap.setOnCameraMoveListener(this);
+        //mGoogleMap.setOnCameraMoveListener(this);
+        mGoogleMap.setOnCameraIdleListener(this);
     }
 
     public void getNearbyAttractions(double radiusMeters, double lat, double lng){
@@ -300,6 +302,17 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         Double radiusMeters = toRadiusMeters(center, radius);
 
         Log.d(TAG, "OnCameraMove ---> new radius meters : " + radiusMeters);
+
+        getNearbyAttractions(radiusMeters, center.latitude, center.longitude);
+    }
+
+    @Override
+    public void onCameraIdle() {
+        LatLng center = mGoogleMap.getCameraPosition().target;
+        LatLng radius = getScreenRadius();
+        Double radiusMeters = toRadiusMeters(center, radius);
+
+        Log.d(TAG, "onCameraIdle ---> new radius meters : " + radiusMeters);
 
         getNearbyAttractions(radiusMeters, center.latitude, center.longitude);
     }
