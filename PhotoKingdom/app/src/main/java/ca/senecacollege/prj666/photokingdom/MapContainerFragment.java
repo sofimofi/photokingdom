@@ -221,11 +221,12 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         Log.d(TAG, "LatLng boundaries to search attractions: " + latlngbounds.toString());
 
         // get attractions that exist in database in same boundaries
-        AttractionsForMapViewRequest attractionTask = new AttractionsForMapViewRequest(/*this,*/ getActivity().getApplicationContext(), latlngbounds);
+        AttractionsForMapViewRequest attractionTask = new AttractionsForMapViewRequest(/*this,*/ /*getActivity().getApplicationContext(),*/ latlngbounds);
         attractionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         List<AttractionForMapView> existingAttractions = null;
         try{
             existingAttractions = attractionTask.get();
+            Log.d(TAG, "result from AttractionsForMapViewRequest task: " + existingAttractions.toString());
         } catch (InterruptedException | ExecutionException e){
             Log.e(TAG, e.getMessage());
         }
@@ -500,15 +501,15 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
      */
     public static class AttractionsForMapViewRequest extends AsyncTask<String, Void, List<AttractionForMapView>> {
 //        private OnAttractionsForMapViewTaskCompleted listener;
-        private Context context;
+//        private Context context;
         private LatLngBoundaries latLngBoundaries;
 
         private ApiException e;
 
         public AttractionsForMapViewRequest(/*OnAttractionsForMapViewTaskCompleted listener,*/
-                                   Context context, LatLngBoundaries latLngBoundaries ){
+                                   /*Context context,*/ LatLngBoundaries latLngBoundaries ){
 //            this.listener = listener;
-            this.context = context;
+//            this.context = context;
             this.latLngBoundaries = latLngBoundaries;
         }
 
@@ -531,8 +532,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
             if(this.e != null){
                 // tell user something went wrong
-                Toast toast = Toast.makeText(context, "Error getting attractions", Toast.LENGTH_SHORT);
-                toast.show();
+//                Toast toast = Toast.makeText(context, "Error getting attractions", Toast.LENGTH_SHORT);
+//                toast.show();
+                Log.e(TAG, "-----> EXCEPTION from AttractionsForMapViewRequest task : " + e.getMessage());
                 return;
             }
 //            listener.OnTaskCompleted(attractionsForMapView);
