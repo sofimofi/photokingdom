@@ -211,7 +211,7 @@ public class UserFragment extends Fragment {
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
-                                //requestImagePermission();
+                                requestImagePermission();
                                 updateAvatar();
                             }
                         })
@@ -242,9 +242,7 @@ public class UserFragment extends Fragment {
 
     private void requestImagePermission() {
         if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED) {
-            updateAvatar();
-        } else {
+                != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE },
                     PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
