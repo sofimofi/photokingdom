@@ -216,7 +216,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             Log.e(TAG, e.getMessage());
         }
 
-        LatLng currLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+        LatLng currLatLng = new LatLng(lat, lng);
         LatLngBoundaries latlngbounds = getLatLngBoundaries(currLatLng, radiusMeters );
         Log.d(TAG, "LatLng boundaries to search attractions: " + latlngbounds.toString());
 

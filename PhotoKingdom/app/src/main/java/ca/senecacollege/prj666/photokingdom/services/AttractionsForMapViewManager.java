@@ -94,6 +94,7 @@ public class AttractionsForMapViewManager {
             Log.e(TAG, e.getMessage());
         }
 
+        Log.d(TAG, "-----> Number of attractions fetched from database: " + attractionList.size());
         return attractionList;
     }
 }
