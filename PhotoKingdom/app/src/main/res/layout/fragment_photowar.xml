@@ -1,0 +1,126 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="ca.senecacollege.prj666.photokingdom.PhotowarFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:id="@+id/photowarBannerTextView"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/banner"
+        android:padding="10dp"
+        android:text="Vote for best CN Tower"
+        android:textAlignment="center"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/photoWarCountdownTextView"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:text="2 days left"
+        android:textAlignment="textEnd"
+        android:paddingRight="10dp"
+        android:paddingTop="4dp"
+        android:background="@color/subBanner"/>
+
+    <ImageView
+        android:id="@+id/competitor1PhotoImageView"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:contentDescription="Competitor 1 photo"/>
+
+    <LinearLayout
+        android:id="@+id/competitor1PhotoDescriptionLayout"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:background="@color/bannerSecondary">
+
+        <ImageView
+            android:id="@+id/competitor1AvatarImageView"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="20dp"
+            android:contentDescription="Avatar Image of Resident"
+            android:src="@drawable/ic_face_black_24dp"/>
+
+        <TextView
+            android:id="@+id/competitor1NameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:text="competitor1"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="3dp"/>
+
+        <TextView
+            android:id="@+id/competitor1PhotoVotes"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textAlignment="textEnd"
+            android:layout_marginLeft="130dp"
+            android:text="50"
+            android:textSize="20sp" />
+
+        <ImageButton
+            android:id="@+id/votePhoto1Button"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/vote_arrow" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/competitor2PhotoImageView"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:contentDescription="Competitor 2 photo" />
+
+    <LinearLayout
+        android:id="@+id/competitor2PhotoDescriptionLayout"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:background="@color/bannerSecondary">
+
+        <ImageView
+            android:id="@+id/competitor2AvatarImageView"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="20dp"
+            android:contentDescription="Avatar Image of Resident"
+            android:src="@drawable/ic_face_black_24dp"/>
+
+        <TextView
+            android:id="@+id/competitor2NameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:text="competitor2"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="3dp"/>
+
+        <TextView
+            android:id="@+id/competitor2PhotoVotes"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textAlignment="textEnd"
+            android:layout_marginStart="130dp"
+            android:text="150"
+            android:textSize="20sp" />
+
+        <ImageButton
+            android:id="@+id/votePhoto2Button"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/vote_arrow" />
+
+    </LinearLayout>
+</LinearLayout>

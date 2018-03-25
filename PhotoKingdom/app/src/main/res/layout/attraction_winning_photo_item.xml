@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
+    android:paddingBottom="5dp"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/attractionWinningPhotoHistoryItemImageView"
+        android:layout_width="170dp"
+        android:layout_height="150dp"
+        android:layout_marginBottom="5dp"
+        android:contentDescription="Winning Photo of Attraction"/>
+
+    <ImageView
+        android:id="@+id/attractionWinningPhotoHistoryItemResidentAvatarImageView"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/attractionWinningPhotoHistoryItemImageView"
+        android:layout_marginLeft="10dp"
+        android:contentDescription="Avatar Image of Resident"
+        android:src="@drawable/ic_face_black_24dp"/>
+
+    <TextView
+        android:id="@+id/attractionWinningPhotoHistoryItemResidentTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/attractionWinningPhotoHistoryItemImageView"
+        android:layout_toEndOf="@+id/attractionWinningPhotoHistoryItemResidentAvatarImageView"
+        android:layout_alignBottom="@+id/attractionWinningPhotoHistoryItemResidentAvatarImageView"
+        android:gravity="start|bottom"
+        android:paddingLeft="5dp"
+        android:text="John"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/attractionWinningPhotoHistoryItemPointsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/attractionWinningPhotoHistoryItemImageView"
+        android:layout_below="@+id/attractionWinningPhotoHistoryItemImageView"
+        android:layout_alignBottom="@+id/attractionWinningPhotoHistoryItemResidentTextView"
+        android:gravity="end|bottom"
+        android:paddingRight="10dp"
+        android:textSize="15sp"
+        android:text="30" />
+
+</RelativeLayout>

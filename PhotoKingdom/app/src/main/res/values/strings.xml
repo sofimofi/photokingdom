@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">PhotoKingdom</string>
     <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="auto_login">Auto-login</string>
     <string name="visitor">Visitor</string>
     <string name="register">Register</string>
     <string name="email">Email</string>
@@ -12,13 +14,34 @@
     <string name="avatar">Avatar</string>
     <string name="registration">Registration</string>
     <string name="submit">Submit</string>
+    <string name="view_photowar">View photowar</string>
+    <string name="userprofile">User Profile</string>
+    <string name="livefeed">Live Feed</string>
+    <string name="map">Map</string>
+    <string name="nav_user">User</string>
+    <string name="button_ok">OK</string>
+    <string name="versus">vs.</string>
+    <string name="winner">Winner:</string>
+    <string name="settings">Settings</string>
+    <string name="ping_list">Ping List</string>
+    <string name="history">History</string>
+    <string name="photowar_queue">Photowar Queue</string>
+    <string name="attraction">Attraction</string>
+    <string name="photo_album">Photo Album</string>
 
-    <string-array name="array_gender">
-        <item>Gender</item>
-        <item>Male</item>
-        <item>Female</item>
-    </string-array>
-    <string name="title_home">Live Feed</string>
-    <string name="title_dashboard">Map</string>
-    <string name="title_notifications">User</string>
+    <!-- Messages -->
+    <string name="msg_choose_continent">Choose a continent</string>
+    <string name="msg_choose_country">Choose a country</string>
+    <string name="msg_choose_province">Choose a province</string>
+    <string name="msg_choose_city">Choose a city</string>
+    <string name="msg_choose_gender">Choose a gender</string>
+    <string name="msg_required_all_information">All information is required</string>
+    <string name="msg_password_not_match">Passwords do not match</string>
+    <string name="msg_enter_email_password">Enter the email and password</string>
+    <string name="msg_visitor_doesnot_have_profile">A visitor doesn\'t have a profile</string>
+
+    <!-- Errors -->
+    <string name="error_avatar_upload">Avatar image upload failed</string>
+    <string name="error_user_register">Register failed</string>
+    <string name="error_login">Login failed</string>
 </resources>
