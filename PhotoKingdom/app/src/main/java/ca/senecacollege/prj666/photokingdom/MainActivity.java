@@ -21,7 +21,7 @@ import ca.senecacollege.prj666.photokingdom.fragments.PingsFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.SettingsFragment;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PhotowarFragment.OnPhotowarFragmentInteractionListener {
 
     // Fragments
     private LiveFeedFragment mLiveFeedFragment;
@@ -167,6 +167,14 @@ public class MainActivity extends AppCompatActivity {
                         .commit();
 
                 return true;
+            case R.id.test_photowar_detail:
+                PhotowarFragment photowarFragment = PhotowarFragment.newInstance(9);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frameLayout, photowarFragment )
+                        .addToBackStack(null)
+                        .commit();
+
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -184,5 +192,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    public void onFragmentInteraction() {
+
     }
 }

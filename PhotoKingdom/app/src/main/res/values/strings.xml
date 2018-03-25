@@ -28,6 +28,10 @@
     <string name="photowar_queue">Photowar Queue</string>
     <string name="attraction">Attraction</string>
     <string name="photo_album">Photo Album</string>
+    <string name="attraction_photowar">Photo War</string>
+    <string name="photowar_vote_resident">Vote for best %1$s</string>
+    <string name="photowar_vote_visitor">Current war on %1$s</string>
+    <string name="photowar_countdown">Vote ends in %1$s</string>
 
     <!-- Messages -->
     <string name="msg_choose_continent">Choose a continent</string>
@@ -44,4 +48,6 @@
     <string name="error_avatar_upload">Avatar image upload failed</string>
     <string name="error_user_register">Register failed</string>
     <string name="error_login">Login failed</string>
+    <string name="photowar_vote_finished">Voting closed!</string>
+
 </resources>

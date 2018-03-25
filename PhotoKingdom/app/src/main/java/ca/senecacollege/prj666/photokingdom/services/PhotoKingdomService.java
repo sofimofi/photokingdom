@@ -2,6 +2,7 @@ package ca.senecacollege.prj666.photokingdom.services;
 
 import java.util.List;
 
+import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowar;
 import ca.senecacollege.prj666.photokingdom.models.Image;
 import ca.senecacollege.prj666.photokingdom.models.Continent;
 import ca.senecacollege.prj666.photokingdom.models.Country;
@@ -33,6 +34,9 @@ public interface PhotoKingdomService {
 
     @POST("api/residents/login")
     Call<Resident> loginResident(@Body LoginInfo info);
+
+    @GET("api/attractionphotowars/{id}/details")
+    Call<AttractionPhotowar> getAttractionPhotowar(@Path("id") int attractionPhotowarId);
 
     // TODO: get residentId ?
     @GET("api/residents/{id}")
