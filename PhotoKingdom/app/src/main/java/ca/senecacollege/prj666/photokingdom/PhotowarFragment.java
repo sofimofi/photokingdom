@@ -347,7 +347,9 @@ public class PhotowarFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        countDownTimer.cancel();
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
         super.onDetach();
         mListener = null;
     }
