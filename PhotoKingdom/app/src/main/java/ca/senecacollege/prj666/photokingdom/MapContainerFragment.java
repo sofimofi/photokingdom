@@ -233,6 +233,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
         // Add markers on map
         BitmapDescriptor throne = BitmapDescriptorFactory.fromResource(R.drawable.throne);
+        BitmapDescriptor swords = BitmapDescriptorFactory.fromResource(R.drawable.swords);
         for(GooglePlace place : googlePlaces){
             LatLng latLng = new LatLng(place.getLat(), place.getLng());
 
@@ -243,8 +244,15 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                 Marker marker = mGoogleMap.addMarker(new MarkerOptions()
                         .title(attraction.getResidentUserName())
                         .position(latLng)
-                        .snippet(attraction.getResidentTitle())
-                        .icon(throne));
+                        .snippet(attraction.getResidentTitle()));
+                if(attraction.getCurrentPhotowarId() > 0){
+                    // if attraction has a current war, set war icon
+                    marker.setIcon(swords);
+                } else {
+                    // otherwise, set throne icon
+                    marker.setIcon(throne);
+                }
+
                 marker.setTag(attraction.getGooglePlaceId());
             } else {
                 Marker marker = mGoogleMap.addMarker(new MarkerOptions()

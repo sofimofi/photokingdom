@@ -78,15 +78,27 @@ public class AttractionsForMapViewManager {
                 int cityId = attractionObj.getInt("CityId");
 
                 JSONArray owners = attractionObj.getJSONArray("Owners");
-                JSONObject currentOwner = owners.getJSONObject(0);
-                String residentTitle = currentOwner.getString("Title");
 
-                JSONObject resident = currentOwner.getJSONObject("Resident");
-                String residentUserName = resident.getString("UserName");
-                String residentAvatar = resident.getString("AvatarImagePath") == null ? "" : resident.getString("AvatarImagePath");
+                String residentTitle = "";
+                String residentUserName = "";
+                String residentAvatar = "";
 
+                if(owners.length() > 0){
+                    JSONObject currentOwner = owners.getJSONObject(0);
+                    residentTitle = currentOwner.getString("Title");
+                    residentUserName = currentOwner.getString("ResidentUserName");
+                    residentAvatar = currentOwner.getString("ResidentAvatarImagePath") == null ? "" : currentOwner.getString("ResidentAvatarImagePath");
+                }
+
+                JSONArray photowars = attractionObj.getJSONArray("AttractionPhotowars");
+
+                int photowarId = -1;
+                if(photowars.length() > 0){
+                    JSONObject currentPhotowar = photowars.getJSONObject(0);
+                    photowarId = currentPhotowar.getInt("Id");
+                }
                 AttractionForMapView attraction = new AttractionForMapView(id, googlePlaceId, name, lat, lng, isActive, cityId,
-                        residentUserName, residentAvatar, residentTitle);
+                        residentUserName, residentAvatar, residentTitle, photowarId);
                 attractionList.add(attraction);
             }
 

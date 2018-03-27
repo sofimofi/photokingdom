@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import ca.senecacollege.prj666.photokingdom.PhotowarFragment;
 import ca.senecacollege.prj666.photokingdom.R;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 
@@ -78,6 +79,20 @@ public class AttractionDetailsFragment extends Fragment {
             Button buttonUpload = (Button)rootView.findViewById(R.id.buttonUpload);
             buttonUpload.setVisibility(View.VISIBLE);
         }
+
+        // TODO: test photowars button
+        Button photowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
+        // TODO: Don't hardcode the attractionPhotowarId
+        final PhotowarFragment photowarFragment = PhotowarFragment.newInstance(9);
+        photowarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frameLayout, photowarFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
 
         return rootView;
     }
