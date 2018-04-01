@@ -1,6 +1,7 @@
 package ca.senecacollege.prj666.photokingdom.models;
 
 /**
+ * Attraction with additional details needed for Map View
  * Created by sofia on 2018-03-17.
  */
 

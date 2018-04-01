@@ -12,14 +12,14 @@
         android:layout_height="wrap_content"
         android:background="@color/banner"
         android:padding="10dp"
-        android:text="Attraction Name"
         android:textAlignment="center"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        android:contentDescription="Photo Attraction Name"/>
 
     <ImageView
         android:id="@+id/photoImageView"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="350dp"
         android:layout_below="@+id/photoAttractionNameTextView"
         android:contentDescription="Photo" />
 
@@ -40,7 +40,6 @@
         android:layout_alignBottom="@+id/residentAvatarImageView"
         android:layout_marginStart="12dp"
         android:layout_toEndOf="@+id/residentAvatarImageView"
-        android:text="ResidentName"
         android:textSize="14sp" />
 
     <TextView
@@ -61,7 +60,6 @@
         android:layout_alignBottom="@+id/pts"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="15dp"
-        android:text="40"
         android:textSize="20sp" />
 
     <TextView
@@ -71,26 +69,23 @@
         android:layout_below="@+id/pointsTextView"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="14dp"
-        android:text="TextView"
         android:textSize="14sp"
-        android:textAlignment="center"/>
+        android:textAlignment="center"
+        android:contentDescription="Info about the photo."/>
 
     <Button
         android:id="@+id/viewPhotowarButton"
         android:layout_width="wrap_content"
-        android:layout_height="24sp"
+        android:layout_height="15dp"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/photoInfoTextView"
+        android:layout_alignParentBottom="true"
         android:layout_marginEnd="20dp"
-        android:layout_marginTop="14dp"
+        android:layout_marginBottom="15dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         android:fontFamily="sans-serif"
         android:background="@drawable/button"
         android:text="@string/view_photowar"
         android:textSize="12sp" />
-
-
-
 
 </RelativeLayout>

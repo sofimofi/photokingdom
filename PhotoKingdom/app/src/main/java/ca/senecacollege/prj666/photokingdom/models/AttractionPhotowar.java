@@ -1,5 +1,7 @@
 package ca.senecacollege.prj666.photokingdom.models;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -10,7 +12,7 @@ import java.util.List;
  * @author Sofia
  */
 
-public class AttractionPhotowar {
+public class AttractionPhotowar implements Comparable<AttractionPhotowar>{
     @SerializedName("Id")
     private int id;
     @SerializedName("StartDate")
@@ -19,14 +21,6 @@ public class AttractionPhotowar {
     private String endDate;
     @SerializedName("AttractionId")
     private int attractionId;
-    @SerializedName("Attraction")
-    private Attraction attraction;
-    @SerializedName("AttractionPhotowarUploads")
-    private List<AttractionPhotowarUpload> attractionPhotowarUploads;
-
-    // Flag indicating whether Resident is part of photowar (-1 = n/a, 0 = no, 1 = yes)
-    @SerializedName("residentInPhotowar")
-    private int residentInPhotowar;
 
     public int getId() {
         return id;
@@ -60,27 +54,9 @@ public class AttractionPhotowar {
         this.attractionId = attractionId;
     }
 
-    public Attraction getAttraction() {
-        return attraction;
-    }
-
-    public void setAttraction(Attraction attraction) {
-        this.attraction = attraction;
-    }
-
-    public List<AttractionPhotowarUpload> getAttractionPhotowarUploads() {
-        return attractionPhotowarUploads;
-    }
-
-    public void setAttractionPhotowarUploads(List<AttractionPhotowarUpload> attractionPhotowarUploads) {
-        this.attractionPhotowarUploads = attractionPhotowarUploads;
-    }
-
-    public int getResidentInPhotowar() {
-        return residentInPhotowar;
-    }
-
-    public void setResidentInPhotowar(int residentInPhotowar) {
-        this.residentInPhotowar = residentInPhotowar;
+    @Override
+    public int compareTo(@NonNull AttractionPhotowar attractionPhotowar) {
+        // return by descending order of startdate (from higher start date to lower start date)
+        return attractionPhotowar.getStartDate().compareTo(this.getStartDate());
     }
 }
