@@ -83,7 +83,7 @@ public class AttractionDetailsFragment extends Fragment {
         // TODO: test photowars button
         Button photowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
         // TODO: Don't hardcode the attractionPhotowarId
-        final PhotowarFragment photowarFragment = PhotowarFragment.newInstance(9);
+        final PhotowarFragment photowarFragment = PhotowarFragment.newInstance(11);
         photowarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

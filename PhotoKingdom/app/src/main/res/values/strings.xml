@@ -49,5 +49,9 @@
     <string name="error_user_register">Register failed</string>
     <string name="error_login">Login failed</string>
     <string name="photowar_vote_finished">Voting closed!</string>
+    <string name="photo">Photo</string>
+    <string name="photo_currently_competing">Currently competing in Photowar!</string>
+    <string name="current_photowar_points">Photowar Pts:</string>
+    <string name="total_photo_points_to_date">Total cumulative Pts:</string>
 
 </resources>
