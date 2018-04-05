@@ -1,12 +1,34 @@
 package ca.senecacollege.prj666.photokingdom;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.google.android.gms.vision.barcode.Barcode;
+
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+
+import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarUploadForPhotoDetails;
+import ca.senecacollege.prj666.photokingdom.models.PhotoWithDetails;
+import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
+import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
+import ca.senecacollege.prj666.photokingdom.utils.DateUtil;
+import ca.senecacollege.prj666.photokingdom.utils.LoadImage;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -18,16 +40,24 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class PhotoFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "PhotoFragment";
+    private static final String PHOTO_ID = "photoUploadId";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private int mPhotoId;
+    private PhotoWithDetails mPhoto;
+    private AttractionPhotowarUploadForPhotoDetails mMostRecentAttractionPhotowar;
 
-    private OnFragmentInteractionListener mListener;
+    // View elements
+    private TextView mPhotoAttractionName;
+    private ImageView mPhotoImageview;
+    private ImageView mResidentAvatar;
+    private TextView mResidentName;
+    private TextView mPtsTextView;
+    private TextView mPhotoPoints;
+    private TextView mPhotoInfoTextView;
+    private Button mViewPhotowarButton;
+
+//    private OnFragmentInteractionListener mListener;
 
     public PhotoFragment() {
         // Required empty public constructor
@@ -37,16 +67,13 @@ public class PhotoFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param photoId
      * @return A new instance of fragment PhotoFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static PhotoFragment newInstance(String param1, String param2) {
+    public static PhotoFragment newInstance(int photoId) {
         PhotoFragment fragment = new PhotoFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putInt(PHOTO_ID, photoId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,8 +82,7 @@ public class PhotoFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mPhotoId = getArguments().getInt(PHOTO_ID);
         }
     }
 
@@ -64,11 +90,156 @@ public class PhotoFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_photo, container, false);
+        View view = inflater.inflate(R.layout.fragment_photo, container, false);
+
+        // Set the title
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setTitle(R.string.photo);
+
+        // Reference to view elements
+        mPhotoAttractionName = view.findViewById(R.id.photoAttractionNameTextView);
+        mPhotoImageview = view.findViewById(R.id.photoImageView);
+        mResidentAvatar = view.findViewById(R.id.residentAvatarImageView);
+        mResidentName = view.findViewById(R.id.residentName);
+        mPtsTextView = view.findViewById(R.id.pts);
+        mPhotoPoints = view.findViewById(R.id.pointsTextView);
+        mPhotoInfoTextView = view.findViewById(R.id.photoInfoTextView);
+        mViewPhotowarButton = view.findViewById(R.id.viewPhotowarButton);
+
+        // get photo from database
+        getPhoto();
+        return view;
     }
 
+    private void getPhoto(){
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<PhotoWithDetails> call = service.getPhoto(mPhotoId);
+        call.enqueue(new Callback<PhotoWithDetails>(){
+            @Override
+            public void onResponse(Call<PhotoWithDetails> call, Response<PhotoWithDetails> response) {
+                if(response.isSuccessful()){
+                    mPhoto = response.body();
+                    Log.d(TAG, "Photo came back: " + mPhoto.getId() + ", # of PhotowarUploads" +
+                            mPhoto.getAttractionPhotowarUploads().size());
+
+                    setPhotoData();
+
+                } else {
+                    try {
+                        Log.d(TAG, response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Log.d(TAG, "API call is unsuccessful!");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PhotoWithDetails> call, Throwable t) {
+                Log.e(TAG, t.getMessage());
+            }
+        });
+    }
+
+    private void setPhotoData(){
+        if(mPhoto != null){
+            // Set Photo
+            LoadImage.loadImage(getContext(), mPhotoImageview, mPhoto.getPhotoFilePath());
+            // Set Avatar
+            LoadImage.loadImage(getContext(), mResidentAvatar, mPhoto.getResidentAvatarImagePath());
+            // Set Resident Name
+            mResidentName.setText(mPhoto.getResidentUserName());
+
+            // Make Resident clickable
+            mResidentAvatar.setTag(mPhoto.getResidentId());
+            mResidentName.setTag(mPhoto.getResidentId());
+            mResidentAvatar.setOnClickListener(onResidentClickListener);
+            mResidentName.setOnClickListener(onResidentClickListener);
+
+            // find out photowar status of Photo
+            List<AttractionPhotowarUploadForPhotoDetails> uploadList = mPhoto.getAttractionPhotowarUploads();
+            // sort by descending ID
+            Collections.sort(uploadList);
+            // get the most recent attractionPhotowar;
+            if(uploadList.size() > 0){
+                mMostRecentAttractionPhotowar = uploadList.get(0);
+            } else {
+                mMostRecentAttractionPhotowar = null;
+            }
+
+            if(mMostRecentAttractionPhotowar != null){
+                // Set Photo Name to most recent Attraction Name
+                mPhotoAttractionName.setText(mMostRecentAttractionPhotowar.getAttractionPhotowarAttractionName());
+
+                Calendar calendar = Calendar.getInstance();
+                Date now = calendar.getTime();
+                Date endDate = DateUtil.ISO8601toDate(mMostRecentAttractionPhotowar.getAttractionPhotowar().getEndDate());
+
+                Log.d(TAG, "Current Date is " + now.toString());
+                Log.d(TAG, "Most Recent AttractionPhotowar EndDate is " + endDate.toString());
+
+                if(endDate.after(now)){
+                    // AttractionPhotowar is still going on
+                    mPhotoInfoTextView.setText(R.string.photo_currently_competing);
+                    mPtsTextView.setText(R.string.current_photowar_points);
+                    mPhotoPoints.setText(String.valueOf(mMostRecentAttractionPhotowar.getResidentVotesCount()));
+
+                    // Activate "View Photowar" Button
+                    final PhotowarFragment photowarFragment = PhotowarFragment.newInstance(mMostRecentAttractionPhotowar.getAttractionPhotowarId());
+                    mViewPhotowarButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            getActivity().getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.frameLayout, photowarFragment)
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+                    });
+
+                } else {
+                    // TODO: Set Photo isWinner or isLoser
+                    mPhotoInfoTextView.setText("Photo Lost/Won in photowar on " + endDate.toString());
+                    mPtsTextView.setText(R.string.total_photo_points_to_date);
+
+                    // add up all the points from all photowars
+                    int totalPts = 0;
+                    for(AttractionPhotowarUploadForPhotoDetails upload : uploadList){
+                        totalPts += upload.getResidentVotesCount();
+                    }
+                    mPhotoPoints.setText(String.valueOf(totalPts));
+
+                    // Disactivate "View Photowar" Button
+                    mViewPhotowarButton.setVisibility(View.INVISIBLE);
+                }
+            } else {
+                // this Photo never participated in a Photowar - just set Photo name as Resident name
+                mPhotoAttractionName.setText(mPhoto.getResidentUserName());
+                mPhotoInfoTextView.setText("This photo has not participated in any photowars.");
+                mPhotoPoints.setText("0");
+                // Disactivate "View Photowar" Button
+                mViewPhotowarButton.setVisibility(View.INVISIBLE);
+            }
+        }
+
+    }
+
+    private View.OnClickListener onResidentClickListener = new View.OnClickListener(){
+
+        @Override
+        public void onClick(View view) {
+            int residentId = (int) view.getTag();
+            Log.d(TAG, "Clicked on Resident " + residentId);
+
+            UserFragment userFragment = UserFragment.newInstance(residentId);
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.frameLayout, userFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    };
+
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+ /*   public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
@@ -90,7 +261,7 @@ public class PhotoFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
-
+*/
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -101,8 +272,8 @@ public class PhotoFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+   /* public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
-    }
+    }*/
 }
