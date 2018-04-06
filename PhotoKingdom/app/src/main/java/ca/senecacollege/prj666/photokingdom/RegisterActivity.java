@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -213,10 +214,12 @@ public class RegisterActivity extends AppCompatActivity
      */
     private boolean validateInputData(String username, String email, String password,
                                       String confirm, int genderPos) {
-        // TODO: Validate email type and the email doesn't exist
         if (username.isEmpty() || email.isEmpty() ||
                 password.isEmpty() || confirm.isEmpty() || mCity == null) {
             Toast.makeText(this, R.string.msg_required_all_information, Toast.LENGTH_LONG).show();
+            return false;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, R.string.error_invalid_email, Toast.LENGTH_LONG).show();
             return false;
         } else if (password.equals(confirm) == false) {
             Toast.makeText(this, R.string.msg_password_not_match, Toast.LENGTH_LONG).show();

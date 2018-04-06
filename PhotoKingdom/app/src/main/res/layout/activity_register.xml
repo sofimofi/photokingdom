@@ -12,6 +12,7 @@
         android:id="@+id/editTextUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:maxLength="20"
         android:hint="Username"
         android:inputType="textPersonName" />
 
@@ -19,6 +20,7 @@
         android:id="@+id/editTextEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:maxLength="50"
         android:hint="Email address"
         android:inputType="textEmailAddress" />
 
@@ -26,6 +28,7 @@
         android:id="@+id/editTextPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:maxLength="20"
         android:hint="Password"
         android:inputType="textPassword" />
 
