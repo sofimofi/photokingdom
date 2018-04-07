@@ -139,9 +139,11 @@ public class PingsFragment extends Fragment {
                 public void onItemClick(View view, int position) {
                     String attractionName = mPings.get(position).getAttraction().getName();
 
+                    Bundle bundle = new Bundle();
+                    bundle.putString("name", attractionName);
+                    bundle.putBoolean("isPinged", true);
                     // Move to AttractionDetailsFragment
-                    AttractionDetailsFragment fragment = AttractionDetailsFragment.newInstance(
-                            attractionName, true);
+                    AttractionDetailsFragment fragment = AttractionDetailsFragment.newInstance(bundle);
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frameLayout, fragment)
                             .addToBackStack(null)
