@@ -83,12 +83,13 @@ public class AttractionDetailsFragment extends Fragment {
         // TODO: test photowars button
         Button photowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
         // TODO: Don't hardcode the attractionPhotowarId
-        final PhotowarFragment photowarFragment = PhotowarFragment.newInstance(11);
+        final PhotowarFragment photowarFragment = PhotowarFragment.newInstance(20);
+        final AttractionPhotowarHistoryFragment photowarHistoryFragment = AttractionPhotowarHistoryFragment.newInstance(57, "CN Tower");
         photowarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frameLayout, photowarFragment)
+                        .replace(R.id.frameLayout, photowarHistoryFragment)
                         .addToBackStack(null)
                         .commit();
             }

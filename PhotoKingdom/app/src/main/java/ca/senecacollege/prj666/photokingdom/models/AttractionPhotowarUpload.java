@@ -62,7 +62,7 @@ public class AttractionPhotowarUpload implements Comparable<AttractionPhotowarUp
 
     @Override
     public int compareTo(@NonNull AttractionPhotowarUpload attractionPhotowarUpload) {
-        // sort by descending order (from larger ID to smaller ID)
+        // sort by descending order (from larger Id to smaller ID)
         return attractionPhotowarUpload.getId() - this.getId();
     }
 }

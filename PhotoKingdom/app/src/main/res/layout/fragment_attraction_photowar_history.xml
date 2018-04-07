@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="ca.senecacollege.prj666.photokingdom.AttractionPhotowarHistoryFragment">
+    tools:context="ca.senecacollege.prj666.photokingdom.fragments.AttractionPhotowarHistoryFragment">
 
     <TextView
         android:id="@+id/photoWarHistoryBannerTextView"
@@ -11,13 +11,12 @@
         android:layout_height="wrap_content"
         android:background="@color/banner"
         android:padding="5dp"
-        android:text="Photo History of CN Tower"
         android:textAlignment="center"
         android:textSize="20sp" />
 
-    <ListView
-        android:id="@+id/attractionPhotowarHistoryListView"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>

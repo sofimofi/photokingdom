@@ -12,13 +12,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.vision.barcode.Barcode;
-
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarUploadForPhotoDetails;
 import ca.senecacollege.prj666.photokingdom.models.PhotoWithDetails;
@@ -29,6 +26,8 @@ import ca.senecacollege.prj666.photokingdom.utils.LoadImage;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static android.view.View.VISIBLE;
 
 
 /**
@@ -55,6 +54,7 @@ public class PhotoFragment extends Fragment {
     private TextView mPtsTextView;
     private TextView mPhotoPoints;
     private TextView mPhotoInfoTextView;
+    private ImageView mWinningTrophy;
     private Button mViewPhotowarButton;
 
 //    private OnFragmentInteractionListener mListener;
@@ -104,6 +104,7 @@ public class PhotoFragment extends Fragment {
         mPtsTextView = view.findViewById(R.id.pts);
         mPhotoPoints = view.findViewById(R.id.pointsTextView);
         mPhotoInfoTextView = view.findViewById(R.id.photoInfoTextView);
+        mWinningTrophy = view.findViewById(R.id.winningTrophy);
         mViewPhotowarButton = view.findViewById(R.id.viewPhotowarButton);
 
         // get photo from database
@@ -171,14 +172,9 @@ public class PhotoFragment extends Fragment {
                 // Set Photo Name to most recent Attraction Name
                 mPhotoAttractionName.setText(mMostRecentAttractionPhotowar.getAttractionPhotowarAttractionName());
 
-                Calendar calendar = Calendar.getInstance();
-                Date now = calendar.getTime();
-                Date endDate = DateUtil.ISO8601toDate(mMostRecentAttractionPhotowar.getAttractionPhotowar().getEndDate());
+                String endDate = mMostRecentAttractionPhotowar.getAttractionPhotowar().getEndDate();
 
-                Log.d(TAG, "Current Date is " + now.toString());
-                Log.d(TAG, "Most Recent AttractionPhotowar EndDate is " + endDate.toString());
-
-                if(endDate.after(now)){
+                if(!DateUtil.isBeforeNow(endDate)){
                     // AttractionPhotowar is still going on
                     mPhotoInfoTextView.setText(R.string.photo_currently_competing);
                     mPtsTextView.setText(R.string.current_photowar_points);
@@ -198,7 +194,15 @@ public class PhotoFragment extends Fragment {
 
                 } else {
                     // TODO: Set Photo isWinner or isLoser
-                    mPhotoInfoTextView.setText("Photo Lost/Won in photowar on " + endDate.toString());
+                    if(mMostRecentAttractionPhotowar.getIsWinner() == 1){
+                        mWinningTrophy.setVisibility(VISIBLE);
+                        String endDateString = DateUtil.ISO8601ToLongDateAndTimeString(mMostRecentAttractionPhotowar.getAttractionPhotowar().getEndDate());
+                        mPhotoInfoTextView.setText(getString(R.string.photo_won_war_on_date, endDateString));
+                    } else {
+                        String endDateString = DateUtil.ISO8601ToLongDateAndTimeString(mMostRecentAttractionPhotowar.getAttractionPhotowar().getEndDate());
+                        mPhotoInfoTextView.setText(getString(R.string.photo_lost_war_on_date, endDateString));
+                    }
+
                     mPtsTextView.setText(R.string.total_photo_points_to_date);
 
                     // add up all the points from all photowars

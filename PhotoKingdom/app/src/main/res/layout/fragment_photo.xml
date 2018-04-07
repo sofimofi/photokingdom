@@ -62,9 +62,19 @@
         android:layout_marginRight="15dp"
         android:textSize="20sp" />
 
+    <ImageView
+        android:id="@+id/winningTrophy"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_toLeftOf="@+id/photoInfoTextView"
+        android:layout_below="@+id/pointsTextView"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/trophy"
+        android:visibility="gone"/>
+
     <TextView
         android:id="@+id/photoInfoTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/pointsTextView"
         android:layout_centerHorizontal="true"

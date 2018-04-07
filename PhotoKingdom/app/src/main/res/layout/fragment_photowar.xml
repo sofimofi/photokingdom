@@ -77,6 +77,15 @@
             android:scaleType="fitCenter"
             android:background="@drawable/vote_photowar_unclicked" />
 
+        <ImageView
+            android:id="@+id/photo1WinningTrophy"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/trophy"
+            android:visibility="gone"/>
+
     </RelativeLayout>
 
     <ImageView
@@ -133,6 +142,15 @@
             android:layout_alignParentRight="true"
             android:scaleType="fitCenter"
             android:background="@drawable/vote_photowar_unclicked" />
+
+        <ImageView
+            android:id="@+id/photo2WinningTrophy"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/trophy"
+            android:visibility="gone"/>
 
     </RelativeLayout>
 </LinearLayout>
