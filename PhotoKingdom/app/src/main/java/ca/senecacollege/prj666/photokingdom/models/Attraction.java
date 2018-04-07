@@ -23,6 +23,12 @@ public class Attraction {
     private int isActive;
     @SerializedName("CityId")
     private int cityId;
+    @SerializedName("PhotoImagePath")
+    private String photoImagePath;
+    @SerializedName("OwnerName")
+    private String ownerName;
+
+    public Attraction() {}
 
     public Attraction(int id, String googlePlaceId, String name, double lat, double lng, int isActive, int cityId){
         this.id = id;
@@ -88,5 +94,21 @@ public class Attraction {
 
     public void setCityId(int cityId) {
         this.cityId = cityId;
+    }
+
+    public String getPhotoImagePath() {
+        return photoImagePath;
+    }
+
+    public void setPhotoImagePath(String photoImagePath) {
+        this.photoImagePath = photoImagePath;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 }

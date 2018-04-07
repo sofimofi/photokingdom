@@ -64,17 +64,29 @@ public class MainActivity extends AppCompatActivity implements PhotowarFragment.
             // switch to selected fragment
             switch (item.getItemId()) {
                 case R.id.navigation_livefeed:
-                    fragment = new LiveFeedFragment();
+                    //fragment = new LiveFeedFragment();
+                    if (mLiveFeedFragment == null) {
+                        mLiveFeedFragment = new LiveFeedFragment();
+                    }
+                    fragment = mLiveFeedFragment;
                     break;
                 case R.id.navigation_map:
-                    fragment = new MapContainerFragment();
+                    //fragment = new MapContainerFragment();
+                    if (mMapContainerFragment == null) {
+                        mMapContainerFragment = new MapContainerFragment();
+                    }
+                    fragment = mMapContainerFragment;
                     break;
                 case R.id.navigation_user:
                     // Check resident logged-in
                     ResidentSessionManager sessionManager =
                             new ResidentSessionManager(getApplicationContext());
                     if (sessionManager.isLoggedIn()) {
-                        fragment = new UserFragment();
+                        //fragment = new UserFragment();
+                        if (mUserFragment == null) {
+                            mUserFragment = new UserFragment();
+                        }
+                        fragment = mUserFragment;
                     } else {
                         Toast.makeText(getApplicationContext(),
                                 R.string.msg_visitor_doesnot_have_profile, Toast.LENGTH_LONG).show();
@@ -168,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements PhotowarFragment.
 
                 return true;
             case R.id.test_photowar_detail:
-                PhotowarFragment photowarFragment = PhotowarFragment.newInstance(18);
+                PhotowarFragment photowarFragment = PhotowarFragment.newInstance(27);
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.frameLayout, photowarFragment )
                         .addToBackStack(null)

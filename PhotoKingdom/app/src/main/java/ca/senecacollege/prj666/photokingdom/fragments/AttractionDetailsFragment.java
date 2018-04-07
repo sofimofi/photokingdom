@@ -6,15 +6,30 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import java.io.IOException;
 
 import ca.senecacollege.prj666.photokingdom.PhotowarFragment;
 import ca.senecacollege.prj666.photokingdom.R;
+import ca.senecacollege.prj666.photokingdom.models.Attraction;
+import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
+import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static android.view.View.VISIBLE;
 
 /**
  * Fragment for attraction details
@@ -22,22 +37,37 @@ import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
  * @author Wonho
  */
 public class AttractionDetailsFragment extends Fragment {
+    private static final String TAG = "AttractionDetailsFrag";
+
     // Argument keys
-    private static final String ATTRACTION_NAME = "attractionName";
+    private static final String ATTRACTION_NAME = "name";
+    private static final String PLACE_ID = "placeId";
+    private static final String IS_EXISTED = "isExisted";
     private static final String IS_PINGED = "isPinged";
 
     private String mName;
+    private String mPlaceId;
+    private boolean mIsExisted;
     private boolean mIsPinged;
     private ResidentSessionManager mSessionManager;
 
-    public static AttractionDetailsFragment newInstance(String name, boolean isPinged) {
+    // Widgets
+    private ProgressBar mProgressBar;
+    private TextView mTextViewName;
+    private TextView mTextViewWinner;
+    private ImageView mImageViewAttraction;
+    private Button photowarButton;
+
+    private Attraction mAttraction;
+
+    public static AttractionDetailsFragment newInstance(Bundle bundle) {
         // Create an instance
         AttractionDetailsFragment fragment = new AttractionDetailsFragment();
 
         // Set arguments
         Bundle args = new Bundle();
-        args.putString(ATTRACTION_NAME, name);
-        args.putBoolean(IS_PINGED, isPinged);
+        args.putAll(bundle);
+
         fragment.setArguments(args);
 
         return fragment;
@@ -49,6 +79,8 @@ public class AttractionDetailsFragment extends Fragment {
 
         if (getArguments() != null) {
             mName = getArguments().getString(ATTRACTION_NAME);
+            mPlaceId = getArguments().getString(PLACE_ID);
+            mIsExisted = getArguments().getBoolean(IS_EXISTED);
             mIsPinged = getArguments().getBoolean(IS_PINGED);
         }
 
@@ -65,36 +97,137 @@ public class AttractionDetailsFragment extends Fragment {
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         actionBar.setTitle(R.string.attraction);
 
-        TextView textView = (TextView)rootView.findViewById(R.id.textViewName);
-        textView.setText(mName);
+        // Widgets
+        mProgressBar = (ProgressBar)rootView.findViewById(R.id.progressBar);
+        mTextViewName = (TextView)rootView.findViewById(R.id.textViewName);
+        mTextViewWinner = (TextView)rootView.findViewById(R.id.textViewWinner);
+        mImageViewAttraction = (ImageView)rootView.findViewById(R.id.imageViewAttraction);
+        photowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
 
         // Buttons are visible if the user logged-in
         if (mSessionManager.isLoggedIn()) {
             if (mIsPinged == false) {
                 // Ping button is visible if this fragment opened from map (not ping list)
                 Button buttonPing = (Button)rootView.findViewById(R.id.buttonPing);
-                buttonPing.setVisibility(View.VISIBLE);
+                buttonPing.setVisibility(VISIBLE);
             }
 
             Button buttonUpload = (Button)rootView.findViewById(R.id.buttonUpload);
-            buttonUpload.setVisibility(View.VISIBLE);
+            buttonUpload.setVisibility(VISIBLE);
         }
 
-        // TODO: test photowars button
-        Button photowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
-        // TODO: Don't hardcode the attractionPhotowarId
-        final PhotowarFragment photowarFragment = PhotowarFragment.newInstance(20);
-        final AttractionPhotowarHistoryFragment photowarHistoryFragment = AttractionPhotowarHistoryFragment.newInstance(57, "CN Tower");
-        photowarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frameLayout, photowarHistoryFragment)
-                        .addToBackStack(null)
-                        .commit();
+        if (mIsExisted) {
+            if (!mPlaceId.isEmpty()) {
+                getAttractionDetails(mPlaceId);
             }
-        });
+        } else {
+            mAttraction = new Attraction();
+            mAttraction.setName(mName);
+            mAttraction.setGooglePlaceId(mPlaceId);
+
+            setAttractionDetails();
+        }
 
         return rootView;
+    }
+
+    private void getAttractionDetails(String placeId) {
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+
+        showProgressBar();
+
+        Call<Attraction> call = service.getAttractionByPlaceId(placeId);
+        call.enqueue(new Callback<Attraction>() {
+            @Override
+            public void onResponse(Call<Attraction> call, Response<Attraction> response) {
+                hideProgressBar();
+
+                if (response.isSuccessful()) {
+                    mAttraction = response.body();
+                    enablePhotowarsButton();
+                    setAttractionDetails();
+                } else {
+                    if (response.code() == 404) {
+                        // Not Found
+                        // Add new attraction
+                    } else {
+                        try {
+                            String msg = "errorBody: " + response.errorBody().string() + "\n" +
+                                    "message: " + response.message() + "\n" +
+                                    "body: " + response.body() + "\n" +
+                                    "raw: " + response.raw() + "\n" +
+                                    "code: " + response.code() + "\n" +
+                                    "headers: " + response.headers();
+                            Log.d(TAG, msg);
+
+                            //Log.d(TAG, "[getAttractionDetails:onResponse] " + response.errorBody().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Attraction> call, Throwable t) {
+                Log.d(TAG, "[getAttractionDetails:onFailure]" + t.getMessage());
+                hideProgressBar();
+            }
+        });
+    }
+
+    private void enablePhotowarsButton(){
+        if(mAttraction != null){
+            photowarButton.setVisibility(VISIBLE);
+            final AttractionPhotowarHistoryFragment photowarHistoryFragment = AttractionPhotowarHistoryFragment.newInstance(mAttraction.getId(), mAttraction.getName());
+            photowarButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frameLayout, photowarHistoryFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
+        }
+    }
+
+    private void setAttractionDetails() {
+        if (mAttraction != null) {
+            mTextViewName.setText(mAttraction.getName());
+            mTextViewWinner.setText(mAttraction.getOwnerName());
+            loadImage(mImageViewAttraction, mAttraction.getPhotoImagePath());
+        }
+    }
+
+    private void showProgressBar() {
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(VISIBLE);
+        }
+    }
+
+    private void hideProgressBar() {
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadImage(ImageView imageView, final String imagePath){
+        if (imagePath != null) {
+            String imageUrl = RetrofitServiceGenerator.getBaseUrl() + imagePath;
+            Picasso.with(getContext()).load(imageUrl)
+                    .error(R.drawable.noimage)
+                    .into(imageView, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d(TAG, "Succeeded photo of " + imagePath);
+                        }
+
+                        @Override
+                        public void onError() {
+                            Log.d(TAG, "Failed photo of " + imagePath);
+                        }
+                    });
+        }
     }
 }

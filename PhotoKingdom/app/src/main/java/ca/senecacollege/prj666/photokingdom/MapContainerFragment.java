@@ -41,6 +41,7 @@ import java.util.concurrent.ExecutionException;
 
 import ca.senecacollege.prj666.photokingdom.adapters.MapMarkerInfoWindowAdapter;
 import ca.senecacollege.prj666.photokingdom.fragments.AttractionDetailsFragment;
+import ca.senecacollege.prj666.photokingdom.models.Attraction;
 import ca.senecacollege.prj666.photokingdom.models.AttractionForMapView;
 import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
 import ca.senecacollege.prj666.photokingdom.models.LatLngBoundaries;
@@ -150,6 +151,12 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     }
 
     private void initMap() {
+        if (mCurrentLocation == null) {
+            mCurrentLocation = new Location("");
+            mCurrentLocation.setLatitude(mDefaultLocation.latitude);
+            mCurrentLocation.setLongitude(mDefaultLocation.longitude);
+        }
+
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapFragment);
 
         // check if null
@@ -174,8 +181,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                                 if (task.isSuccessful() && task.getResult() != null) {
                                     mCurrentLocation = task.getResult();
                                     Log.d(TAG, "Current location is " + mCurrentLocation.toString());
-                                    initMap();
                                 }
+
+                                initMap();
                             }
                         });
             } else {
@@ -240,6 +248,8 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             // look for this google place in the attraction list
             AttractionForMapView attraction = getAttractionByGooglePlaceId(place.getPlace_id(), existingAttractions);
 
+            //Bundle bundle = new Bundle();
+
             if(attraction != null){
                 Marker marker = mGoogleMap.addMarker(new MarkerOptions()
                         .title(attraction.getResidentUserName())
@@ -253,12 +263,25 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                     marker.setIcon(throne);
                 }
 
-                marker.setTag(attraction.getGooglePlaceId());
+                // data to pass AttractionDetailsFragment
+                Bundle bundle = new Bundle();
+                bundle.putString("name", attraction.getName());
+                bundle.putString("placeId", attraction.getGooglePlaceId());
+                bundle.putBoolean("isExisted", true);
+                bundle.putBoolean("isPinged", false);
+                marker.setTag(bundle);
             } else {
                 Marker marker = mGoogleMap.addMarker(new MarkerOptions()
                         .title(place.getName())
                         .position(latLng));
-                marker.setTag(place.getPlace_id());
+
+                // data to pass AttractionDetailsFragment
+                Bundle bundle = new Bundle();
+                bundle.putString("name", place.getName());
+                bundle.putString("placeId", place.getPlace_id());
+                bundle.putBoolean("isExisted", false);
+                bundle.putBoolean("isPinged", false);
+                marker.setTag(bundle);
             }
         }
     }
@@ -279,8 +302,8 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
     @Override
     public boolean onMarkerClick(final Marker marker){
-        String googlePlaceId = (String) marker.getTag();
-        Log.d(TAG, "---> Clicked on Marker for place " + googlePlaceId);
+        //String googlePlaceId = (String) marker.getTag();
+        //Log.d(TAG, "---> Clicked on Marker for place " + googlePlaceId);
 
         if(lastOpened != null){
             // close the info window from last marker
@@ -301,11 +324,14 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
     @Override
     public void onInfoWindowClick(Marker marker){
-        String googlePlaceId = (String) marker.getTag();
-        Log.d(TAG, "---> Clicked on Info Window for place " + googlePlaceId);
+        //String googlePlaceId = (String) marker.getTag();
+        //Log.d(TAG, "---> Clicked on Info Window for place " + googlePlaceId);
 
-        // Open attraction details view with the title
-        openAttractionDetailsView(marker.getTitle());
+        if (marker.getTag() instanceof Bundle) {
+            Bundle bundle = (Bundle)marker.getTag();
+            // Open attraction details view with attraction data
+            openAttractionDetailsView(bundle);
+        }
     }
 
     @Override
@@ -400,10 +426,10 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         }
     }
 
-    private void openAttractionDetailsView(String name) {
+    private void openAttractionDetailsView(Bundle bundle) {
         // Move to AttractionDetailsFragment
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.frameLayout, AttractionDetailsFragment.newInstance(name, false))
+                .replace(R.id.frameLayout, AttractionDetailsFragment.newInstance(bundle))
                 .addToBackStack(null)
                 .commit();
     }
