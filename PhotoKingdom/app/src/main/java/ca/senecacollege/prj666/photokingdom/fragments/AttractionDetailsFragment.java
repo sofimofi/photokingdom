@@ -29,6 +29,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.view.View.VISIBLE;
+
 /**
  * Fragment for attraction details
  *
@@ -54,6 +56,7 @@ public class AttractionDetailsFragment extends Fragment {
     private TextView mTextViewName;
     private TextView mTextViewWinner;
     private ImageView mImageViewAttraction;
+    private Button photowarButton;
 
     private Attraction mAttraction;
 
@@ -99,32 +102,19 @@ public class AttractionDetailsFragment extends Fragment {
         mTextViewName = (TextView)rootView.findViewById(R.id.textViewName);
         mTextViewWinner = (TextView)rootView.findViewById(R.id.textViewWinner);
         mImageViewAttraction = (ImageView)rootView.findViewById(R.id.imageViewAttraction);
+        photowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
 
         // Buttons are visible if the user logged-in
         if (mSessionManager.isLoggedIn()) {
             if (mIsPinged == false) {
                 // Ping button is visible if this fragment opened from map (not ping list)
                 Button buttonPing = (Button)rootView.findViewById(R.id.buttonPing);
-                buttonPing.setVisibility(View.VISIBLE);
+                buttonPing.setVisibility(VISIBLE);
             }
 
             Button buttonUpload = (Button)rootView.findViewById(R.id.buttonUpload);
-            buttonUpload.setVisibility(View.VISIBLE);
+            buttonUpload.setVisibility(VISIBLE);
         }
-
-        // TODO: test photowars button
-        Button photowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
-        // TODO: Don't hardcode the attractionPhotowarId
-        final PhotowarFragment photowarFragment = PhotowarFragment.newInstance(11);
-        photowarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frameLayout, photowarFragment)
-                        .addToBackStack(null)
-                        .commit();
-            }
-        });
 
         if (mIsExisted) {
             if (!mPlaceId.isEmpty()) {
@@ -154,6 +144,7 @@ public class AttractionDetailsFragment extends Fragment {
 
                 if (response.isSuccessful()) {
                     mAttraction = response.body();
+                    enablePhotowarsButton();
                     setAttractionDetails();
                 } else {
                     if (response.code() == 404) {
@@ -185,6 +176,22 @@ public class AttractionDetailsFragment extends Fragment {
         });
     }
 
+    private void enablePhotowarsButton(){
+        if(mAttraction != null){
+            photowarButton.setVisibility(VISIBLE);
+            final AttractionPhotowarHistoryFragment photowarHistoryFragment = AttractionPhotowarHistoryFragment.newInstance(mAttraction.getId(), mAttraction.getName());
+            photowarButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frameLayout, photowarHistoryFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
+        }
+    }
+
     private void setAttractionDetails() {
         if (mAttraction != null) {
             mTextViewName.setText(mAttraction.getName());
@@ -195,7 +202,7 @@ public class AttractionDetailsFragment extends Fragment {
 
     private void showProgressBar() {
         if (mProgressBar != null) {
-            mProgressBar.setVisibility(View.VISIBLE);
+            mProgressBar.setVisibility(VISIBLE);
         }
     }
 

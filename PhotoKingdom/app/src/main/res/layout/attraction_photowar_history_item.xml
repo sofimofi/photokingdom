@@ -1,9 +1,20 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/photowarItemLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="5dp"
     android:paddingBottom="5dp">
 
+
+    <ImageView
+        android:id="@+id/swordsImageView"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="5dp"
+        android:src="@drawable/swords"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/attractionPhotowarHistoryItemDateTextView"
@@ -12,26 +23,9 @@
         android:textSize="14sp"
         android:layout_marginBottom="5dp"
         android:layout_marginStart="10dp"
+        android:layout_toRightOf="@+id/swordsImageView"
         android:text="Jan 2 2018" />
 
-    <TextView
-        android:id="@+id/winnerTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toStartOf="@+id/attractionPhotowarHistoryItemWinningResidentTextView"
-        android:paddingEnd="10dp"
-        android:textSize="14sp"
-        android:text="@string/winner" />
-
-    <TextView
-        android:id="@+id/attractionPhotowarHistoryItemWinningResidentTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="10dp"
-        android:textSize="14sp"
-        android:gravity="end"
-        android:text="Elizabeth"/>
 
     <LinearLayout
         android:id="@+id/attractionPhotowarHistoryPhotosLinearLayout"
@@ -51,6 +45,7 @@
                 android:id="@+id/attractionPhotowarHistoryItemPhoto1ImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:scaleType="centerCrop"
                 android:clickable="true"
                 android:focusable="true"
                 android:contentDescription="Photo 1 of photo war" />
@@ -62,8 +57,7 @@
                 android:layout_alignParentTop="true"
                 android:padding="12dp"
                 android:textSize="24sp"
-                android:textColor="@color/photo_points"
-                android:text="54" />
+                android:textColor="@color/photo_points" />
         </RelativeLayout>
         <RelativeLayout
             android:layout_weight="1"
@@ -73,6 +67,7 @@
                 android:id="@+id/attractionPhotowarHistoryItemPhoto2ImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:scaleType="centerCrop"
                 android:clickable="true"
                 android:focusable="true"
                 android:contentDescription="Photo 2 of photo war" />
@@ -84,13 +79,13 @@
                 android:layout_alignParentTop="true"
                 android:padding="12dp"
                 android:textSize="24sp"
-                android:textColor="@color/photo_points"
-                android:text="124"/>
+                android:textColor="@color/photo_points" />
         </RelativeLayout>
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/versusLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/attractionPhotowarHistoryPhotosLinearLayout"
@@ -160,5 +155,21 @@
                 android:textSize="15sp" />
         </RelativeLayout>
     </LinearLayout>
+    <ImageView
+        android:id="@+id/photo1TrophyPhotowarHistory"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBottom="@+id/versusLinearLayout"
+        android:src="@drawable/trophy"
+        android:visibility="gone"/>
 
+    <ImageView
+        android:id="@+id/photo2TrophyPhotowarHistory"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignBottom="@+id/versusLinearLayout"
+        android:src="@drawable/trophy"
+        android:visibility="gone"/>
 </RelativeLayout>

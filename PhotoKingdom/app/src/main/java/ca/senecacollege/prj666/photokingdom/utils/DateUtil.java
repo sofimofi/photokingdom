@@ -3,6 +3,7 @@ package ca.senecacollege.prj666.photokingdom.utils;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -60,5 +61,39 @@ public class DateUtil {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         return dateFormat;
+    }
+
+    /**
+     * Determines if an ISO8601 date string is before current datetime
+     * @param iso8601
+     * @return true if date string is before now
+     */
+    public static boolean isBeforeNow(String iso8601){
+        Calendar calendar = Calendar.getInstance();
+        Date now = calendar.getTime();
+        Date date = ISO8601toDate(iso8601);
+        return date.before(now);
+    }
+
+    /**
+     * Turns iso8601 string to a presentable simple date string for View
+     * @param iso8601
+     * @return date in "Jan 4 2018" format
+     */
+    public static String ISO8601ToSimpleDateString(String iso8601){
+        Date date = ISO8601toDate(iso8601);
+        SimpleDateFormat formatter = new SimpleDateFormat("MMM d yyyy");
+        return formatter.format(date);
+    }
+
+    /**
+     * Turns iso8601 string to a presentable date & time string for View
+     * @param iso8601
+     * @return date in "Mon, Jan 4 2018 at 09:04:01" format
+     */
+    public static String ISO8601ToLongDateAndTimeString(String iso8601){
+        Date date = ISO8601toDate(iso8601);
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE, MMM d yyyy 'at' HH:mm:ss");
+        return formatter.format(date);
     }
 }

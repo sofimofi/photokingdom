@@ -31,7 +31,11 @@
     <string name="attraction_photowar">Photo War</string>
     <string name="photowar_vote_resident">Vote for best %1$s</string>
     <string name="photowar_vote_visitor">Current war on %1$s</string>
+    <string name="photowar_ended">Past war on %1$s</string>
     <string name="photowar_countdown">Vote ends in %1$s</string>
+    <string name="photowar_endDate">Ended on %1$s</string>
+    <string name="photo_won_war_on_date">Photo won in photowar on %1$s</string>
+    <string name="photo_lost_war_on_date">Photo lost in photowar on %1$s</string>
 
     <!-- Messages -->
     <string name="msg_choose_continent">Choose a continent</string>
@@ -54,5 +58,9 @@
     <string name="photo_currently_competing">Currently competing in Photowar!</string>
     <string name="current_photowar_points">Photowar Pts:</string>
     <string name="total_photo_points_to_date">Total cumulative Pts:</string>
+    <string name="photowar_history">Photowar History</string>
+    <string name="photowar_currently_ongoing">Currently ongoing!</string>
+    <string name="photowar_history_for_attraction">%1$s Photowar History</string>
+
 
 </resources>

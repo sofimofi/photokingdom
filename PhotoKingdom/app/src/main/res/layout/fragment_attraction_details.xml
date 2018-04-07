@@ -64,6 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone" />
+
     </FrameLayout>
 
     <TextView
@@ -90,6 +91,7 @@
         android:id="@+id/buttonPhotowars"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Photowars" />
+        android:text="Photowars"
+        android:visibility="gone"/>
 
 </LinearLayout>

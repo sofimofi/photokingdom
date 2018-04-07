@@ -56,6 +56,9 @@ public interface PhotoKingdomService {
                                                        @Query("residentId") int residentId,
                                                        @Query("photoUploadId") int photoUploadId);
 
+    @GET("api/attractions/{id}/Photowars")
+    Call<List<AttractionPhotowarWithDetails>> getAttractionPhotowarHistory(@Path("id") int attractionId);
+
     // TODO: get residentId ?
     @GET("api/residents/{id}")
     Call<Resident> getResident(@Path("id") int residentId);

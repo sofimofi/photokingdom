@@ -1,7 +1,6 @@
 package ca.senecacollege.prj666.photokingdom;
 
 import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -23,19 +22,20 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarUploadForPhotowarView;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarWithDetails;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
+import ca.senecacollege.prj666.photokingdom.utils.DateUtil;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 
 /**
@@ -52,7 +52,7 @@ public class PhotowarFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_ATTRACTION_PHOTOWAR_ID = "attractionPhotowarId";
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     private ResidentSessionManager mSessionManager;
 
@@ -70,6 +70,8 @@ public class PhotowarFragment extends Fragment {
     private TextView competitor2Votes;
     private ImageButton votePhoto1Button;
     private ImageButton votePhoto2Button;
+    private ImageView photo1Trophy;
+    private ImageView photo2Trophy;
     private TextView photowarCountdownTextview;
 
     private AttractionPhotowarWithDetails mAttractionPhotowar;
@@ -112,6 +114,14 @@ public class PhotowarFragment extends Fragment {
     }
 
     @Override
+    public void onPause(){
+        if(countDownTimer != null){
+            countDownTimer.cancel();
+        }
+        super.onPause();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -138,6 +148,8 @@ public class PhotowarFragment extends Fragment {
         competitor2Votes = view.findViewById(R.id.competitor2PhotoVotes);
         votePhoto1Button = view.findViewById(R.id.votePhoto1Button);
         votePhoto2Button = view.findViewById(R.id.votePhoto2Button);
+        photo1Trophy = view.findViewById(R.id.photo1WinningTrophy);
+        photo2Trophy = view.findViewById(R.id.photo2WinningTrophy);
 
         return view;
     }
@@ -184,33 +196,56 @@ public class PhotowarFragment extends Fragment {
             upload1 = mAttractionPhotowar.getAttractionPhotowarUploads().get(0);
             upload2 = mAttractionPhotowar.getAttractionPhotowarUploads().get(1);
 
-            if(mSessionManager.isLoggedIn() && mAttractionPhotowar.getResidentInPhotowar() != 1){
-                // If Resident logged in and is not part of the Photowar, allowed to vote
-                Log.d(TAG, "Resident allowed to vote!");
+            if(warEnded(mAttractionPhotowar.getEndDate())){
+                // war is over
 
-                bannerTextView.setText(getString(R.string.photowar_vote_resident, mAttractionPhotowar.getAttraction().getName()));
+                bannerTextView.setText(getString(R.string.photowar_ended, mAttractionPhotowar.getAttraction().getName()));
 
-                // set any already voted photo
-                setVotedPhoto();
-
-                // activate vote buttons
-                votePhoto1Button.setTag(upload1.getId());
-                votePhoto1Button.setOnClickListener(onVoteButtonClickListener);
-
-                votePhoto2Button.setTag(upload2.getId());
-                votePhoto2Button.setOnClickListener(onVoteButtonClickListener);
-            } else {
-                // Visitor, or a Resident who is already part of this photowar - not allowed to vote
-                Log.d(TAG, "User not allowed to vote!");
-                bannerTextView.setText(getString(R.string.photowar_vote_visitor, mAttractionPhotowar.getAttraction().getName()));
+                String endDateString = DateUtil.ISO8601ToLongDateAndTimeString(mAttractionPhotowar.getEndDate());
+                photowarCountdownTextview.setText(getString(R.string.photowar_endDate, endDateString));
 
                 // remove vote buttons
                 votePhoto1Button.setVisibility(INVISIBLE);
                 votePhoto2Button.setVisibility(INVISIBLE);
+
+                // determine winner
+                if(upload1.getIsWinner() == 1){
+                    photo1Trophy.setVisibility(VISIBLE);
+                } else {
+                    photo2Trophy.setVisibility(VISIBLE);
+                }
+            } else {
+                // ongoing war
+
+                // time countdown
+                startDateCountdown(mAttractionPhotowar.getEndDate());
+
+                if(mSessionManager.isLoggedIn() && mAttractionPhotowar.getResidentInPhotowar() != 1){
+                    // If Resident logged in and is not part of the Photowar, allowed to vote
+                    Log.d(TAG, "Resident allowed to vote!");
+
+                    bannerTextView.setText(getString(R.string.photowar_vote_resident, mAttractionPhotowar.getAttraction().getName()));
+
+                    // set any already voted photo
+                    setVotedPhoto();
+
+                    // activate vote buttons
+                    votePhoto1Button.setTag(upload1.getId());
+                    votePhoto1Button.setOnClickListener(onVoteButtonClickListener);
+
+                    votePhoto2Button.setTag(upload2.getId());
+                    votePhoto2Button.setOnClickListener(onVoteButtonClickListener);
+                } else {
+                    // Visitor, or a Resident who is already part of this photowar - not allowed to vote
+                    Log.d(TAG, "User not allowed to vote!");
+                    bannerTextView.setText(getString(R.string.photowar_vote_visitor, mAttractionPhotowar.getAttraction().getName()));
+
+                    // remove vote buttons
+                    votePhoto1Button.setVisibility(INVISIBLE);
+                    votePhoto2Button.setVisibility(INVISIBLE);
+                }
             }
 
-            // time countdown
-            startDateCountdown(mAttractionPhotowar.getEndDate());
 
             // photo 1 elements
 
@@ -266,6 +301,15 @@ public class PhotowarFragment extends Fragment {
         }
     }
 
+    private boolean warEnded(String endDateString){
+        Date endDate = DateUtil.ISO8601toDate(endDateString);
+        Calendar calendar = Calendar.getInstance();
+        Date now = calendar.getTime();
+
+        Log.d(TAG, "EndDate < now : " + endDate.before(now));
+        return endDate.before(now);
+    }
+
     private void startDateCountdown(String dateString){
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 //        formatter.setTimeZone(TimeZone.getDefault());
@@ -281,7 +325,7 @@ public class PhotowarFragment extends Fragment {
         Log.d(TAG, "Current date is " + now.toString());
         Log.d(TAG, "Date extracted is " + endDate.toString());
 
-        Activity activity = getActivity();
+        final Activity activity = getActivity();
         if(activity != null && isAdded()){
             countDownTimer = new CountDownTimer(endDate.getTime() - now.getTime(), 1000) {
                 @Override
@@ -300,8 +344,9 @@ public class PhotowarFragment extends Fragment {
                             (millisLeft % dayMilli) / hoursMilli,
                             (millisLeft % hoursMilli) / minMilli,
                             (millisLeft % minMilli) / secMilli );
-
-                    photowarCountdownTextview.setText(getString(R.string.photowar_countdown, timeLeft ));
+                    if(isAdded()){
+                        photowarCountdownTextview.setText(getString(R.string.photowar_countdown, timeLeft ));
+                    }
                 }
 
                 @Override
@@ -429,11 +474,12 @@ public class PhotowarFragment extends Fragment {
             @Override
             public void onResponse(Call<AttractionPhotowarWithDetails> call, Response<AttractionPhotowarWithDetails> response) {
                 if(response.isSuccessful()){
+                    // update data
+                    mAttractionPhotowar = response.body();
+
                     Log.d(TAG, "AttractionPhotowar came back: " + mAttractionPhotowar.getId() + "," +
                             mAttractionPhotowar.getAttraction().getName());
 
-                    // update data
-                    mAttractionPhotowar = response.body();
                     updateVotingData();
                 } else {
                     try {
@@ -463,11 +509,12 @@ public class PhotowarFragment extends Fragment {
             @Override
             public void onResponse(Call<AttractionPhotowarWithDetails> call, Response<AttractionPhotowarWithDetails> response) {
                 if(response.isSuccessful()){
+                    // update data
+                    mAttractionPhotowar = response.body();
+
                     Log.d(TAG, "AttractionPhotowar came back: " + mAttractionPhotowar.getId() + "," +
                             mAttractionPhotowar.getAttraction().getName());
 
-                    // update data
-                    mAttractionPhotowar = response.body();
                     updateVotingData();
                 } else {
                     try {
@@ -522,7 +569,14 @@ public class PhotowarFragment extends Fragment {
     @Override
     public void onDetach() {
         Log.d(TAG, "Detaching Fragment!");
-        countDownTimer.cancel();
+        Activity activity = getActivity();
+        if(activity != null && isAdded()){
+
+            countDownTimer.cancel();
+        }
+//        if(countDownTimer != null){
+//            countDownTimer.cancel();
+//        }
         super.onDetach();
         mListener = null;
     }
