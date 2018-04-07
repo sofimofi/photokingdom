@@ -47,7 +47,8 @@
     <!-- Errors -->
     <string name="error_avatar_upload">Avatar image upload failed</string>
     <string name="error_user_register">Register failed</string>
-    <string name="error_login">Login failed</string>
+    <string name="error_login">Login failed, try again</string>
+    <string name="error_invalid_email">Invalid email address</string>
     <string name="photowar_vote_finished">Voting closed!</string>
     <string name="photo">Photo</string>
     <string name="photo_currently_competing">Currently competing in Photowar!</string>
