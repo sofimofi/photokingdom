@@ -19,7 +19,8 @@ public class DateUtil {
         String year = date.substring(0, date.indexOf('-'));
         String monthDays = date.substring(date.indexOf('-') + 1, date.indexOf('T'));
 
-        return year + '\n' + monthDays;
+        //return year + '\n' + monthDays;
+        return monthDays;
     }
 
     public static String getExpiresIn(String begin, String end) {

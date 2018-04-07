@@ -42,6 +42,9 @@ public interface PhotoKingdomService {
     @GET("api/attractions/googleplaceid/{placeId}/details")
     Call<Attraction> getAttractionByPlaceId(@Path("placeId") String placeId);
 
+    @GET("api/attractionphotowars")
+    Call<List<AttractionPhotowarWithDetails>> getPhotowars();
+
     @GET("api/attractionphotowars/{id}/details")
     Call<AttractionPhotowarWithDetails> getAttractionPhotowar(@Path("id") int attractionPhotowarId,
                                                               @Query("residentId") Integer residentId);

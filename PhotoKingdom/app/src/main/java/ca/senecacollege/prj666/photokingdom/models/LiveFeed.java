@@ -6,12 +6,21 @@ package ca.senecacollege.prj666.photokingdom.models;
  * @author Wonho
  */
 public class LiveFeed {
+    private int photowarId;
     private String date;
     private String msg;
-    private int imgRes1;
-    private int imgRes2;
+    private String photoPath1;
+    private String photoPath2;
     private String name1;
     private String name2;
+
+    public int getPhotowarId() {
+        return photowarId;
+    }
+
+    public void setPhotowarId(int photowarId) {
+        this.photowarId = photowarId;
+    }
 
     public String getDate() {
         return date;
@@ -29,20 +38,20 @@ public class LiveFeed {
         this.msg = msg;
     }
 
-    public int getImgRes1() {
-        return imgRes1;
+    public String getPhotoPath1() {
+        return photoPath1;
     }
 
-    public void setImgRes1(int imgRes1) {
-        this.imgRes1 = imgRes1;
+    public void setPhotoPath1(String photoPath1) {
+        this.photoPath1 = photoPath1;
     }
 
-    public int getImgRes2() {
-        return imgRes2;
+    public String getPhotoPath2() {
+        return photoPath2;
     }
 
-    public void setImgRes2(int imgRes2) {
-        this.imgRes2 = imgRes2;
+    public void setPhotoPath2(String photoPath2) {
+        this.photoPath2 = photoPath2;
     }
 
     public String getName1() {
