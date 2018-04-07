@@ -1,25 +1,35 @@
 package ca.senecacollege.prj666.photokingdom.models;
 
+import android.support.annotation.NonNull;
+
 /**
  * Model class for a live feed
  *
  * @author Wonho
  */
-public class LiveFeed {
-    private int photowarId;
+public class LiveFeed implements Comparable<LiveFeed> {
+    private int type;
     private String date;
     private String msg;
-    private String photoPath1;
-    private String photoPath2;
-    private String name1;
-    private String name2;
 
-    public int getPhotowarId() {
-        return photowarId;
+    public Photowar photowar;
+    public Own own;
+
+    public LiveFeed(int type) {
+        this.type = type;
+
+        switch (type) {
+            case FeedEntry.TYPE_PHOTOWAR:
+                photowar = new Photowar();
+                break;
+            case FeedEntry.TYPE_OWN:
+                own = new Own();
+                break;
+        }
     }
 
-    public void setPhotowarId(int photowarId) {
-        this.photowarId = photowarId;
+    public int getType() {
+        return type;
     }
 
     public String getDate() {
@@ -38,35 +48,79 @@ public class LiveFeed {
         this.msg = msg;
     }
 
-    public String getPhotoPath1() {
-        return photoPath1;
+    @Override
+    public int compareTo(@NonNull LiveFeed liveFeed) {
+        return liveFeed.date.compareTo(date);
     }
 
-    public void setPhotoPath1(String photoPath1) {
-        this.photoPath1 = photoPath1;
+    // Photowar
+    public class Photowar {
+        private int photowarId;
+        private String photoPath1;
+        private String photoPath2;
+        private String residentName1;
+        private String residentName2;
+
+        public int getPhotowarId() {
+            return photowarId;
+        }
+
+        public void setPhotowarId(int photowarId) {
+            this.photowarId = photowarId;
+        }
+
+        public String getPhotoPath1() {
+            return photoPath1;
+        }
+
+        public void setPhotoPath1(String photoPath1) {
+            this.photoPath1 = photoPath1;
+        }
+
+        public String getPhotoPath2() {
+            return photoPath2;
+        }
+
+        public void setPhotoPath2(String photoPath2) {
+            this.photoPath2 = photoPath2;
+        }
+
+        public String getResidentName1() {
+            return residentName1;
+        }
+
+        public void setResidentName1(String residentName1) {
+            this.residentName1 = residentName1;
+        }
+
+        public String getResidentName2() {
+            return residentName2;
+        }
+
+        public void setResidentName2(String residentName2) {
+            this.residentName2 = residentName2;
+        }
     }
 
-    public String getPhotoPath2() {
-        return photoPath2;
-    }
+    // Own
+    public class Own {
+        private int ownId;
+        private int residentId;
 
-    public void setPhotoPath2(String photoPath2) {
-        this.photoPath2 = photoPath2;
-    }
+        public int getOwnId() {
+            return ownId;
+        }
 
-    public String getName1() {
-        return name1;
-    }
+        public void setOwnId(int ownId) {
+            this.ownId = ownId;
+        }
 
-    public void setName1(String name1) {
-        this.name1 = name1;
-    }
+        public int getResidentId() {
+            return residentId;
+        }
 
-    public String getName2() {
-        return name2;
-    }
-
-    public void setName2(String name2) {
-        this.name2 = name2;
+        public void setResidentId(int residentId) {
+            this.residentId = residentId;
+        }
     }
 }

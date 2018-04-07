@@ -3,7 +3,6 @@ package ca.senecacollege.prj666.photokingdom.services;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -14,6 +13,7 @@ import java.util.List;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarUploadForPhotowarView;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarWithDetails;
 import ca.senecacollege.prj666.photokingdom.models.FeedEntry;
+import ca.senecacollege.prj666.photokingdom.models.ResidentOwn;
 import ca.senecacollege.prj666.photokingdom.utils.DateUtil;
 import ca.senecacollege.prj666.photokingdom.utils.LiveFeedDbHelper;
 import retrofit2.Call;
@@ -29,8 +29,22 @@ import retrofit2.Response;
 public class LiveFeedService extends Service {
     private static final String TAG = "LiveFeedService";
 
-    // Photowars
+    // Database
+    private LiveFeedDbHelper mDbHelper;
+
+    // Photowars and owns data
     private List<AttractionPhotowarWithDetails> mPhotowars;
+    private List<ResidentOwn> mAttractionOwns;
+    private List<ResidentOwn> mCityOwns;
+    private List<ResidentOwn> mProvinceOwns;
+    private List<ResidentOwn> mCountryOwns;
+    private List<ResidentOwn> mContinentOwns;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mDbHelper = new LiveFeedDbHelper(getApplicationContext());
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -39,8 +53,14 @@ public class LiveFeedService extends Service {
             public void run() {
                 while (true) {
                     try {
-                        // Get Photowars data every 30 seconds
+                        // Get Photowars and owns data every 30 seconds
                         getPhotowars();
+                        getContinentOwns();
+                        getCountryOwns();
+                        getAttractionOwns();
+                        getCityOwns();
+                        getProvinceOwns();
+
                         Thread.sleep(30000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -50,6 +70,12 @@ public class LiveFeedService extends Service {
         }).start();
 
         return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        mDbHelper.close();
+        super.onDestroy();
     }
 
     @Nullable
@@ -92,9 +118,9 @@ public class LiveFeedService extends Service {
      * This stores only new Photowars data after last data
      */
     private void savePhotowarsData() {
-        LiveFeedDbHelper dbHelper = new LiveFeedDbHelper(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        long lastPhotowarId = getLastPhotowarId();
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        long lastPhotowarId = mDbHelper.getLastId(
+                FeedEntry.TABLE_NAME_PHOTOWARS, FeedEntry.COLUMN_PHOTOWAR_ID);
 
         for (AttractionPhotowarWithDetails photowar : mPhotowars) {
             if (photowar.getId() > lastPhotowarId) {
@@ -110,42 +136,175 @@ public class LiveFeedService extends Service {
                 values.put(FeedEntry.COLUMN_RESIDENT_NAME1, photowarUpload1.getPhotoResidentUserName());
                 values.put(FeedEntry.COLUMN_RESIDENT_NAME2, photowarUpload2.getPhotoResidentUserName());
 
-                long newRowId = db.insert(FeedEntry.TABLE_NAME, null, values);
+                long newRowId = db.insert(FeedEntry.TABLE_NAME_PHOTOWARS, null, values);
             }
         }
     }
 
     /**
-     * Get last stored Photowar id
-     * @return long
+     * Call PhotoKingdom API to get attraction owns
      */
-    private long getLastPhotowarId() {
-        LiveFeedDbHelper dbHelper = new LiveFeedDbHelper(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    private void getAttractionOwns(){
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<List<ResidentOwn>> call = service.getAttractionOwns();
+        call.enqueue(new Callback<List<ResidentOwn>>(){
+            @Override
+            public void onResponse(Call<List<ResidentOwn>> call,
+                                   Response<List<ResidentOwn>> response) {
+                if(response.isSuccessful()){
+                    mAttractionOwns = response.body();
+                    saveOwnsData(FeedEntry.TABLE_NAME_ATTRACTION_OWNS, mAttractionOwns);
+                } else {
+                    try {
+                        Log.d(TAG, "[getAttractionOwns:onResponse] " + response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
-        String[] projection = {
-                FeedEntry.COLUMN_PHOTOWAR_ID
-        };
+            @Override
+            public void onFailure(Call<List<ResidentOwn>> call, Throwable t) {
+                Log.d(TAG, "[getAttractionOwns:onFailure] " + t.getMessage());
+            }
+        });
+    }
 
-        String sortOrder = FeedEntry.COLUMN_PHOTOWAR_ID + " DESC";
+    /**
+     * Call PhotoKingdom API to get city owns
+     */
+    private void getCityOwns(){
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<List<ResidentOwn>> call = service.getCityOwns();
+        call.enqueue(new Callback<List<ResidentOwn>>(){
+            @Override
+            public void onResponse(Call<List<ResidentOwn>> call,
+                                   Response<List<ResidentOwn>> response) {
+                if(response.isSuccessful()){
+                    mCityOwns = response.body();
+                    saveOwnsData(FeedEntry.TABLE_NAME_CITY_OWNS, mCityOwns);
+                } else {
+                    try {
+                        Log.d(TAG, "[getCityOwns:onResponse] " + response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
-        Cursor cursor = db.query(
-                FeedEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                sortOrder,
-                "1"
-        );
+            @Override
+            public void onFailure(Call<List<ResidentOwn>> call, Throwable t) {
+                Log.d(TAG, "[getCityOwns:onFailure] " + t.getMessage());
+            }
+        });
+    }
 
-        if (cursor.moveToNext()) {
-            long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_PHOTOWAR_ID));
-            return id;
+    /**
+     * Call PhotoKingdom API to get province owns
+     */
+    private void getProvinceOwns(){
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<List<ResidentOwn>> call = service.getProvinceOwns();
+        call.enqueue(new Callback<List<ResidentOwn>>(){
+            @Override
+            public void onResponse(Call<List<ResidentOwn>> call,
+                                   Response<List<ResidentOwn>> response) {
+                if(response.isSuccessful()){
+                    mProvinceOwns = response.body();
+                    saveOwnsData(FeedEntry.TABLE_NAME_PROVINCE_OWNS, mProvinceOwns);
+                } else {
+                    try {
+                        Log.d(TAG, "[getProvinceOwns:onResponse] " + response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ResidentOwn>> call, Throwable t) {
+                Log.d(TAG, "[getProvinceOwns:onFailure] " + t.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Call PhotoKingdom API to get country owns
+     */
+    private void getCountryOwns(){
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<List<ResidentOwn>> call = service.getCountryOwns();
+        call.enqueue(new Callback<List<ResidentOwn>>(){
+            @Override
+            public void onResponse(Call<List<ResidentOwn>> call,
+                                   Response<List<ResidentOwn>> response) {
+                if(response.isSuccessful()){
+                    mCountryOwns = response.body();
+                    saveOwnsData(FeedEntry.TABLE_NAME_COUNTRY_OWNS, mCountryOwns);
+                } else {
+                    try {
+                        Log.d(TAG, "[getCountryOwns:onResponse] " + response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ResidentOwn>> call, Throwable t) {
+                Log.d(TAG, "[getCountryOwns:onFailure] " + t.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Call PhotoKingdom API to get continent owns
+     */
+    private void getContinentOwns(){
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<List<ResidentOwn>> call = service.getContinentsOwns();
+        call.enqueue(new Callback<List<ResidentOwn>>(){
+            @Override
+            public void onResponse(Call<List<ResidentOwn>> call,
+                                   Response<List<ResidentOwn>> response) {
+                if(response.isSuccessful()){
+                    mContinentOwns = response.body();
+                    saveOwnsData(FeedEntry.TABLE_NAME_CONTINENT_OWNS, mContinentOwns);
+                } else {
+                    try {
+                        Log.d(TAG, "[getContinentOwns:onResponse] " + response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ResidentOwn>> call, Throwable t) {
+                Log.d(TAG, "[getContinentOwns:onFailure] " + t.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Store retrieved owns data to database
+     * This stores only new owns data after last data
+     */
+    private void saveOwnsData(String table, List<ResidentOwn> owns) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        long lastOwnId = mDbHelper.getLastId(table, FeedEntry.COLUMN_OWN_ID);
+
+        for (ResidentOwn residentOwn : owns) {
+            if (residentOwn.getId() > lastOwnId) {
+                ContentValues values = new ContentValues();
+                values.put(FeedEntry.COLUMN_OWN_ID, residentOwn.getId());
+                values.put(FeedEntry.COLUMN_START_DATE, DateUtil.parseDateString(residentOwn.getStartDate()));
+                values.put(FeedEntry.COLUMN_RESIDENT_ID, residentOwn.getResidentId());
+                values.put(FeedEntry.COLUMN_RESIDENT_NAME, residentOwn.getResident().getUserName());
+                values.put(FeedEntry.COLUMN_TITLE, residentOwn.getTitle());
+
+                long newRowId = db.insert(table, null, values);
+            }
         }
-        cursor.close();
-
-        return 0;
     }
 }

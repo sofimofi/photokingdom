@@ -14,6 +14,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import ca.senecacollege.prj666.photokingdom.R;
+import ca.senecacollege.prj666.photokingdom.models.FeedEntry;
 import ca.senecacollege.prj666.photokingdom.models.LiveFeed;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 
@@ -67,28 +68,39 @@ public class LiveFeedsAdapter extends RecyclerView.Adapter<LiveFeedsAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         // Set views
         holder.textViewDate.setText(mFeeds.get(position).getDate());
         holder.textViewMsg.setText(mFeeds.get(position).getMsg());
 
-        if (mFeeds.get(position).getPhotoPath1().isEmpty()) {
-            // Message feed
-            hidePhotowarViews(holder);
-        } else {
+        //if (mFeeds.get(position).getPhotoPath1().isEmpty()) {
+        if (mFeeds.get(position).getType() == FeedEntry.TYPE_PHOTOWAR) {
             // Photowar feed
-            loadImage(holder.imageView1, mFeeds.get(position).getPhotoPath1());
-            loadImage(holder.imageView2, mFeeds.get(position).getPhotoPath2());
-            holder.textViewName1.setText(mFeeds.get(position).getName1());
-            holder.textViewName2.setText(mFeeds.get(position).getName2());
+            loadImage(holder.imageView1, mFeeds.get(position).photowar.getPhotoPath1());
+            loadImage(holder.imageView2, mFeeds.get(position).photowar.getPhotoPath2());
+            holder.textViewName1.setText(mFeeds.get(position).photowar.getResidentName1());
+            holder.textViewName2.setText(mFeeds.get(position).photowar.getResidentName2());
 
             showPhotowarViews(holder);
 
-            // Item click
+            // Photowar click
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mOnItemClickListener.onItemClick(view, holder.getAdapterPosition());
+                    int photowarId = mFeeds.get(position).photowar.getPhotowarId();
+                    mOnItemClickListener.onPhotowarItemClick(view, photowarId);
+                }
+            });
+        } else {
+            // Own feed
+            hidePhotowarViews(holder);
+
+            // Own click
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int ownId = mFeeds.get(position).own.getResidentId();
+                    mOnItemClickListener.onOwnItemClick(view, ownId);
                 }
             });
         }
@@ -134,7 +146,6 @@ public class LiveFeedsAdapter extends RecyclerView.Adapter<LiveFeedsAdapter.View
 
                     @Override
                     public void onError() {
-                        //Toast.makeText(getContext(), R.string.error_avatar_upload, Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "Failed photo upload of " + imagePath);
                     }
                 });
@@ -142,7 +153,8 @@ public class LiveFeedsAdapter extends RecyclerView.Adapter<LiveFeedsAdapter.View
 
     // Listener to click an item
     public interface OnItemClickListener {
-        void onItemClick(View view, int position);
+        void onPhotowarItemClick(View view, int photowarId);
+        void onOwnItemClick(View view, int ownId);
     }
     private OnItemClickListener mOnItemClickListener;
 
