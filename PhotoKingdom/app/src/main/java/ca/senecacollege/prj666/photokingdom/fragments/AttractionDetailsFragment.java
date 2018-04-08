@@ -128,6 +128,11 @@ public class AttractionDetailsFragment extends Fragment {
         mPhotowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
         mPingButton = (Button)rootView.findViewById(R.id.buttonPing);
 
+        if (mHasWar) {
+            ImageView imageViewWar = (ImageView)rootView.findViewById(R.id.imageViewWar);
+            imageViewWar.setVisibility(VISIBLE);
+        }
+
         // Buttons are visible if the user logged-in
         if (mSessionManager.isLoggedIn()) {
             if (mIsPinged == true) {
