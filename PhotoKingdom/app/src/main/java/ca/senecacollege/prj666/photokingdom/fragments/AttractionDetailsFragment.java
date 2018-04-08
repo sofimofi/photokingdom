@@ -15,12 +15,14 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 
 import ca.senecacollege.prj666.photokingdom.R;
 import ca.senecacollege.prj666.photokingdom.models.Attraction;
+import ca.senecacollege.prj666.photokingdom.models.Ping;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
@@ -33,21 +35,31 @@ import static android.view.View.VISIBLE;
 /**
  * Fragment for attraction details
  *
- * @author Wonho
+ * @author Wonho, Sofia
  */
 public class AttractionDetailsFragment extends Fragment {
     private static final String TAG = "AttractionDetailsFrag";
 
     // Argument keys
     private static final String ATTRACTION_NAME = "name";
+    private static final String ATTRACTION_LAT = "lat";
+    private static final String ATTRACTION_LNG = "lng";
     private static final String PLACE_ID = "placeId";
     private static final String IS_EXISTED = "isExisted";
     private static final String IS_PINGED = "isPinged";
+    private static final String HAS_WAR = "isPinged";
+    private static final String IS_LIT_UP = "isLitUp";
 
+    // Argument values
     private String mName;
+    private LatLng mLatLng;
     private String mPlaceId;
     private boolean mIsExisted;
     private boolean mIsPinged;
+    private boolean mHasWar;
+    private boolean mIsLitUp;
+
+    // Resident session
     private ResidentSessionManager mSessionManager;
 
     // Widgets
@@ -58,6 +70,7 @@ public class AttractionDetailsFragment extends Fragment {
     private TextView mHistoryTextView;
     private Button mWinningPhotosButton;
     private Button mPhotowarButton;
+    private Button mPingButton;
 
     private Attraction mAttraction;
 
@@ -83,6 +96,13 @@ public class AttractionDetailsFragment extends Fragment {
             mPlaceId = getArguments().getString(PLACE_ID);
             mIsExisted = getArguments().getBoolean(IS_EXISTED);
             mIsPinged = getArguments().getBoolean(IS_PINGED);
+            mHasWar = getArguments().getBoolean(HAS_WAR);
+            mIsLitUp = getArguments().getBoolean(IS_LIT_UP);
+
+            mLatLng = new LatLng(
+                    getArguments().getDouble(ATTRACTION_LAT),
+                    getArguments().getDouble(ATTRACTION_LNG)
+            );
         }
 
         mSessionManager = new ResidentSessionManager(getContext());
@@ -106,34 +126,41 @@ public class AttractionDetailsFragment extends Fragment {
         mHistoryTextView = (TextView) rootView.findViewById(R.id.attractionHistoryTextView);
         mWinningPhotosButton = (Button) rootView.findViewById(R.id.buttonWinningPhotos);
         mPhotowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
+        mPingButton = (Button)rootView.findViewById(R.id.buttonPing);
+
+        if (mHasWar) {
+            ImageView imageViewWar = (ImageView)rootView.findViewById(R.id.imageViewWar);
+            imageViewWar.setVisibility(VISIBLE);
+        }
 
         // Buttons are visible if the user logged-in
         if (mSessionManager.isLoggedIn()) {
-            if (mIsPinged == false) {
-                // Ping button is visible if this fragment opened from map (not ping list)
-                Button buttonPing = (Button)rootView.findViewById(R.id.buttonPing);
-                buttonPing.setVisibility(VISIBLE);
-            }
+            if (mIsPinged == true) {
+                // From ping list
+                Button buttonUpload = (Button)rootView.findViewById(R.id.buttonUpload);
+                buttonUpload.setVisibility(VISIBLE);
+            } else {
+                // From map
+                if (mIsLitUp == true) {
+                    Button buttonUpload = (Button)rootView.findViewById(R.id.buttonUpload);
+                    buttonUpload.setVisibility(VISIBLE);
 
-            Button buttonUpload = (Button)rootView.findViewById(R.id.buttonUpload);
-            buttonUpload.setVisibility(VISIBLE);
+                    enablePingButton();
+                }
+            }
         }
 
-        if (mIsExisted) {
-            if (!mPlaceId.isEmpty()) {
-                getAttractionDetails(mPlaceId);
-            }
-        } else {
-            mAttraction = new Attraction();
-            mAttraction.setName(mName);
-            mAttraction.setGooglePlaceId(mPlaceId);
-
-            setAttractionDetails();
+        if (!mPlaceId.isEmpty()) {
+            getAttractionDetails(mPlaceId);
         }
 
         return rootView;
     }
 
+    /**
+     * Call PhotoKingAPI to get attraction details data
+     * @param placeId
+     */
     private void getAttractionDetails(String placeId) {
         PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
 
@@ -154,6 +181,11 @@ public class AttractionDetailsFragment extends Fragment {
                     if (response.code() == 404) {
                         // Not Found
                         // Add new attraction
+                        mAttraction = new Attraction();
+                        mAttraction.setName(mName);
+                        mAttraction.setGooglePlaceId(mPlaceId);
+
+                        setAttractionDetails();
                     } else {
                         try {
                             String msg = "errorBody: " + response.errorBody().string() + "\n" +
@@ -178,6 +210,56 @@ public class AttractionDetailsFragment extends Fragment {
                 hideProgressBar();
             }
         });
+    }
+
+    /**
+     * Call PhotoKingAPI to create new ping data
+     */
+    private void createPing() {
+        showProgressBar();
+
+        // New ping
+        Ping ping = new Ping();
+        ping.setResidentId(mSessionManager.getResident().getId());
+        ping.setAttractionName(mName);
+        ping.setPlaceId(mPlaceId);
+
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<Ping> call = service.createPing(ping);
+        call.enqueue(new Callback<Ping>() {
+            @Override
+            public void onResponse(Call<Ping> call, Response<Ping> response) {
+                hideProgressBar();
+
+                if (response.isSuccessful()) {
+                    showPings();
+                }else {
+                    try {
+                        Log.d(TAG, "[createPing:onResponse] " + response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Ping> call, Throwable t) {
+                Log.d(TAG, "[createPing:onFailure] " + t.getMessage());
+                hideProgressBar();
+            }
+        });
+    }
+
+    /**
+     * Open PingsFragment
+     */
+    private void showPings() {
+        int residentId = mSessionManager.getResident().getId();
+        // Move to PingsFragment
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.frameLayout, PingsFragment.newInstance(residentId))
+                .addToBackStack(null)
+                .commit();
     }
 
     private void enableHistoryButtons(){
@@ -210,6 +292,19 @@ public class AttractionDetailsFragment extends Fragment {
         } else {
             Log.d(TAG, "Attraction is null!");
         }
+    }
+
+    /**
+     * Set Ping button
+     */
+    private void enablePingButton() {
+        mPingButton.setVisibility(VISIBLE);
+        mPingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createPing();
+            }
+        });
     }
 
     private void setAttractionDetails() {
