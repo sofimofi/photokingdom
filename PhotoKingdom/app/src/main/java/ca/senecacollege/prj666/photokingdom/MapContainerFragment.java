@@ -36,17 +36,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import ca.senecacollege.prj666.photokingdom.adapters.MapMarkerInfoWindowAdapter;
 import ca.senecacollege.prj666.photokingdom.fragments.AttractionDetailsFragment;
-import ca.senecacollege.prj666.photokingdom.models.Attraction;
 import ca.senecacollege.prj666.photokingdom.models.AttractionForMapView;
 import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
 import ca.senecacollege.prj666.photokingdom.models.LatLngBoundaries;
+import ca.senecacollege.prj666.photokingdom.models.Locality;
+import ca.senecacollege.prj666.photokingdom.models.ResidentOwnForMapView;
 import ca.senecacollege.prj666.photokingdom.services.AttractionsForMapViewManager;
 import ca.senecacollege.prj666.photokingdom.services.GooglePlacesApiManager;
+import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
+import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -58,7 +65,7 @@ import ca.senecacollege.prj666.photokingdom.services.GooglePlacesApiManager;
  * create an instance of this fragment.
  */
 public class MapContainerFragment extends Fragment implements OnMapReadyCallback, OnGooglePlacesApiTaskCompleted,
-        GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnCameraMoveListener,
+        GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnCameraIdleListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -71,10 +78,12 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
     private static final String TAG = "MapContainerFragment";
     static final int PERMISSIONS_REQUEST_ACCESS_LOCATION = 1;
+    private enum GooglePlaceRequest {NEARBY_ATTRACTIONS, LOCALITY}
 
     // Current location
     private FusedLocationProviderClient mFusedLocationClient;
     private Location mCurrentLocation;
+    private LatLng mCurrentLatLng;
 
     // Default location York University in case cannot get device current location
     private final LatLng mDefaultLocation = new LatLng(43.773111, -79.498842);
@@ -83,8 +92,11 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private static final double EQUATOR_LENGTH = 40075004; // in meters
     private static final int DEFAULT_ZOOM = 15;
     private static final double MAP_WIDTH_METERS = 4000; // default size of map width
+    private static final float CITY_ZOOM = 10;
+    private static final float CONTINENT_ZOOM = 5;
     private int screenWidthPixels;
     private int customZoom;
+
 
     private GoogleMap mGoogleMap;
     private OnFragmentInteractionListener mListener;
@@ -211,12 +223,13 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         mGoogleMap.setOnCameraIdleListener(this);
     }
 
-    public void getNearbyAttractions(double radiusMeters, double lat, double lng){
+    private void getNearbyAttractions(double radiusMeters, double lat, double lng){
+
         // get the nearby google places
         GooglePlacesRequest task = new GooglePlacesRequest(this, getActivity().getApplicationContext(), lat, lng, radiusMeters);
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        List<GooglePlace> googlePlaces = new ArrayList<GooglePlace>();
+        Set<GooglePlace> googlePlaces = new HashSet<>();
         try{
             googlePlaces = task.get();
             Log.d(TAG, "result from GooglePlaceRequest task: " + googlePlaces.toString());
@@ -286,6 +299,31 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         }
     }
 
+    private void getGeographicOwns(double lat, double lng){
+        // get the current locality
+        GoogleLocalityRequest task = new GoogleLocalityRequest(lat, lng, 5000);
+
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        Locality locality = null;
+        try{
+            locality = task.get();
+            Log.d(TAG, "result from GooglePlaceRequest task: " + locality.toString());
+        } catch (InterruptedException | ExecutionException e){
+            Log.e(TAG, e.getMessage());
+        }
+
+        mCurrentLatLng = new LatLng(lat, lng);
+
+        float currentZoom = mGoogleMap.getCameraPosition().zoom;
+        if(currentZoom > CONTINENT_ZOOM){
+            // city level
+            getCityOwn(locality);
+        } else {
+            // continent level
+            getProvinceCountryContinentOwns(locality);
+        }
+    }
+
     /**
      * Checks for googlePlace in list of AttractionForMapView
      */
@@ -334,26 +372,37 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         }
     }
 
-    @Override
-    public void onCameraMove(){
-        LatLng center = mGoogleMap.getCameraPosition().target;
-        LatLng radius = getScreenRadius();
-        Double radiusMeters = toRadiusMeters(center, radius);
-
-        Log.d(TAG, "OnCameraMove ---> new radius meters : " + radiusMeters);
-
-        getNearbyAttractions(radiusMeters, center.latitude, center.longitude);
-    }
+//    @Override
+//    public void onCameraMove(){
+//        LatLng center = mGoogleMap.getCameraPosition().target;
+//        LatLng radius = getScreenRadius();
+//        Double radiusMeters = toRadiusMeters(center, radius);
+//
+//        Log.d(TAG, "OnCameraMove ---> new radius meters : " + radiusMeters);
+//
+//        getNearbyAttractions(radiusMeters, center.latitude, center.longitude);
+//    }
 
     @Override
     public void onCameraIdle() {
         LatLng center = mGoogleMap.getCameraPosition().target;
-        LatLng radius = getScreenRadius();
-        Double radiusMeters = toRadiusMeters(center, radius);
 
-        Log.d(TAG, "onCameraIdle ---> new radius meters : " + radiusMeters);
+        float currentZoom = mGoogleMap.getCameraPosition().zoom;
+        if(currentZoom > CITY_ZOOM){
+            mGoogleMap.clear(); // remove previous markers
 
-        getNearbyAttractions(radiusMeters, center.latitude, center.longitude);
+            LatLng radius = getScreenRadius();
+            Double radiusMeters = toRadiusMeters(center, radius);
+            Log.d(TAG, "onCameraIdle ---> new radius meters : " + radiusMeters);
+
+            getNearbyAttractions(radiusMeters, center.latitude, center.longitude);
+        } else {
+            // city level and higher
+            Log.d(TAG, "Zoom level is " + currentZoom);
+
+            getGeographicOwns(center.latitude, center.longitude);
+        }
+
     }
 
     private LatLng getScreenRadius(){
@@ -369,6 +418,174 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         Location.distanceBetween(center.latitude, center.longitude,
                 radius.latitude, radius.longitude, result);
         return result[0];
+    }
+
+    private void getCityOwn(Locality locality){
+        if(locality.getCity().isEmpty() || locality.getProvince().isEmpty() || locality.getCountry().isEmpty()){
+            return;
+        }
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<ResidentOwnForMapView> call = service.getCityOwnByCityName(locality.getCity(), locality.getProvince(), locality.getCountry());
+        call.enqueue(new Callback<ResidentOwnForMapView>(){
+            @Override
+            public void onResponse(Call<ResidentOwnForMapView> call, Response<ResidentOwnForMapView> response) {
+                if(response.isSuccessful()){
+                    ResidentOwnForMapView residentOwn;
+                    residentOwn = response.body();
+                    if(residentOwn != null){
+                        Log.d(TAG, "Own came back: " + residentOwn.getTitle());
+                    }
+
+                    setCityOwnMarker(residentOwn);
+
+                } else {
+                    try {
+                        Log.d(TAG, response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Log.d(TAG, "API call is unsuccessful!");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResidentOwnForMapView> call, Throwable t) {
+                Log.e(TAG, t.getMessage());
+            }
+        });
+    }
+
+    public void getProvinceCountryContinentOwns(Locality locality){
+        if(locality.getProvince().isEmpty() || locality.getCountry().isEmpty()){
+            return;
+        }
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<ResidentOwnForMapView> provinceCall = service.getProvinceOwnByProvinceName(locality.getProvince(), locality.getCountry());
+        provinceCall.enqueue(new Callback<ResidentOwnForMapView>(){
+            @Override
+            public void onResponse(Call<ResidentOwnForMapView> call, Response<ResidentOwnForMapView> response) {
+                if(response.isSuccessful()){
+                    ResidentOwnForMapView residentOwn;
+                    residentOwn = response.body();
+                    if(residentOwn != null){
+                        Log.d(TAG, "Own came back: " + residentOwn.getTitle());
+                    }
+
+                    setProvinceOwnMarker(residentOwn);
+
+                } else {
+                    try {
+                        Log.d(TAG, response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Log.d(TAG, "API call is unsuccessful!");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResidentOwnForMapView> call, Throwable t) {
+                Log.e(TAG, t.getMessage());
+            }
+        });
+
+        Call<ResidentOwnForMapView> countryCall = service.getCountryOwnByCountryName(locality.getCountry());
+        countryCall.enqueue(new Callback<ResidentOwnForMapView>(){
+            @Override
+            public void onResponse(Call<ResidentOwnForMapView> countryCall, Response<ResidentOwnForMapView> response) {
+                if(response.isSuccessful()){
+                    ResidentOwnForMapView residentOwn;
+                    residentOwn = response.body();
+                    if(residentOwn != null){
+                        Log.d(TAG, "Own came back: " + residentOwn.getTitle());
+                    }
+
+                    setCountryOwnMarker(residentOwn);
+
+                } else {
+                    try {
+                        Log.d(TAG, response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Log.d(TAG, "API call is unsuccessful!");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResidentOwnForMapView> countryCall, Throwable t) {
+                Log.e(TAG, t.getMessage());
+            }
+        });
+
+        Call<ResidentOwnForMapView> continentCall = service.getContinentOwnByCountryName(locality.getCountry());
+        countryCall.enqueue(new Callback<ResidentOwnForMapView>(){
+            @Override
+            public void onResponse(Call<ResidentOwnForMapView> continentCall, Response<ResidentOwnForMapView> response) {
+                if(response.isSuccessful()){
+                    ResidentOwnForMapView residentOwn;
+                    residentOwn = response.body();
+                    if(residentOwn != null){
+                        Log.d(TAG, "Own came back: " + residentOwn.getTitle());
+                    }
+
+                    setContinentOwnMarker(residentOwn);
+
+                } else {
+                    try {
+                        Log.d(TAG, response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Log.d(TAG, "API call is unsuccessful!");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResidentOwnForMapView> continentCall, Throwable t) {
+                Log.e(TAG, t.getMessage());
+            }
+        });
+    }
+
+    public void setCityOwnMarker(ResidentOwnForMapView residentOwn){
+        if(residentOwn != null && mCurrentLatLng != null){
+            setOwnMarker(residentOwn, mCurrentLatLng);
+        }
+    }
+
+    public void setProvinceOwnMarker(ResidentOwnForMapView residentOwn){
+        if(residentOwn != null && mCurrentLatLng != null){
+            // TODO: move the marker a bit higher so that it's not on top of City Marker
+            LatLng latlng = mCurrentLatLng;
+            setOwnMarker(residentOwn, latlng);
+        }
+    }
+
+    public void setCountryOwnMarker(ResidentOwnForMapView residentOwn){
+        if(residentOwn != null && mCurrentLatLng != null){
+            // TODO: move the marker a bit higher so that it's not on top of City Marker
+            LatLng latlng = mCurrentLatLng;
+            setOwnMarker(residentOwn, latlng);
+        }
+    }
+
+    public void setContinentOwnMarker(ResidentOwnForMapView residentOwn){
+        if(residentOwn != null && mCurrentLatLng != null){
+            // TODO: move the marker a bit higher so that it's not on top of City Marker
+            LatLng latlng = mCurrentLatLng;
+            setOwnMarker(residentOwn, latlng);
+        }
+    }
+
+    public void setOwnMarker(ResidentOwnForMapView residentOwn, LatLng latlng){
+        BitmapDescriptor throne = BitmapDescriptorFactory.fromResource(R.drawable.throne);
+
+        mGoogleMap.addMarker(new MarkerOptions()
+                .title(residentOwn.getResidentUserName())
+                .position(latlng)
+                .snippet(residentOwn.getTitle())
+                .icon(throne));
     }
 
     public boolean checkPermission(){
@@ -475,14 +692,14 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     }
 
     @Override
-    public void OnTaskCompleted(List<GooglePlace> googlePlaces) {
+    public void OnTaskCompleted(Set<GooglePlace> googlePlaces) {
         Log.d(TAG, "Completed GooglePlacesAPI Task");
     }
 
     /**
      * Makes async request for google places
      */
-    public static class GooglePlacesRequest extends AsyncTask<String, Void, List<GooglePlace>> {
+    public static class GooglePlacesRequest extends AsyncTask<String, Void, Set<GooglePlace>> {
         private OnGooglePlacesApiTaskCompleted listener;
         private Context context;
         private double lat;
@@ -504,9 +721,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         }
 
         @Override
-        protected List<GooglePlace> doInBackground(String... params){
+        protected Set<GooglePlace> doInBackground(String... params){
 
-            List<GooglePlace> googlePlaces = new ArrayList<GooglePlace>();
+            Set<GooglePlace> googlePlaces = new HashSet<GooglePlace>();
             try{
                 GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, this.metersToSearch);
                 googlePlaces = manager.getGooglePlaces();
@@ -517,7 +734,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         }
 
         @Override
-        protected void onPostExecute(List<GooglePlace> googlePlaces){
+        protected void onPostExecute(Set<GooglePlace> googlePlaces){
             super.onPostExecute(googlePlaces);
 
             if(this.e != null){
@@ -534,16 +751,11 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
      * Makes async request for attractions in app database
      */
     public static class AttractionsForMapViewRequest extends AsyncTask<String, Void, List<AttractionForMapView>> {
-//        private OnAttractionsForMapViewTaskCompleted listener;
-//        private Context context;
         private LatLngBoundaries latLngBoundaries;
 
         private ApiException e;
 
-        public AttractionsForMapViewRequest(/*OnAttractionsForMapViewTaskCompleted listener,*/
-                                   /*Context context,*/ LatLngBoundaries latLngBoundaries ){
-//            this.listener = listener;
-//            this.context = context;
+        public AttractionsForMapViewRequest(LatLngBoundaries latLngBoundaries ){
             this.latLngBoundaries = latLngBoundaries;
         }
 
@@ -565,13 +777,51 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             super.onPostExecute(attractionsForMapView);
 
             if(this.e != null){
-                // tell user something went wrong
-//                Toast toast = Toast.makeText(context, "Error getting attractions", Toast.LENGTH_SHORT);
-//                toast.show();
                 Log.e(TAG, "-----> EXCEPTION from AttractionsForMapViewRequest task : " + e.getMessage());
                 return;
             }
-//            listener.OnTaskCompleted(attractionsForMapView);
+        }
+    }
+
+    /**
+     * Makes async request to get current Locality
+     */
+    public static class GoogleLocalityRequest extends AsyncTask<String, Void, Locality> {
+        private double lat;
+        private double lng;
+        private double metersToSearch;
+
+        private ApiException e;
+
+        public GoogleLocalityRequest(double lat,
+                                     double lng,
+                                     double metersToSearch){
+            this.lat = lat;
+            this.lng = lng;
+            this.metersToSearch = metersToSearch;
+        }
+
+        @Override
+        protected Locality doInBackground(String... params){
+
+            Locality locality = null;
+            try{
+                GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, metersToSearch);
+                locality = manager.getCurrentLocality();
+            } catch (ApiException e){
+                this.e = e;
+            }
+            return locality;
+        }
+
+        @Override
+        protected void onPostExecute(Locality locality){
+            super.onPostExecute(locality);
+
+            if(this.e != null){
+                Log.e(TAG, "-----> EXCEPTION from AttractionsForMapViewRequest task : " + e.getMessage());
+                return;
+            }
         }
     }
 
