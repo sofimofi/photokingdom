@@ -75,17 +75,20 @@
         android:textAlignment="textEnd" />
 
     <TextView
+        android:id="@+id/attractionHistoryTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:text="@string/history"
-        android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:visibility="gone"/>
 
     <Button
-        android:id="@+id/buttonWinnigPhotos"
+        android:id="@+id/buttonWinningPhotos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Winning photos" />
+        android:text="Winning photos"
+        android:visibility="gone"/>
 
     <Button
         android:id="@+id/buttonPhotowars"

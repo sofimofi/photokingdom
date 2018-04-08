@@ -36,6 +36,15 @@
     <string name="photowar_endDate">Ended on %1$s</string>
     <string name="photo_won_war_on_date">Photo won in photowar on %1$s</string>
     <string name="photo_lost_war_on_date">Photo lost in photowar on %1$s</string>
+    <string name="photo">Photo</string>
+    <string name="photo_currently_competing">Currently competing in Photowar!</string>
+    <string name="current_photowar_points">Photowar Pts:</string>
+    <string name="total_photo_points_to_date">Total cumulative Pts:</string>
+    <string name="photowar_history">Photowar History</string>
+    <string name="photowar_currently_ongoing">Currently ongoing!</string>
+    <string name="photowar_history_for_attraction">%1$s Photowar History</string>
+    <string name="winningphoto_history">Winning Photos</string>
+    <string name="attraction_winningphotos">%1$s Winning Photos</string>
 
     <!-- Messages -->
     <string name="msg_choose_continent">Choose a continent</string>
@@ -54,13 +63,7 @@
     <string name="error_login">Login failed, try again</string>
     <string name="error_invalid_email">Invalid email address</string>
     <string name="photowar_vote_finished">Voting closed!</string>
-    <string name="photo">Photo</string>
-    <string name="photo_currently_competing">Currently competing in Photowar!</string>
-    <string name="current_photowar_points">Photowar Pts:</string>
-    <string name="total_photo_points_to_date">Total cumulative Pts:</string>
-    <string name="photowar_history">Photowar History</string>
-    <string name="photowar_currently_ongoing">Currently ongoing!</string>
-    <string name="photowar_history_for_attraction">%1$s Photowar History</string>
+
 
 
 </resources>

@@ -6,22 +6,20 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.List;
 
-import ca.senecacollege.prj666.photokingdom.PhotowarFragment;
+import ca.senecacollege.prj666.photokingdom.PhotoFragment;
 import ca.senecacollege.prj666.photokingdom.R;
-import ca.senecacollege.prj666.photokingdom.adapters.AttractionPhotowarHistoryAdapter;
-import ca.senecacollege.prj666.photokingdom.adapters.PingsAdapter;
-import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarWithDetails;
+import ca.senecacollege.prj666.photokingdom.adapters.AttractionWinningPhotoHistoryAdapter;
+import ca.senecacollege.prj666.photokingdom.models.PhotoWinning;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 import retrofit2.Call;
@@ -32,30 +30,30 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link AttractionPhotowarHistoryFragment.OnFragmentInteractionListener} interface
+ * {@link AttractionWinningPhotoHistoryFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link AttractionPhotowarHistoryFragment#newInstance} factory method to
+ * Use the {@link AttractionWinningPhotoHistoryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AttractionPhotowarHistoryFragment extends Fragment {
-    private static final String TAG = "PhotowarHistoryFragment";
+public class AttractionWinningPhotoHistoryFragment extends Fragment {
+    private static final String TAG = "winningPhotoHistory";
     private static final String ATTRACTION_ID = "attractionId";
     private static final String ATTRACTION_NAME = "attractionName";
 
     private int mAttractionId;
     private String mAttractionName;
-    private List<AttractionPhotowarWithDetails> mAttractionPhotowarList;
+    private List<PhotoWinning> mWinningPhotos;
 
     private TextView banner;
 
     // RecyclerView
     private RecyclerView mRecyclerView;
-    private AttractionPhotowarHistoryAdapter mAdapter;
+    private AttractionWinningPhotoHistoryAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    //private OnFragmentInteractionListener mListener;
+//    private OnFragmentInteractionListener mListener;
 
-    public AttractionPhotowarHistoryFragment() {
+    public AttractionWinningPhotoHistoryFragment() {
         // Required empty public constructor
     }
 
@@ -64,11 +62,12 @@ public class AttractionPhotowarHistoryFragment extends Fragment {
      * this fragment using the provided parameters.
      *
      * @param attractionId
-     * @param attractionName Parameter 2.
-     * @return A new instance of fragment AttractionPhotowarHistoryFragment.
+     * @param attractionName
+     * @return A new instance of fragment AttractionWinningPhotoHistoryFragment.
      */
-    public static AttractionPhotowarHistoryFragment newInstance(int attractionId, String attractionName) {
-        AttractionPhotowarHistoryFragment fragment = new AttractionPhotowarHistoryFragment();
+    // TODO: Rename and change types and number of parameters
+    public static AttractionWinningPhotoHistoryFragment newInstance(int attractionId, String attractionName) {
+        AttractionWinningPhotoHistoryFragment fragment = new AttractionWinningPhotoHistoryFragment();
         Bundle args = new Bundle();
         args.putInt(ATTRACTION_ID, attractionId);
         args.putString(ATTRACTION_NAME, attractionName);
@@ -89,39 +88,39 @@ public class AttractionPhotowarHistoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_attraction_photowar_history, container, false);
+        View view =  inflater.inflate(R.layout.fragment_attraction_winning_photo_history, container, false);
 
         // Set the title
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-        actionBar.setTitle(R.string.photowar_history);
+        actionBar.setTitle(R.string.winningphoto_history);
 
-        banner = (TextView) view.findViewById(R.id.photoWarHistoryBannerTextView);
+        banner = (TextView) view.findViewById(R.id.winningPhotoHistoryBannerTextView);
+        banner.setText(getString(R.string.attraction_winningphotos, mAttractionName));
 
         // RecyclerView
         mRecyclerView = (RecyclerView)view.findViewById(R.id.recyclerView);
         mRecyclerView.setHasFixedSize(true);
 
         // Set RecyclerView layout
-        mLayoutManager = new LinearLayoutManager(getContext());
+        mLayoutManager = new GridLayoutManager(getContext(), 2);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        getPhotowars();
+        getWinningPhotos();
 
         return view;
     }
 
-    public void getPhotowars(){
+    private void getWinningPhotos(){
         PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
-        Call<List<AttractionPhotowarWithDetails>> call = service.getAttractionPhotowarHistory(mAttractionId);
-        call.enqueue(new Callback<List<AttractionPhotowarWithDetails>>() {
+        Call<List<PhotoWinning>> call = service.getAttractionWinningPhotos(mAttractionId);
+        call.enqueue(new Callback<List<PhotoWinning>>() {
             @Override
-            public void onResponse(Call<List<AttractionPhotowarWithDetails>> call, Response<List<AttractionPhotowarWithDetails>> response) {
+            public void onResponse(Call<List<PhotoWinning>> call, Response<List<PhotoWinning>> response) {
                 if(response.isSuccessful()){
-                    mAttractionPhotowarList = response.body();
+                    mWinningPhotos = response.body();
 
-                    Log.d(TAG, "Photowar History List came back: " + mAttractionPhotowarList);
-                    Log.d(TAG, "PhotowarHistory List count: " + mAttractionPhotowarList.size());
-                    setPhotowarHistoryData();
+                    Log.d(TAG, "Photowar History List came back: " + mWinningPhotos);
+                    setWinningPhotosData();
                 } else {
                     try {
                         Log.d(TAG, response.errorBody().toString());
@@ -133,27 +132,25 @@ public class AttractionPhotowarHistoryFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<List<AttractionPhotowarWithDetails>> call, Throwable t) {
+            public void onFailure(Call<List<PhotoWinning>> call, Throwable t) {
                 Log.e(TAG, t.getMessage());
             }
         });
     }
 
-    public void setPhotowarHistoryData(){
-        if (mAttractionPhotowarList != null) {
-            banner.setText(getString(R.string.photowar_history_for_attraction, mAttractionName));
-
+    private void setWinningPhotosData(){
+        if(mWinningPhotos != null){
             // Set data to RecyclerView
-            mAdapter = new AttractionPhotowarHistoryAdapter(getContext(), mAttractionPhotowarList);
-            mAdapter.setOnItemClickListener(new AttractionPhotowarHistoryAdapter.OnItemClickListener() {
+            mAdapter = new AttractionWinningPhotoHistoryAdapter(getContext(), mWinningPhotos);
+            mAdapter.setOnItemClickListener(new AttractionWinningPhotoHistoryAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-                    int photowarId = mAttractionPhotowarList.get(position).getId();
-                    Log.d(TAG, "Clicked on photowar " + photowarId);
-                    // Move to AttractionDetailsFragment
-                    PhotowarFragment photowarFragment = PhotowarFragment.newInstance(photowarId);
+                    int photoId = mWinningPhotos.get(position).getId();
+                    Log.d(TAG, "Clicked on photo " + photoId);
+                    // Move to PhotoFragment
+                    PhotoFragment photoFragment = PhotoFragment.newInstance(photoId);
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.frameLayout, photowarFragment)
+                            .replace(R.id.frameLayout, photoFragment)
                             .addToBackStack(null)
                             .commit();
                 }

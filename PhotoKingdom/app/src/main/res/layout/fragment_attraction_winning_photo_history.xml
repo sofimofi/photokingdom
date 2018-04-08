@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="ca.senecacollege.prj666.photokingdom.AttractionWinningPhotoHistoryFragment">
+    tools:context="ca.senecacollege.prj666.photokingdom.fragments.AttractionWinningPhotoHistoryFragment">
 
     <TextView
         android:id="@+id/winningPhotoHistoryBannerTextView"
@@ -11,20 +11,24 @@
         android:layout_height="wrap_content"
         android:background="@color/banner"
         android:padding="5dp"
-        android:text="Photo History of CN Tower"
         android:textAlignment="center"
         android:textSize="20sp" />
 
-    <GridView
-        android:id="@+id/attractionWinningPhotoHistoryGridView"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:columnWidth="170dp"
-        android:drawSelectorOnTop="true"
-        android:gravity="center"
-        android:numColumns="2"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="5dp"
-        android:focusable="true"
-        android:clickable="true"/>
+    <!--<GridView-->
+        <!--android:id="@+id/attractionWinningPhotoHistoryGridView"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:columnWidth="170dp"-->
+        <!--android:drawSelectorOnTop="true"-->
+        <!--android:gravity="center"-->
+        <!--android:numColumns="2"-->
+        <!--android:stretchMode="columnWidth"-->
+        <!--android:verticalSpacing="5dp"-->
+        <!--android:focusable="true"-->
+        <!--android:clickable="true"/>-->
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </LinearLayout>

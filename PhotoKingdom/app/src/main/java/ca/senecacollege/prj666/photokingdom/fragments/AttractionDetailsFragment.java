@@ -19,7 +19,6 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 
-import ca.senecacollege.prj666.photokingdom.PhotowarFragment;
 import ca.senecacollege.prj666.photokingdom.R;
 import ca.senecacollege.prj666.photokingdom.models.Attraction;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
@@ -56,7 +55,9 @@ public class AttractionDetailsFragment extends Fragment {
     private TextView mTextViewName;
     private TextView mTextViewWinner;
     private ImageView mImageViewAttraction;
-    private Button photowarButton;
+    private TextView mHistoryTextView;
+    private Button mWinningPhotosButton;
+    private Button mPhotowarButton;
 
     private Attraction mAttraction;
 
@@ -102,7 +103,9 @@ public class AttractionDetailsFragment extends Fragment {
         mTextViewName = (TextView)rootView.findViewById(R.id.textViewName);
         mTextViewWinner = (TextView)rootView.findViewById(R.id.textViewWinner);
         mImageViewAttraction = (ImageView)rootView.findViewById(R.id.imageViewAttraction);
-        photowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
+        mHistoryTextView = (TextView) rootView.findViewById(R.id.attractionHistoryTextView);
+        mWinningPhotosButton = (Button) rootView.findViewById(R.id.buttonWinningPhotos);
+        mPhotowarButton = (Button) rootView.findViewById(R.id.buttonPhotowars);
 
         // Buttons are visible if the user logged-in
         if (mSessionManager.isLoggedIn()) {
@@ -143,8 +146,9 @@ public class AttractionDetailsFragment extends Fragment {
                 hideProgressBar();
 
                 if (response.isSuccessful()) {
+                    Log.d(TAG, "Got attraction!");
                     mAttraction = response.body();
-                    enablePhotowarsButton();
+                    enableHistoryButtons();
                     setAttractionDetails();
                 } else {
                     if (response.code() == 404) {
@@ -176,11 +180,25 @@ public class AttractionDetailsFragment extends Fragment {
         });
     }
 
-    private void enablePhotowarsButton(){
+    private void enableHistoryButtons(){
         if(mAttraction != null){
-            photowarButton.setVisibility(VISIBLE);
+            mHistoryTextView.setVisibility(VISIBLE);
+
+            mWinningPhotosButton.setVisibility(VISIBLE);
+            final AttractionWinningPhotoHistoryFragment winningPhotosFragment = AttractionWinningPhotoHistoryFragment.newInstance(mAttraction.getId(), mAttraction.getName());
+            mWinningPhotosButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frameLayout, winningPhotosFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
+
+            mPhotowarButton.setVisibility(VISIBLE);
             final AttractionPhotowarHistoryFragment photowarHistoryFragment = AttractionPhotowarHistoryFragment.newInstance(mAttraction.getId(), mAttraction.getName());
-            photowarButton.setOnClickListener(new View.OnClickListener() {
+            mPhotowarButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     getActivity().getSupportFragmentManager().beginTransaction()
@@ -189,6 +207,8 @@ public class AttractionDetailsFragment extends Fragment {
                             .commit();
                 }
             });
+        } else {
+            Log.d(TAG, "Attraction is null!");
         }
     }
 
