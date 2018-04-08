@@ -191,6 +191,14 @@ public class MainActivity extends AppCompatActivity implements PhotowarFragment.
                         .commit();
 
                 return true;
+            case R.id.test_photowar_detail:
+                PhotowarFragment photowarFragment = PhotowarFragment.newInstance(34);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frameLayout, photowarFragment )
+                        .addToBackStack(null)
+                        .commit();
+
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
