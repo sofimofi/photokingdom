@@ -29,7 +29,7 @@ import retrofit2.http.Query;
 /**
  * Retrofit service interface for PhotokingdomAPI
  *
- * @author Wonho
+ * @author Wonho, Sofia, Zhihao
  */
 public interface PhotoKingdomService {
     @Multipart
@@ -120,5 +120,7 @@ public interface PhotoKingdomService {
     @GET("api/owns/active/continent")
     Call<ResidentOwnForMapView> getContinentOwnByCountryName(@Path("country") String country);
 
+    @POST("api/pings")
+    Call<Ping> createPing(@Body Ping ping);
 }
 

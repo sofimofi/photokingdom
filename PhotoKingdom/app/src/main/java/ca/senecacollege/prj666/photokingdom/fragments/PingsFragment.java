@@ -99,6 +99,10 @@ public class PingsFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * Call PhotoKingdomAPI to get all pings data
+     * @param residentId
+     */
     private void getPings(final int residentId) {
         PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
 
@@ -130,6 +134,9 @@ public class PingsFragment extends Fragment {
         });
     }
 
+    /**
+     * Set pings data to view
+     */
     private void setPingsData() {
         if (mPings != null) {
             // Set pings data to RecyclerView
@@ -137,10 +144,12 @@ public class PingsFragment extends Fragment {
             mAdapter.setOnItemClickListener(new PingsAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-                    String attractionName = mPings.get(position).getAttraction().getName();
+                    String attractionName = mPings.get(position).getAttractionName();
+                    String placeId = mPings.get(position).getPlaceId();
 
                     Bundle bundle = new Bundle();
                     bundle.putString("name", attractionName);
+                    bundle.putString("placeId", placeId);
                     bundle.putBoolean("isPinged", true);
                     // Move to AttractionDetailsFragment
                     AttractionDetailsFragment fragment = AttractionDetailsFragment.newInstance(bundle);

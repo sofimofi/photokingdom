@@ -4,6 +4,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Lat and Lng boundaries for a desired region
+ *
+ * @author Sofia, Wonho
  */
 public class LatLngBoundaries {
     private double maxLat;
@@ -48,6 +50,20 @@ public class LatLngBoundaries {
 
     public void setMinLng(double minLng) {
         this.minLng = minLng;
+    }
+
+    /**
+     * Check passed GPS coordinator in boundaries
+     * @param latLng
+     * @return boolean
+     */
+    public boolean checkInBoundaries(LatLng latLng) {
+        if (latLng.latitude > minLat && latLng.latitude < maxLat
+                && latLng.longitude > minLng && latLng.longitude < maxLng) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
