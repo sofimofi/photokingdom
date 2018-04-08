@@ -7,8 +7,9 @@
 
     <ImageView
         android:id="@+id/attractionWinningPhotoHistoryItemImageView"
-        android:layout_width="170dp"
-        android:layout_height="150dp"
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:scaleType="centerCrop"
         android:layout_marginBottom="5dp"
         android:contentDescription="Winning Photo of Attraction"/>
 

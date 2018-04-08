@@ -9,6 +9,7 @@ import ca.senecacollege.prj666.photokingdom.models.Image;
 import ca.senecacollege.prj666.photokingdom.models.Continent;
 import ca.senecacollege.prj666.photokingdom.models.Country;
 import ca.senecacollege.prj666.photokingdom.models.LoginInfo;
+import ca.senecacollege.prj666.photokingdom.models.PhotoWinning;
 import ca.senecacollege.prj666.photokingdom.models.PhotoWithDetails;
 import ca.senecacollege.prj666.photokingdom.models.Ping;
 import ca.senecacollege.prj666.photokingdom.models.Province;
@@ -55,6 +56,9 @@ public interface PhotoKingdomService {
     Call<AttractionPhotowarWithDetails> removeVoteAttractionPhotowar(@Path("id") int attractionPhotowarId,
                                                        @Query("residentId") int residentId,
                                                        @Query("photoUploadId") int photoUploadId);
+
+    @GET("api/attractions/{id}/WinningPhotos")
+    Call<List<PhotoWinning>> getAttractionWinningPhotos(@Path("id") int attractionId);
 
     @GET("api/attractions/{id}/Photowars")
     Call<List<AttractionPhotowarWithDetails>> getAttractionPhotowarHistory(@Path("id") int attractionId);
