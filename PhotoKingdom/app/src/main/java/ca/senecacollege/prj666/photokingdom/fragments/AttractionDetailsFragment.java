@@ -105,6 +105,7 @@ public class AttractionDetailsFragment extends Fragment {
             );
         }
 
+        Log.d(TAG, "Opening up Place Id " + mPlaceId);
         mSessionManager = new ResidentSessionManager(getContext());
     }
 
@@ -279,6 +280,7 @@ public class AttractionDetailsFragment extends Fragment {
             });
 
             mPhotowarButton.setVisibility(VISIBLE);
+
             final AttractionPhotowarHistoryFragment photowarHistoryFragment = AttractionPhotowarHistoryFragment.newInstance(mAttraction.getId(), mAttraction.getName());
             mPhotowarButton.setOnClickListener(new View.OnClickListener() {
                 @Override

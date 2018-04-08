@@ -1,6 +1,5 @@
 package ca.senecacollege.prj666.photokingdom.services;
 
-import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gms.common.api.ApiException;
@@ -14,28 +13,37 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
+import ca.senecacollege.prj666.photokingdom.models.Locality;
 
 /**
  * Service to get place information from Google Places API Web Service
  */
 public class GooglePlacesApiManager {
     private final String TAG = "GooglePlacesApiManager";
-    private static final String GOOGLE_PLACES_WEB_SERVICE = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+    private static final String GOOGLE_PLACES_WEB_SERVICE_NEARBY = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+    private static final String GOOGLE_PLACES_WEB_SERVICE_DETAILS = "https://maps.googleapis.com/maps/api/place/details/json?";
     private static final String KEY = "key=";
     private static final String API_KEY = "AIzaSyAUHQwgoYQyDlKLzLDehrZz-3JElO_I4-Y";
     private static final String LOCATION = "&location=";
     private static final String RADIUS = "&radius=";
     private static final String TYPE = "&type=";
     private static final String PAGE_TOKEN = "&pagetoken=";
+    private static final String PLACE_ID = "&placeid=";
 
-    private final String[] placeTypes = {""};
+    private static final String CITY = "locality";
+    private static final String PROVINCE = "administrative_area_level_1";
+    private static final String COUNTRY = "country";
+
+    private final String[] placeTypes = {"museum","natural_feature","premise","park" };
+
     private double Lat;
     private double Lng;
-    private List<GooglePlace> googlePlaces;
+    private Set<GooglePlace> googlePlaces;
     private String nextPageToken;
     private double metersToSearch;
 
@@ -43,55 +51,168 @@ public class GooglePlacesApiManager {
         this.Lat = lat;
         this.Lng = lng;
         this.metersToSearch = metersToSearch;
-        this.googlePlaces = new ArrayList<>();
+        this.googlePlaces = new HashSet<>();
     }
 
-    public List<GooglePlace> getGooglePlaces() throws ApiException{
+    public Set<GooglePlace> getGooglePlaces() throws ApiException{
         makeRequest();
         return googlePlaces;
     }
 
-    public void makeRequest() throws ApiException{
+    public Locality getCurrentLocality()throws ApiException{
+        String place_id = getPlaceId();
+        if(place_id == null){ return null; }
+
+        Locality locality = getLocalityForPlaceID(place_id);
+        return locality;
+    }
+
+    public String getPlaceId(){
+        String place_id = null;
         try{
-            boolean nextToken = true;
-            while(nextToken){
-                HttpURLConnection urlConnection;
-                URL url;
-                StringBuilder urlString = new StringBuilder();
-                urlString.append(GOOGLE_PLACES_WEB_SERVICE).append(KEY).append(API_KEY);
+            HttpURLConnection urlConnection;
+            URL url;
+            StringBuilder urlString = new StringBuilder();
+            urlString.append(GOOGLE_PLACES_WEB_SERVICE_NEARBY).append(KEY).append(API_KEY);
+            urlString.append(LOCATION).append(this.Lat + "," + this.Lng);
+            urlString.append(RADIUS).append(this.metersToSearch);
 
-                if(this.nextPageToken == null || this.nextPageToken.isEmpty()){
-                    // first page
-                    urlString.append(LOCATION).append(this.Lat + "," + this.Lng);
-                    urlString.append(RADIUS).append(this.metersToSearch);
-                    urlString.append(TYPE).append("park");
-                } else {
-                    // there is a next page token - get next page
-                    urlString.append(PAGE_TOKEN).append(this.nextPageToken);
-                }
+            url = new URL(urlString.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
 
-                url = new URL(urlString.toString());
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
+            InputStream inStream = urlConnection.getInputStream();
+            BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
 
-                InputStream inStream = urlConnection.getInputStream();
-                BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
-
-                String tmp;
-                StringBuilder response = new StringBuilder();
-                while((tmp = bReader.readLine()) != null){
-                    response.append(tmp);
-                }
-
-                JSONObject json = (JSONObject) new JSONTokener(
-                        response.toString()
-                ).nextValue();
-
-                nextToken = parseJson(json);
+            String tmp;
+            StringBuilder response = new StringBuilder();
+            while((tmp = bReader.readLine()) != null){
+                response.append(tmp);
             }
+
+            JSONObject json = (JSONObject) new JSONTokener(
+                    response.toString()
+            ).nextValue();
+
+            bReader.close();
+            inStream.close();
+
+            JSONArray results = json.getJSONArray("results");
+            if(results.length() > 0){
+                // only use the first place as a reference
+                JSONObject placeObj = results.getJSONObject(0);
+                place_id = placeObj.getString("place_id");
+            } else {
+                // no results - need to increase radius and try again
+                this.metersToSearch *= 2;
+                return getPlaceId();
+            }
+            return place_id;
+        } catch(Exception e){
+            Log.e(TAG, e.getMessage());
+        }
+        return place_id;
+    }
+
+    public Locality getLocalityForPlaceID(String placeId) {
+        Locality locality = null;
+        try {
+            HttpURLConnection urlConnection;
+            URL url;
+            StringBuilder urlString = new StringBuilder();
+            urlString.append(GOOGLE_PLACES_WEB_SERVICE_DETAILS).append(KEY).append(API_KEY);
+            urlString.append(PLACE_ID).append(placeId);
+
+            url = new URL(urlString.toString());
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inStream = urlConnection.getInputStream();
+            BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
+
+            String tmp;
+            StringBuilder response = new StringBuilder();
+            while((tmp = bReader.readLine()) != null){
+                response.append(tmp);
+            }
+
+            JSONObject json = (JSONObject) new JSONTokener(
+                    response.toString()
+            ).nextValue();
+
+            JSONObject result = json.getJSONObject("result");
+            JSONArray addressComponents = result.getJSONArray("address_components");
+
+            String city = "";
+            String province = "";
+            String country = "";
+            for(int i = 0; i < addressComponents.length(); i++){
+                JSONObject address = addressComponents.getJSONObject(i);
+                JSONArray types = address.getJSONArray("types");
+                for(int j = 0; j < types.length(); j++){
+                    if(types.getString(j).equals(CITY)){
+                        city = address.getString("long_name");
+                    }
+                    if(types.getString(j).equals(PROVINCE)){
+                        province = address.getString("long_name");
+                    }
+                    if(types.getString(j).equals(COUNTRY)){
+                        country = address.getString("long_name");
+                    }
+                }
+            }
+            locality = new Locality(city, province, country);
         } catch (Exception e){
             Log.e(TAG, e.getMessage());
+        }
+        return locality;
+    }
+
+    public void makeRequest() throws ApiException{
+        for(String place : placeTypes){
+            try{
+                boolean nextToken = true;
+                while(nextToken){
+                    HttpURLConnection urlConnection;
+                    URL url;
+                    StringBuilder urlString = new StringBuilder();
+                    urlString.append(GOOGLE_PLACES_WEB_SERVICE_NEARBY).append(KEY).append(API_KEY);
+
+                    if(this.nextPageToken == null || this.nextPageToken.isEmpty()){
+                        // first page
+                        urlString.append(LOCATION).append(this.Lat + "," + this.Lng);
+                        urlString.append(RADIUS).append(this.metersToSearch);
+                        urlString.append(TYPE).append(place);
+                    } else {
+                        // there is a next page token - get next page
+                        urlString.append(PAGE_TOKEN).append(this.nextPageToken);
+                    }
+
+                    url = new URL(urlString.toString());
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
+
+                    InputStream inStream = urlConnection.getInputStream();
+                    BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
+
+                    String tmp;
+                    StringBuilder response = new StringBuilder();
+                    while((tmp = bReader.readLine()) != null){
+                        response.append(tmp);
+                    }
+
+                    JSONObject json = (JSONObject) new JSONTokener(
+                            response.toString()
+                    ).nextValue();
+
+                    nextToken = parseJson(json);
+                }
+            } catch (Exception e){
+                Log.e(TAG, e.getMessage());
+            }
         }
     }
 

@@ -15,6 +15,7 @@ import ca.senecacollege.prj666.photokingdom.models.Ping;
 import ca.senecacollege.prj666.photokingdom.models.Province;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import ca.senecacollege.prj666.photokingdom.models.ResidentOwn;
+import ca.senecacollege.prj666.photokingdom.models.ResidentOwnForMapView;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -95,14 +96,29 @@ public interface PhotoKingdomService {
     @GET("api/owns/active/cities")
     Call<List<ResidentOwn>> getCityOwns();
 
+    @GET("api/owns/active/city")
+    Call<ResidentOwnForMapView> getCityOwnByCityName(@Path("city") String city,
+                                                           @Path("province") String province,
+                                                           @Path("country") String country);
+
     @GET("api/owns/active/provinces")
     Call<List<ResidentOwn>> getProvinceOwns();
+
+    @GET("api/owns/active/province")
+    Call<ResidentOwnForMapView> getProvinceOwnByProvinceName(@Path("province") String province,
+                                                         @Path("country") String country);
 
     @GET("api/owns/active/countries")
     Call<List<ResidentOwn>> getCountryOwns();
 
+    @GET("api/owns/active/country")
+    Call<ResidentOwnForMapView> getCountryOwnByCountryName(@Path("country") String country);
+
     @GET("api/owns/active/continents")
     Call<List<ResidentOwn>> getContinentsOwns();
+
+    @GET("api/owns/active/continent")
+    Call<ResidentOwnForMapView> getContinentOwnByCountryName(@Path("country") String country);
 
     @POST("api/pings")
     Call<Ping> createPing(@Body Ping ping);

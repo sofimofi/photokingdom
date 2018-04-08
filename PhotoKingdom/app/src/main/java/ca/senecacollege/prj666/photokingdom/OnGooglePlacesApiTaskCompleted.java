@@ -1,6 +1,7 @@
 package ca.senecacollege.prj666.photokingdom;
 
 import java.util.List;
+import java.util.Set;
 
 import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
 
@@ -9,5 +10,5 @@ import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
  */
 
 public interface OnGooglePlacesApiTaskCompleted {
-    void OnTaskCompleted(List<GooglePlace> googlePlaces);
+    void OnTaskCompleted(Set<GooglePlace> googlePlaces);
 }
