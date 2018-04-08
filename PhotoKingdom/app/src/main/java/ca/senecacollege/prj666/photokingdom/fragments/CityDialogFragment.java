@@ -32,6 +32,8 @@ import retrofit2.Response;
 
 /**
  * Dialog to select a city
+ *
+ * @author Wonho
  */
 public class CityDialogFragment extends DialogFragment implements AdapterView.OnItemSelectedListener{
     private static final String TAG = "CityDialogFragment";

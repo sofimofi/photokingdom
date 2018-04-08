@@ -187,6 +187,7 @@ public class UserFragment extends Fragment {
         } else {
             // Other resident
             getResident(mResidentId);
+            mButtonPingList.setVisibility(View.GONE);
         }
 
         // Button click

@@ -13,6 +13,7 @@ import ca.senecacollege.prj666.photokingdom.models.PhotoWithDetails;
 import ca.senecacollege.prj666.photokingdom.models.Ping;
 import ca.senecacollege.prj666.photokingdom.models.Province;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
+import ca.senecacollege.prj666.photokingdom.models.ResidentOwn;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -41,6 +42,9 @@ public interface PhotoKingdomService {
 
     @GET("api/attractions/googleplaceid/{placeId}/details")
     Call<Attraction> getAttractionByPlaceId(@Path("placeId") String placeId);
+
+    @GET("api/attractionphotowars")
+    Call<List<AttractionPhotowarWithDetails>> getPhotowars();
 
     @GET("api/attractionphotowars/{id}/details")
     Call<AttractionPhotowarWithDetails> getAttractionPhotowar(@Path("id") int attractionPhotowarId,
@@ -80,5 +84,20 @@ public interface PhotoKingdomService {
 
     @GET("api/photos/{id}/details")
     Call<PhotoWithDetails> getPhoto(@Path("id") int photoId);
+
+    @GET("api/owns/active/attractions")
+    Call<List<ResidentOwn>> getAttractionOwns();
+
+    @GET("api/owns/active/cities")
+    Call<List<ResidentOwn>> getCityOwns();
+
+    @GET("api/owns/active/provinces")
+    Call<List<ResidentOwn>> getProvinceOwns();
+
+    @GET("api/owns/active/countries")
+    Call<List<ResidentOwn>> getCountryOwns();
+
+    @GET("api/owns/active/continents")
+    Call<List<ResidentOwn>> getContinentsOwns();
 }
 

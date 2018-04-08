@@ -1,16 +1,22 @@
 package ca.senecacollege.prj666.photokingdom.adapters;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 import ca.senecacollege.prj666.photokingdom.R;
+import ca.senecacollege.prj666.photokingdom.models.FeedEntry;
 import ca.senecacollege.prj666.photokingdom.models.LiveFeed;
+import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 
 /**
  * Fragment for live feeds
@@ -19,9 +25,11 @@ import ca.senecacollege.prj666.photokingdom.models.LiveFeed;
  */
 
 public class LiveFeedsAdapter extends RecyclerView.Adapter<LiveFeedsAdapter.ViewHolder> {
+    private static final String TAG = "LiveFeedsAdapter";
 
     // Live feeds data
     private List<LiveFeed> mFeeds;
+    private Context mContext;
 
     // ViewHolder for an item
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -45,7 +53,8 @@ public class LiveFeedsAdapter extends RecyclerView.Adapter<LiveFeedsAdapter.View
         }
     }
 
-    public LiveFeedsAdapter(List<LiveFeed> feeds) {
+    public LiveFeedsAdapter(Context context, List<LiveFeed> feeds) {
+        mContext = context;
         mFeeds = feeds;
     }
 
@@ -59,22 +68,41 @@ public class LiveFeedsAdapter extends RecyclerView.Adapter<LiveFeedsAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         // Set views
         holder.textViewDate.setText(mFeeds.get(position).getDate());
         holder.textViewMsg.setText(mFeeds.get(position).getMsg());
 
-        if (mFeeds.get(position).getImgRes1() == 0) {
-            // Message feed
-            hidePhotowarViews(holder);
-        } else {
+        //if (mFeeds.get(position).getPhotoPath1().isEmpty()) {
+        if (mFeeds.get(position).getType() == FeedEntry.TYPE_PHOTOWAR) {
             // Photowar feed
-            holder.imageView1.setImageResource(mFeeds.get(position).getImgRes1());
-            holder.imageView2.setImageResource(mFeeds.get(position).getImgRes2());
-            holder.textViewName1.setText(mFeeds.get(position).getName1());
-            holder.textViewName2.setText(mFeeds.get(position).getName2());
+            loadImage(holder.imageView1, mFeeds.get(position).photowar.getPhotoPath1());
+            loadImage(holder.imageView2, mFeeds.get(position).photowar.getPhotoPath2());
+            holder.textViewName1.setText(mFeeds.get(position).photowar.getResidentName1());
+            holder.textViewName2.setText(mFeeds.get(position).photowar.getResidentName2());
 
             showPhotowarViews(holder);
+
+            // Photowar click
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int photowarId = mFeeds.get(position).photowar.getPhotowarId();
+                    mOnItemClickListener.onPhotowarItemClick(view, photowarId);
+                }
+            });
+        } else {
+            // Own feed
+            hidePhotowarViews(holder);
+
+            // Own click
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int ownId = mFeeds.get(position).own.getResidentId();
+                    mOnItemClickListener.onOwnItemClick(view, ownId);
+                }
+            });
         }
     }
 
@@ -104,5 +132,33 @@ public class LiveFeedsAdapter extends RecyclerView.Adapter<LiveFeedsAdapter.View
         holder.imageView2.setVisibility(View.GONE);
         holder.textViewName1.setVisibility(View.GONE);
         holder.textViewName2.setVisibility(View.GONE);
+    }
+
+    private void loadImage(ImageView imageView, final String imagePath){
+        String imageUrl = RetrofitServiceGenerator.getBaseUrl() + imagePath;
+        Picasso.with(mContext).load(imageUrl)
+                .error(R.mipmap.ic_launcher)
+                .into(imageView, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "Succeeded photo upload of " + imagePath);
+                    }
+
+                    @Override
+                    public void onError() {
+                        Log.d(TAG, "Failed photo upload of " + imagePath);
+                    }
+                });
+    }
+
+    // Listener to click an item
+    public interface OnItemClickListener {
+        void onPhotowarItemClick(View view, int photowarId);
+        void onOwnItemClick(View view, int ownId);
+    }
+    private OnItemClickListener mOnItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener itemClickListener) {
+        mOnItemClickListener = itemClickListener;
     }
 }

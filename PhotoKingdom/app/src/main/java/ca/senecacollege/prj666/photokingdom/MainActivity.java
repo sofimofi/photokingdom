@@ -15,18 +15,26 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import ca.senecacollege.prj666.photokingdom.fragments.AttractionDetailsFragment;
+import ca.senecacollege.prj666.photokingdom.fragments.LiveFeedFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.PhotowarQueueFragment;
-import ca.senecacollege.prj666.photokingdom.fragments.PingsFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.SettingsFragment;
+import ca.senecacollege.prj666.photokingdom.services.LiveFeedService;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 
+/**
+ * Main activity contains fragments and navigation
+ *
+ * @author Wonho, Zhihao
+ */
 public class MainActivity extends AppCompatActivity implements PhotowarFragment.OnPhotowarFragmentInteractionListener {
 
     // Fragments
     private LiveFeedFragment mLiveFeedFragment;
     private MapContainerFragment mMapContainerFragment;
     private UserFragment mUserFragment;
+
+    // LiveFeed service
+    private Intent mServiceIntent;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -126,6 +134,10 @@ public class MainActivity extends AppCompatActivity implements PhotowarFragment.
         if(getSupportFragmentManager().findFragmentById(R.id.frameLayout) == null){
             getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new LiveFeedFragment()).commit();
         }
+
+        // Start LiveFeed service
+        mServiceIntent = new Intent(getApplicationContext(), LiveFeedService.class);
+        startService(mServiceIntent);
     }
 
     @Override
@@ -209,5 +221,15 @@ public class MainActivity extends AppCompatActivity implements PhotowarFragment.
     @Override
     public void onFragmentInteraction() {
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // Stop LiveFeed service
+        if (mServiceIntent != null) {
+            stopService(mServiceIntent);
+        }
     }
 }
