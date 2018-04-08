@@ -2,6 +2,7 @@ package ca.senecacollege.prj666.photokingdom;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.net.Uri;
@@ -28,14 +29,21 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.Dot;
+import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -50,12 +58,9 @@ import ca.senecacollege.prj666.photokingdom.services.GooglePlacesApiManager;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MapContainerFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MapContainerFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment to contain Google Map
+ *
+ * @author Zhihao, Sofia, Wonho
  */
 public class MapContainerFragment extends Fragment implements OnMapReadyCallback, OnGooglePlacesApiTaskCompleted,
         GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnCameraMoveListener,
@@ -85,6 +90,10 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private static final double MAP_WIDTH_METERS = 4000; // default size of map width
     private int screenWidthPixels;
     private int customZoom;
+
+    // Lit-up attraction radius
+    private static final double MAP_LIT_UP_METERS = 300;
+
 
     private GoogleMap mGoogleMap;
     private OnFragmentInteractionListener mListener;
@@ -239,6 +248,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             Log.e(TAG, e.getMessage());
         }
 
+        // Clear old markers and shapes
+        mGoogleMap.clear();
+
         // Add markers on map
         BitmapDescriptor throne = BitmapDescriptorFactory.fromResource(R.drawable.throne);
         BitmapDescriptor swords = BitmapDescriptorFactory.fromResource(R.drawable.swords);
@@ -248,27 +260,56 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             // look for this google place in the attraction list
             AttractionForMapView attraction = getAttractionByGooglePlaceId(place.getPlace_id(), existingAttractions);
 
-            //Bundle bundle = new Bundle();
+            // Arguments to pass to AttractionDetailsFragment
+            Bundle bundle = new Bundle();
+            bundle.putBoolean("isPinged", false);
+            bundle.putDouble("lat", latLng.latitude);
+            bundle.putDouble("lng", latLng.longitude);
+
+            // Lit-up attraction
+            LatLngBoundaries litUpBoundaries = getLatLngBoundaries(latLng, MAP_LIT_UP_METERS);
+            if (litUpBoundaries.checkInBoundaries(
+                    new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))) {
+                // Stroke pattern
+                List<PatternItem> patternItems = Arrays.<PatternItem>asList(
+                        new Gap(10), new Dash(20));
+
+                // Add a circle
+                Circle circle = mGoogleMap.addCircle(new CircleOptions()
+                        .center(latLng)
+                        .radius(MAP_LIT_UP_METERS)
+                        .strokeWidth(3)
+                        .strokeColor(Color.RED)
+                        .strokePattern(patternItems)
+                        .fillColor(Color.argb(50, 255, 0, 0))
+                );
+
+                bundle.putBoolean("isLitUp", true);
+            } else {
+                bundle.putBoolean("isLitUp", false);
+            }
 
             if(attraction != null){
                 Marker marker = mGoogleMap.addMarker(new MarkerOptions()
                         .title(attraction.getResidentUserName())
                         .position(latLng)
                         .snippet(attraction.getResidentTitle()));
-                if(attraction.getCurrentPhotowarId() > 0){
-                    // if attraction has a current war, set war icon
-                    marker.setIcon(swords);
-                } else {
-                    // otherwise, set throne icon
-                    marker.setIcon(throne);
-                }
 
                 // data to pass AttractionDetailsFragment
-                Bundle bundle = new Bundle();
                 bundle.putString("name", attraction.getName());
                 bundle.putString("placeId", attraction.getGooglePlaceId());
                 bundle.putBoolean("isExisted", true);
-                bundle.putBoolean("isPinged", false);
+
+                if(attraction.getCurrentPhotowarId() > 0){
+                    // if attraction has a current war, set war icon
+                    marker.setIcon(swords);
+                    bundle.putBoolean("hasWar", true);
+                } else {
+                    // otherwise, set throne icon
+                    marker.setIcon(throne);
+                    bundle.putBoolean("hasWar", false);
+                }
+
                 marker.setTag(bundle);
             } else {
                 Marker marker = mGoogleMap.addMarker(new MarkerOptions()
@@ -276,11 +317,11 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                         .position(latLng));
 
                 // data to pass AttractionDetailsFragment
-                Bundle bundle = new Bundle();
                 bundle.putString("name", place.getName());
                 bundle.putString("placeId", place.getPlace_id());
                 bundle.putBoolean("isExisted", false);
-                bundle.putBoolean("isPinged", false);
+                bundle.putBoolean("hasWar", false);
+
                 marker.setTag(bundle);
             }
         }

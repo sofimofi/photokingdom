@@ -16,12 +16,18 @@ public class Ping {
     private String expiryDate;
     @SerializedName("ResidentId")
     private int residentId;
-    @SerializedName("AttractionId")
-    private int attractionId;
-    @SerializedName("Attraction")
-    private Attraction attraction;
-    @SerializedName("Resident")
-    private Resident resident;
+    @SerializedName("AttractionName")
+    private String attractionName;
+    @SerializedName("AttractionGooglePlaceId")
+    private String placeId;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getPingDate() {
         return pingDate;
@@ -47,27 +53,19 @@ public class Ping {
         this.residentId = residentId;
     }
 
-    public int getAttractionId() {
-        return attractionId;
+    public String getAttractionName() {
+        return attractionName;
     }
 
-    public void setAttractionId(int attractionId) {
-        this.attractionId = attractionId;
+    public void setAttractionName(String attractionName) {
+        this.attractionName = attractionName;
     }
 
-    public Attraction getAttraction() {
-        return attraction;
+    public String getPlaceId() {
+        return placeId;
     }
 
-    public void setAttraction(Attraction attraction) {
-        this.attraction = attraction;
-    }
-
-    public Resident getResident() {
-        return resident;
-    }
-
-    public void setResident(Resident resident) {
-        this.resident = resident;
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
     }
 }

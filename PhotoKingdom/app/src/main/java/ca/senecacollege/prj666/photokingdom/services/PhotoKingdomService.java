@@ -28,7 +28,7 @@ import retrofit2.http.Query;
 /**
  * Retrofit service interface for PhotokingdomAPI
  *
- * @author Wonho
+ * @author Wonho, Sofia, Zhihao
  */
 public interface PhotoKingdomService {
     @Multipart
@@ -103,5 +103,8 @@ public interface PhotoKingdomService {
 
     @GET("api/owns/active/continents")
     Call<List<ResidentOwn>> getContinentsOwns();
+
+    @POST("api/pings")
+    Call<Ping> createPing(@Body Ping ping);
 }
 
