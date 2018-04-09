@@ -135,22 +135,28 @@ public class LiveFeedDbHelper extends SQLiteOpenHelper {
 
         String sortOrder = column + " DESC";
 
-        Cursor cursor = db.query(
-                table,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                sortOrder,
-                "1"
-        );
+        Cursor cursor = null;
+        try {
+            cursor = db.query(
+                    table,
+                    projection,
+                    null,
+                    null,
+                    null,
+                    null,
+                    sortOrder,
+                    "1"
+            );
 
-        if (cursor.moveToNext()) {
-            long id = cursor.getLong(cursor.getColumnIndexOrThrow(column));
-            return id;
+            if (cursor.moveToNext()) {
+                long id = cursor.getLong(cursor.getColumnIndexOrThrow(column));
+                return id;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-        cursor.close();
 
         return 0;
     }

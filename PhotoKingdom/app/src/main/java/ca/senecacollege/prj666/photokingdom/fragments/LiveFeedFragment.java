@@ -160,39 +160,45 @@ public class LiveFeedFragment extends Fragment {
             String sortOrder = FeedEntry.COLUMN_PHOTOWAR_ID + " DESC";
 
             // Query
-            Cursor cursor = db.query(
-                    FeedEntry.TABLE_NAME_PHOTOWARS,
-                    projection,
-                    null,
-                    null,
-                    null,
-                    null,
-                    sortOrder
-            );
+            Cursor cursor = null;
+            try {
+                cursor = db.query(
+                        FeedEntry.TABLE_NAME_PHOTOWARS,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
 
-            // Add data
-            while (cursor.moveToNext()) {
-                long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry._ID));
-                int photowarId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_PHOTOWAR_ID));
-                String startDate = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_START_DATE));
-                String attractionName = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_ATTRACTION_NAME));
-                String photoPath1 = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_PHOTO_PATH1));
-                String photoPath2 = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_PHOTO_PATH2));
-                String residentName1 = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_RESIDENT_NAME1));
-                String residentName2 = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_RESIDENT_NAME2));
+                // Add data
+                while (cursor.moveToNext()) {
+                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry._ID));
+                    int photowarId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_PHOTOWAR_ID));
+                    String startDate = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_START_DATE));
+                    String attractionName = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_ATTRACTION_NAME));
+                    String photoPath1 = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_PHOTO_PATH1));
+                    String photoPath2 = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_PHOTO_PATH2));
+                    String residentName1 = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_RESIDENT_NAME1));
+                    String residentName2 = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_RESIDENT_NAME2));
 
-                // LiveFeed
-                LiveFeed feed = new LiveFeed(FeedEntry.TYPE_PHOTOWAR);
-                feed.setDate(startDate);
-                feed.setMsg("New Photowar on " + attractionName);
-                feed.photowar.setPhotowarId(photowarId);
-                feed.photowar.setPhotoPath1(photoPath1);
-                feed.photowar.setPhotoPath2(photoPath2);
-                feed.photowar.setResidentName1(residentName1);
-                feed.photowar.setResidentName2(residentName2);
-                mFeeds.add(feed);
+                    // LiveFeed
+                    LiveFeed feed = new LiveFeed(FeedEntry.TYPE_PHOTOWAR);
+                    feed.setDate(startDate);
+                    feed.setMsg("New Photowar on " + attractionName);
+                    feed.photowar.setPhotowarId(photowarId);
+                    feed.photowar.setPhotoPath1(photoPath1);
+                    feed.photowar.setPhotoPath2(photoPath2);
+                    feed.photowar.setResidentName1(residentName1);
+                    feed.photowar.setResidentName2(residentName2);
+                    mFeeds.add(feed);
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
-            cursor.close();
 
             // Set data to view
             setRecyclerView();
@@ -221,34 +227,40 @@ public class LiveFeedFragment extends Fragment {
             String sortOrder = FeedEntry.COLUMN_OWN_ID + " DESC";
 
             // Query
-            Cursor cursor = db.query(
-                    table,
-                    projection,
-                    null,
-                    null,
-                    null,
-                    null,
-                    sortOrder
-            );
+            Cursor cursor = null;
+            try {
+                cursor = db.query(
+                        table,
+                        projection,
+                        null,
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
 
-            // Add data
-            while (cursor.moveToNext()) {
-                long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry._ID));
-                int ownId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_OWN_ID));
-                String startDate = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_START_DATE));
-                int residentId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_RESIDENT_ID));
-                String residentName = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_RESIDENT_NAME));
-                String title = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_TITLE));
+                // Add data
+                while (cursor.moveToNext()) {
+                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry._ID));
+                    int ownId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_OWN_ID));
+                    String startDate = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_START_DATE));
+                    int residentId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_RESIDENT_ID));
+                    String residentName = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_RESIDENT_NAME));
+                    String title = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_TITLE));
 
-                // LiveFeed
-                LiveFeed feed = new LiveFeed(FeedEntry.TYPE_OWN);
-                feed.setDate(startDate);
-                feed.setMsg(residentName + " is " + title);
-                feed.own.setOwnId(ownId);
-                feed.own.setResidentId(residentId);
-                mFeeds.add(feed);
+                    // LiveFeed
+                    LiveFeed feed = new LiveFeed(FeedEntry.TYPE_OWN);
+                    feed.setDate(startDate);
+                    feed.setMsg(residentName + " is " + title);
+                    feed.own.setOwnId(ownId);
+                    feed.own.setResidentId(residentId);
+                    mFeeds.add(feed);
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
-            cursor.close();
 
             // Set data to view
             setRecyclerView();
