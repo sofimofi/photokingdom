@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
@@ -54,6 +55,7 @@ import ca.senecacollege.prj666.photokingdom.models.AttractionForMapView;
 import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
 import ca.senecacollege.prj666.photokingdom.models.LatLngBoundaries;
 import ca.senecacollege.prj666.photokingdom.models.Locality;
+import ca.senecacollege.prj666.photokingdom.models.PlaceType;
 import ca.senecacollege.prj666.photokingdom.models.ResidentOwnForMapView;
 import ca.senecacollege.prj666.photokingdom.services.AttractionsForMapViewManager;
 import ca.senecacollege.prj666.photokingdom.services.GooglePlacesApiManager;
@@ -104,6 +106,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
     // Lit-up attraction radius
     private static final double MAP_LIT_UP_METERS = 300;
+
+    // Place type
+    private String mPlaceType;
 
     private GoogleMap mGoogleMap;
     private OnFragmentInteractionListener mListener;
@@ -165,6 +170,38 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             Log.d(TAG, "PERMISSION GIVEN");
             initMapWithCurrentLocation();
         }
+
+        // Place type
+        RadioGroup options = rootView.findViewById(R.id.placeTypeOptions);
+        options.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i) {
+                    case R.id.optionMuseum:
+                        mPlaceType = PlaceType.MUSEUM;
+                        break;
+                    case R.id.optionPark:
+                        mPlaceType = PlaceType.PARK;
+                        break;
+                    case R.id.optionNatural:
+                        mPlaceType = PlaceType.NATURAL_FEATURE;
+                        break;
+                    case R.id.optionPremise:
+                        mPlaceType = PlaceType.PREMISE;
+                        break;
+                    default:
+                        mPlaceType = PlaceType.ALL;
+                }
+
+                if (mGoogleMap != null) {
+                    mGoogleMap.clear();
+                    LatLng center = mGoogleMap.getCameraPosition().target;
+                    LatLng radius = getScreenRadius();
+                    Double radiusMeters = toRadiusMeters(center, radius);
+                    getNearbyAttractions(radiusMeters, center.latitude, center.longitude);
+                }
+            }
+        });
 
         return rootView;
     }
@@ -233,7 +270,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private void getNearbyAttractions(double radiusMeters, double lat, double lng){
 
         // get the nearby google places
-        GooglePlacesRequest task = new GooglePlacesRequest(this, getActivity().getApplicationContext(), lat, lng, radiusMeters);
+        //GooglePlacesRequest task = new GooglePlacesRequest(this, getActivity().getApplicationContext(), lat, lng, radiusMeters);
+        GooglePlacesRequest task = new GooglePlacesRequest(
+                this, getActivity().getApplicationContext(), lat, lng, radiusMeters, mPlaceType);
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         Set<GooglePlace> googlePlaces = new HashSet<>();
@@ -340,7 +379,8 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
     private void getGeographicOwns(double lat, double lng){
         // get the current locality
-        GoogleLocalityRequest task = new GoogleLocalityRequest(lat, lng, 5000);
+        //GoogleLocalityRequest task = new GoogleLocalityRequest(lat, lng, 5000);
+        GoogleLocalityRequest task = new GoogleLocalityRequest(lat, lng, 5000, mPlaceType);
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         Locality locality = null;
@@ -744,6 +784,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         private double lat;
         private double lng;
         private double metersToSearch;
+        private String placeType;
 
         private ApiException e;
 
@@ -757,6 +798,21 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             this.lat = lat;
             this.lng = lng;
             this.metersToSearch = metersToSearch;
+            this.placeType = PlaceType.ALL;
+        }
+
+        public GooglePlacesRequest(OnGooglePlacesApiTaskCompleted listener,
+                                   Context context,
+                                   double lat,
+                                   double lng,
+                                   double metersToSearch,
+                                   String placeType){
+            this.listener = listener;
+            this.context = context;
+            this.lat = lat;
+            this.lng = lng;
+            this.metersToSearch = metersToSearch;
+            this.placeType = placeType;
         }
 
         @Override
@@ -764,7 +820,8 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
             Set<GooglePlace> googlePlaces = new HashSet<GooglePlace>();
             try{
-                GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, this.metersToSearch);
+                //GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, this.metersToSearch);
+                GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, this.metersToSearch, this.placeType);
                 googlePlaces = manager.getGooglePlaces();
             } catch (ApiException e){
                 this.e = e;
@@ -829,6 +886,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         private double lat;
         private double lng;
         private double metersToSearch;
+        private String placeType;
 
         private ApiException e;
 
@@ -838,6 +896,17 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             this.lat = lat;
             this.lng = lng;
             this.metersToSearch = metersToSearch;
+            this.placeType = PlaceType.ALL;
+        }
+
+        public GoogleLocalityRequest(double lat,
+                                     double lng,
+                                     double metersToSearch,
+                                     String placeType){
+            this.lat = lat;
+            this.lng = lng;
+            this.metersToSearch = metersToSearch;
+            this.placeType = placeType;
         }
 
         @Override
@@ -845,6 +914,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
             Locality locality = null;
             try{
+                //GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, metersToSearch);
                 GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, metersToSearch);
                 locality = manager.getCurrentLocality();
             } catch (ApiException e){

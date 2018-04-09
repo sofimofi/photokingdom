@@ -64,6 +64,11 @@
     <string name="error_invalid_email">Invalid email address</string>
     <string name="photowar_vote_finished">Voting closed!</string>
 
-
+    <!-- Options for Google Places API Types -->
+    <string name="type_all">All</string>
+    <string name="type_museum">Museum</string>
+    <string name="type_park">Park</string>
+    <string name="type_natural_feature">Natural feature</string>
+    <string name="type_premise">Premise</string>
 
 </resources>
