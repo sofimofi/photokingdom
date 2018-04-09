@@ -47,7 +47,7 @@ public class AttractionDetailsFragment extends Fragment {
     private static final String PLACE_ID = "placeId";
     private static final String IS_EXISTED = "isExisted";
     private static final String IS_PINGED = "isPinged";
-    private static final String HAS_WAR = "isPinged";
+    private static final String HAS_WAR = "hasWar";
     private static final String IS_LIT_UP = "isLitUp";
 
     // Argument values
