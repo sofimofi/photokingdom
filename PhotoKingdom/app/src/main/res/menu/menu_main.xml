@@ -10,9 +10,6 @@
     <item
         android:title="------------------------------" />
     <item
-        android:id="@+id/test_photowar_queue"
-        android:title="[TEST] Photowar Queue" />
-    <item
         android:id="@+id/test_photowar_detail"
         android:title="[TEST] Photowar Detail" />
 </menu>

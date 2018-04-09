@@ -3,7 +3,6 @@ package ca.senecacollege.prj666.photokingdom.services;
 import java.util.List;
 
 import ca.senecacollege.prj666.photokingdom.models.Attraction;
-import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowar;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarWithDetails;
 import ca.senecacollege.prj666.photokingdom.models.Image;
 import ca.senecacollege.prj666.photokingdom.models.Continent;
@@ -11,6 +10,7 @@ import ca.senecacollege.prj666.photokingdom.models.Country;
 import ca.senecacollege.prj666.photokingdom.models.LoginInfo;
 import ca.senecacollege.prj666.photokingdom.models.PhotoWinning;
 import ca.senecacollege.prj666.photokingdom.models.PhotoWithDetails;
+import ca.senecacollege.prj666.photokingdom.models.PhotowarQueue;
 import ca.senecacollege.prj666.photokingdom.models.Ping;
 import ca.senecacollege.prj666.photokingdom.models.Province;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
@@ -67,6 +67,9 @@ public interface PhotoKingdomService {
 
     @GET("api/attractions/{id}/Photowars")
     Call<List<AttractionPhotowarWithDetails>> getAttractionPhotowarHistory(@Path("id") int attractionId);
+
+    @GET("api/queues/{id}")
+    Call<List<PhotowarQueue>> getQueueForAttraction(@Path("id") int attractionId);
 
     // TODO: get residentId ?
     @GET("api/residents/{id}")

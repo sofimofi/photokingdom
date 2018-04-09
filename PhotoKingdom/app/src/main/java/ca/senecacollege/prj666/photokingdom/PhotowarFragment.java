@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,10 +22,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
+import ca.senecacollege.prj666.photokingdom.fragments.PhotowarQueueFragment;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarUploadForPhotowarView;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarWithDetails;
+import ca.senecacollege.prj666.photokingdom.models.PhotowarQueue;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
@@ -73,6 +77,7 @@ public class PhotowarFragment extends Fragment {
     private ImageView photo1Trophy;
     private ImageView photo2Trophy;
     private TextView photowarCountdownTextview;
+    private Button mButtonQueue;
 
     private AttractionPhotowarWithDetails mAttractionPhotowar;
     private AttractionPhotowarUploadForPhotowarView upload1;
@@ -134,8 +139,6 @@ public class PhotowarFragment extends Fragment {
         // Get attractionPhotowar from database
         getAttractionPhotowar();
 
-
-
         bannerTextView = view.findViewById(R.id.photowarBannerTextView);
         photowarCountdownTextview = view.findViewById(R.id.photoWarCountdownTextView);
         photo1 = view.findViewById(R.id.competitor1PhotoImageView);
@@ -150,6 +153,7 @@ public class PhotowarFragment extends Fragment {
         votePhoto2Button = view.findViewById(R.id.votePhoto2Button);
         photo1Trophy = view.findViewById(R.id.photo1WinningTrophy);
         photo2Trophy = view.findViewById(R.id.photo2WinningTrophy);
+        mButtonQueue = view.findViewById(R.id.buttonQueue);
 
         return view;
     }
@@ -174,6 +178,8 @@ public class PhotowarFragment extends Fragment {
 
                     setAttractionPhotowarData();
 
+                    // Check Photowar queue
+                    checkHasQueue();
                 } else {
                     try {
                         Log.d(TAG, response.errorBody().toString());
@@ -298,6 +304,51 @@ public class PhotowarFragment extends Fragment {
             competitor2Avatar.setTag(resident2Id);
             competitor2Avatar.setOnClickListener(onResidentClickListener);
             competitor2Votes.setText(String.valueOf(upload2.getResidentVotesCount()));
+        }
+    }
+
+    private void checkHasQueue() {
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<List<PhotowarQueue>> call = service.getQueueForAttraction(mAttractionPhotowar.getAttractionId());
+        call.enqueue(new Callback<List<PhotowarQueue>>() {
+            @Override
+            public void onResponse(Call<List<PhotowarQueue>> call, Response<List<PhotowarQueue>> response) {
+                if (response.isSuccessful()) {
+                    List<PhotowarQueue> photowarQueues = response.body();
+                    if (photowarQueues.size() > 0) {
+                        enableQueueButton();
+                    }
+                } else {
+                    try {
+                        Log.d(TAG, "[checkHasQueue:onResponse] " + response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<PhotowarQueue>> call, Throwable t) {
+                Log.e(TAG, "[checkHasQueue:onFailure] " + t.getMessage());
+            }
+        });
+    }
+
+    private void enableQueueButton() {
+        if (mButtonQueue != null) {
+            mButtonQueue.setVisibility(VISIBLE);
+            mButtonQueue.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int attractionId = mAttractionPhotowar.getAttractionId();
+
+                    // Move to PhotowarQueueFragment
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frameLayout, PhotowarQueueFragment.newInstance(attractionId))
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
         }
     }
 
