@@ -19,6 +19,7 @@ import java.util.Set;
 
 import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
 import ca.senecacollege.prj666.photokingdom.models.Locality;
+import ca.senecacollege.prj666.photokingdom.models.PlaceType;
 
 /**
  * Service to get place information from Google Places API Web Service
@@ -40,6 +41,7 @@ public class GooglePlacesApiManager {
     private static final String COUNTRY = "country";
 
     private final String[] placeTypes = {"museum","natural_feature","premise","park" };
+    private final String placeType;
 
     private double Lat;
     private double Lng;
@@ -52,10 +54,26 @@ public class GooglePlacesApiManager {
         this.Lng = lng;
         this.metersToSearch = metersToSearch;
         this.googlePlaces = new HashSet<>();
+        this.placeType = PlaceType.ALL;
+    }
+
+    public GooglePlacesApiManager(double lat, double lng, double metersToSearch, String placeType){
+        this.Lat = lat;
+        this.Lng = lng;
+        this.metersToSearch = metersToSearch;
+        this.googlePlaces = new HashSet<>();
+        this.placeType = placeType;
     }
 
     public Set<GooglePlace> getGooglePlaces() throws ApiException{
-        makeRequest();
+        if (placeType == PlaceType.ALL) {
+            for (String place : placeTypes) {
+                makeRequest(place);
+            }
+        } else {
+            makeRequest(placeType);
+        }
+
         return googlePlaces;
     }
 
@@ -170,50 +188,50 @@ public class GooglePlacesApiManager {
         return locality;
     }
 
-    public void makeRequest() throws ApiException{
-        for(String place : placeTypes){
-            try{
-                boolean nextToken = true;
-                while(nextToken){
-                    HttpURLConnection urlConnection;
-                    URL url;
-                    StringBuilder urlString = new StringBuilder();
-                    urlString.append(GOOGLE_PLACES_WEB_SERVICE_NEARBY).append(KEY).append(API_KEY);
+    public void makeRequest(String place) throws ApiException{
+        //for(String place : placeTypes){
+        try{
+            boolean nextToken = true;
+            while(nextToken){
+                HttpURLConnection urlConnection;
+                URL url;
+                StringBuilder urlString = new StringBuilder();
+                urlString.append(GOOGLE_PLACES_WEB_SERVICE_NEARBY).append(KEY).append(API_KEY);
 
-                    if(this.nextPageToken == null || this.nextPageToken.isEmpty()){
-                        // first page
-                        urlString.append(LOCATION).append(this.Lat + "," + this.Lng);
-                        urlString.append(RADIUS).append(this.metersToSearch);
-                        urlString.append(TYPE).append(place);
-                    } else {
-                        // there is a next page token - get next page
-                        urlString.append(PAGE_TOKEN).append(this.nextPageToken);
-                    }
-
-                    url = new URL(urlString.toString());
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
-
-                    InputStream inStream = urlConnection.getInputStream();
-                    BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
-
-                    String tmp;
-                    StringBuilder response = new StringBuilder();
-                    while((tmp = bReader.readLine()) != null){
-                        response.append(tmp);
-                    }
-
-                    JSONObject json = (JSONObject) new JSONTokener(
-                            response.toString()
-                    ).nextValue();
-
-                    nextToken = parseJson(json);
+                if(this.nextPageToken == null || this.nextPageToken.isEmpty()){
+                    // first page
+                    urlString.append(LOCATION).append(this.Lat + "," + this.Lng);
+                    urlString.append(RADIUS).append(this.metersToSearch);
+                    urlString.append(TYPE).append(place);
+                } else {
+                    // there is a next page token - get next page
+                    urlString.append(PAGE_TOKEN).append(this.nextPageToken);
                 }
-            } catch (Exception e){
-                Log.e(TAG, e.getMessage());
+
+                url = new URL(urlString.toString());
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream inStream = urlConnection.getInputStream();
+                BufferedReader bReader = new BufferedReader(new InputStreamReader(inStream));
+
+                String tmp;
+                StringBuilder response = new StringBuilder();
+                while((tmp = bReader.readLine()) != null){
+                    response.append(tmp);
+                }
+
+                JSONObject json = (JSONObject) new JSONTokener(
+                        response.toString()
+                ).nextValue();
+
+                nextToken = parseJson(json);
             }
+        } catch (Exception e){
+            Log.e(TAG, e.getMessage());
         }
+        //}
     }
 
     private boolean parseJson(JSONObject json) throws Exception {
