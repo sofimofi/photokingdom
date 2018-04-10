@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import ca.senecacollege.prj666.photokingdom.fragments.LiveFeedFragment;
-import ca.senecacollege.prj666.photokingdom.fragments.PhotowarQueueFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.SettingsFragment;
 import ca.senecacollege.prj666.photokingdom.services.LiveFeedService;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
@@ -183,14 +182,6 @@ public class MainActivity extends AppCompatActivity implements PhotowarFragment.
 
                 return true;
             // TODO: Remove test menus
-            case R.id.test_photowar_queue:
-                // Move to PhotowarQueueFragment
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frameLayout, new PhotowarQueueFragment())
-                        .addToBackStack(null)
-                        .commit();
-
-                return true;
             case R.id.test_photowar_detail:
                 PhotowarFragment photowarFragment = PhotowarFragment.newInstance(34);
                 getSupportFragmentManager().beginTransaction()
