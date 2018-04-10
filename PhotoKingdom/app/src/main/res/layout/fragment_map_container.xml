@@ -11,4 +11,44 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <RadioGroup
+        android:id="@+id/placeTypeOptions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|left"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
+        android:padding="5dp"
+        android:background="@color/white">
+
+        <RadioButton
+            android:id="@+id/optionMuseum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/type_museum"
+            android:textSize="12sp" />
+
+        <RadioButton
+            android:id="@+id/optionPark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/type_park"
+            android:textSize="12sp" />
+
+        <RadioButton
+            android:id="@+id/optionNatural"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/type_natural_feature"
+            android:textSize="12sp" />
+
+        <RadioButton
+            android:id="@+id/optionPremise"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/type_premise"
+            android:textSize="12sp" />
+
+    </RadioGroup>
 </FrameLayout>
