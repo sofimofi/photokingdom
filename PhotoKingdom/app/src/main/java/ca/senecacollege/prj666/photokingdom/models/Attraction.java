@@ -2,6 +2,8 @@ package ca.senecacollege.prj666.photokingdom.models;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Model class for an attraction
  *
@@ -27,6 +29,13 @@ public class Attraction {
     private String photoImagePath;
     @SerializedName("OwnerName")
     private String ownerName;
+    // for adding an attraction
+    @SerializedName("CityName")
+    private String cityName;
+    @SerializedName("CountryName")
+    private String countryName;
+    @SerializedName("CurrentAttractionPhotowarUploadsCount")
+    private int currentAttractionPhotowarUploadsCount;
 
     public Attraction() {}
 
@@ -38,6 +47,16 @@ public class Attraction {
         this.lng = lng;
         this.isActive = isActive;
         this.cityId = cityId;
+    }
+
+    // constructor for adding attraction
+    public Attraction(String googlePlaceId, String name, double lat, double lng, String cityName, String countryName){
+        this.googlePlaceId = googlePlaceId;
+        this.name = name;
+        this.lat = lat;
+        this.lng = lng;
+        this.cityName = cityName;
+        this.countryName = countryName;
     }
 
     public int getId() {
@@ -110,5 +129,9 @@ public class Attraction {
 
     public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
+    }
+
+    public int getCurrentAttractionPhotowarUploadsCount(){
+        return currentAttractionPhotowarUploadsCount;
     }
 }

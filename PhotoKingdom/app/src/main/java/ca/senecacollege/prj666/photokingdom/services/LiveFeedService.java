@@ -123,7 +123,9 @@ public class LiveFeedService extends Service {
                 FeedEntry.TABLE_NAME_PHOTOWARS, FeedEntry.COLUMN_PHOTOWAR_ID);
 
         for (AttractionPhotowarWithDetails photowar : mPhotowars) {
-            if (photowar.getId() > lastPhotowarId) {
+            // TODO: will crash for new attraction with photo
+            // for the case that user uploaded photo for new attraction and won attraction automatically
+            if (photowar.getId() > lastPhotowarId && photowar.getAttractionPhotowarUploads().size() == 2) {
                 AttractionPhotowarUploadForPhotowarView photowarUpload1 = photowar.getAttractionPhotowarUploads().get(0);
                 AttractionPhotowarUploadForPhotowarView photowarUpload2 = photowar.getAttractionPhotowarUploads().get(1);
 
