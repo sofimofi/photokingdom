@@ -56,6 +56,10 @@
     <string name="msg_password_not_match">Passwords do not match</string>
     <string name="msg_enter_email_password">Enter the email and password</string>
     <string name="msg_visitor_doesnot_have_profile">A visitor doesn\'t have a profile</string>
+    <string name="msg_gps_data_not_in_range">GPS data not in range</string>
+    <string name="msg_gps_data_not_found">GPS data not found</string>
+    <string name="msg_location_permission_denied">Location permission denied</string>
+    <string name="msg_storage_permission_denied">Storage permission denied</string>
 
     <!-- Errors -->
     <string name="error_avatar_upload">Avatar image upload failed</string>

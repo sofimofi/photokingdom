@@ -15,8 +15,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import ca.senecacollege.prj666.photokingdom.fragments.AttractionDetailsFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.LiveFeedFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.SettingsFragment;
+import ca.senecacollege.prj666.photokingdom.models.Constants;
 import ca.senecacollege.prj666.photokingdom.services.LiveFeedService;
 import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
 
@@ -26,7 +28,6 @@ import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
  * @author Wonho, Zhihao
  */
 public class MainActivity extends AppCompatActivity implements PhotowarFragment.OnPhotowarFragmentInteractionListener {
-
     // Fragments
     private LiveFeedFragment mLiveFeedFragment;
     private MapContainerFragment mMapContainerFragment;
@@ -197,15 +198,32 @@ public class MainActivity extends AppCompatActivity implements PhotowarFragment.
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == MapContainerFragment.PERMISSIONS_REQUEST_ACCESS_LOCATION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Initialize Google Map if requested permissions granted
-                if (mMapContainerFragment != null) {
-                    mMapContainerFragment.initMapWithCurrentLocation();
+        switch (requestCode) {
+            case Constants.PERMISSION_REQUEST_ACCESS_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Initialize Google Map if requested permissions granted
+                    if (mMapContainerFragment != null) {
+                        mMapContainerFragment.initMapWithCurrentLocation();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.msg_location_permission_denied, Toast.LENGTH_LONG).show();
                 }
-            }
+                break;
+            case Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    AttractionDetailsFragment fragment = (AttractionDetailsFragment) getSupportFragmentManager()
+                            .findFragmentByTag(Constants.FRAGMENT_TAG_ATTRACTION_DETAILS);
+
+                    if (fragment != null) {
+                        // Get a photo if requested permission granted
+                        fragment.preparePhoto();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.msg_storage_permission_denied, Toast.LENGTH_LONG).show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 

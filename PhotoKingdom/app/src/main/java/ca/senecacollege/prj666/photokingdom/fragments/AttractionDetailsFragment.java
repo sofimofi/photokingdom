@@ -39,6 +39,7 @@ import ca.senecacollege.prj666.photokingdom.models.Attraction;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarAddForm;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarWithDetails;
 import ca.senecacollege.prj666.photokingdom.models.AttractionWithWin;
+import ca.senecacollege.prj666.photokingdom.models.Constants;
 import ca.senecacollege.prj666.photokingdom.models.LatLngBoundaries;
 import ca.senecacollege.prj666.photokingdom.models.Locality;
 import ca.senecacollege.prj666.photokingdom.models.Ping;
@@ -62,7 +63,6 @@ import static android.view.View.VISIBLE;
  */
 public class AttractionDetailsFragment extends Fragment {
     private static final String TAG = "AttractionDetailsFrag";
-    private static final int PERMISSION_REQUEST_READ_EXTERNAL_STORAGE = 0;
     private static final int ACTION_PICK_REQUEST = 1;
 
     // Argument keys
@@ -195,7 +195,6 @@ public class AttractionDetailsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 requestImagePermission();
-                preparePhoto();
             }
         });
     }
@@ -206,12 +205,15 @@ public class AttractionDetailsFragment extends Fragment {
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE },
-                    PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
+                    Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
+        } else {
+            // Permission has granted
+            preparePhoto();
         }
     }
 
     // get photo from device
-    private void preparePhoto(){
+    public void preparePhoto(){
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         startActivityForResult(intent, ACTION_PICK_REQUEST);
@@ -226,14 +228,14 @@ public class AttractionDetailsFragment extends Fragment {
                 photoUri = data.getData();
 
                 // check if gps exists before doing anything
-                GpsDirectory gps;
-                if ((gps = GpsMetadataUtil.getGpsDirectory(getContext(), photoUri)) != null) {
-                    // get the boundaries for the attraction, and verified if the gps is in range
-                    LatLngBoundaries latLngBoundaries = getLatLngBoundaries(mLatLng, 500);
-                    GeoLocation imgGeoLocation = gps.getGeoLocation();
-                    photoLatLng = new LatLng(imgGeoLocation.getLatitude(), imgGeoLocation.getLongitude());
+                try {
+                    GpsDirectory gps;
+                    if ((gps = GpsMetadataUtil.getGpsDirectory(getContext(), photoUri)) != null) {
+                        // get the boundaries for the attraction, and verified if the gps is in range
+                        LatLngBoundaries latLngBoundaries = getLatLngBoundaries(mLatLng, 500);
+                        GeoLocation imgGeoLocation = gps.getGeoLocation();
+                        photoLatLng = new LatLng(imgGeoLocation.getLatitude(), imgGeoLocation.getLongitude());
 
-                    try {
                         if (latLngBoundaries.checkInBoundaries(photoLatLng)) {
                             // upload the image if in range
                             UploadManager uploadManager = new UploadManager(getActivity());
@@ -256,11 +258,12 @@ public class AttractionDetailsFragment extends Fragment {
 
 
                         } else {
-                            throw new MetadataException("Gps not in range");
+                            Toast.makeText(getContext(), R.string.msg_gps_data_not_in_range, Toast.LENGTH_LONG).show();
                         }
-                    } catch (MetadataException e) {
-                        e.printStackTrace();
                     }
+                } catch (MetadataException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), R.string.msg_gps_data_not_found, Toast.LENGTH_LONG).show();
                 }
             }
         }

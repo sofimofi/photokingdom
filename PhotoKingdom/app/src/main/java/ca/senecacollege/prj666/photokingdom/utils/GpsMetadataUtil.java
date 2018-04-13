@@ -1,7 +1,9 @@
 package ca.senecacollege.prj666.photokingdom.utils;
 
 import android.content.Context;
+import android.media.ExifInterface;
 import android.net.Uri;
+import android.util.Log;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -18,7 +20,7 @@ import java.io.IOException;
 
 public class GpsMetadataUtil {
 
-    public static GpsDirectory getGpsDirectory(Context context, Uri imageUri) {
+    public static GpsDirectory getGpsDirectory(Context context, Uri imageUri) throws MetadataException {
         UploadManager manager = new UploadManager(context);
         String realFilePath = manager.getRealPathFromURI(imageUri);
         File imgFile = new File(realFilePath);
@@ -31,13 +33,12 @@ public class GpsMetadataUtil {
             }else{
                 throw new MetadataException("Gps metadata not found");
             }
-
         } catch (ImageProcessingException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (MetadataException e){
-            e.printStackTrace();
+            throw e;
         }
 
         return null;
