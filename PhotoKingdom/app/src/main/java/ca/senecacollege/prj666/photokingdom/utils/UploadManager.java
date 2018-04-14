@@ -82,7 +82,7 @@ public class UploadManager {
      * @param imageUri
      * @return String
      */
-    private String getRealPathFromURI(Uri imageUri) {
+    public String getRealPathFromURI(Uri imageUri) {
         String result;
         Cursor cursor = mContext.getContentResolver().query(imageUri,
                 null, null, null, null);
