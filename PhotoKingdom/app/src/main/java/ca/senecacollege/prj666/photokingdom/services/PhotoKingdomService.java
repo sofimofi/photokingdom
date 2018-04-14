@@ -103,28 +103,28 @@ public interface PhotoKingdomService {
     Call<List<ResidentOwn>> getCityOwns();
 
     @GET("api/owns/active/city")
-    Call<ResidentOwnForMapView> getCityOwnByCityName(@Path("city") String city,
-                                                           @Path("province") String province,
-                                                           @Path("country") String country);
+    Call<ResidentOwnForMapView> getCityOwnByCityName(@Query("city") String city,
+                                                     @Query("province") String province,
+                                                     @Query("country") String country);
 
     @GET("api/owns/active/provinces")
     Call<List<ResidentOwn>> getProvinceOwns();
 
     @GET("api/owns/active/province")
-    Call<ResidentOwnForMapView> getProvinceOwnByProvinceName(@Path("province") String province,
-                                                         @Path("country") String country);
+    Call<ResidentOwnForMapView> getProvinceOwnByProvinceName(@Query("province") String province,
+                                                         @Query("country") String country);
 
     @GET("api/owns/active/countries")
     Call<List<ResidentOwn>> getCountryOwns();
 
     @GET("api/owns/active/country")
-    Call<ResidentOwnForMapView> getCountryOwnByCountryName(@Path("country") String country);
+    Call<ResidentOwnForMapView> getCountryOwnByCountryName(@Query("country") String country);
 
     @GET("api/owns/active/continents")
     Call<List<ResidentOwn>> getContinentsOwns();
 
     @GET("api/owns/active/continent")
-    Call<ResidentOwnForMapView> getContinentOwnByCountryName(@Path("country") String country);
+    Call<ResidentOwnForMapView> getContinentOwnByCountryName(@Query("country") String country);
 
     @POST("api/pings")
     Call<Ping> createPing(@Body Ping ping);

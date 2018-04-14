@@ -83,7 +83,8 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private String mParam2;
 
     private static final String TAG = "MapContainerFragment";
-    private enum GooglePlaceRequest {NEARBY_ATTRACTIONS, LOCALITY}
+    static final int PERMISSIONS_REQUEST_ACCESS_LOCATION = 1;
+    private enum ownLevel {CITY, PROVINCE, COUNTRY, CONTINENT}
 
     // Current location
     private FusedLocationProviderClient mFusedLocationClient;
@@ -101,6 +102,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private static final float CONTINENT_ZOOM = 5;
     private int screenWidthPixels;
     private int customZoom;
+    private float mLastZoomLevel;
 
     // Lit-up attraction radius
     private static final double MAP_LIT_UP_METERS = 300;
@@ -298,10 +300,10 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         }
 
         // Clear old markers and shapes
-        mGoogleMap.clear();
+//        mGoogleMap.clear();
 
         // Add markers on map
-        BitmapDescriptor throne = BitmapDescriptorFactory.fromResource(R.drawable.throne);
+        BitmapDescriptor cape = BitmapDescriptorFactory.fromResource(R.drawable.cape);
         BitmapDescriptor swords = BitmapDescriptorFactory.fromResource(R.drawable.swords);
         for(GooglePlace place : googlePlaces){
             LatLng latLng = new LatLng(place.getLat(), place.getLng());
@@ -355,7 +357,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                     bundle.putBoolean("hasWar", true);
                 } else {
                     // otherwise, set throne icon
-                    marker.setIcon(throne);
+                    marker.setIcon(cape);
                     bundle.putBoolean("hasWar", false);
                 }
 
@@ -398,7 +400,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             getCityOwn(locality);
         } else {
             // continent level
-            getProvinceCountryContinentOwns(locality);
+            getProvinceOwn(locality);
+            getCountryOwn(locality);
+            getContinentOwn(locality);
         }
     }
 
@@ -447,6 +451,10 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             Bundle bundle = (Bundle)marker.getTag();
             // Open attraction details view with attraction data
             openAttractionDetailsView(bundle);
+        } else {
+            int residentId = (int) marker.getTag();
+            Log.d(TAG, "Clicked on owner marker with id " + residentId);
+            openUserProfileView(residentId);
         }
     }
 
@@ -475,6 +483,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
             getNearbyAttractions(radiusMeters, center.latitude, center.longitude);
         } else {
+            if(mLastZoomLevel > CITY_ZOOM){ // only clear markers if it was previously city level view
+                mGoogleMap.clear();
+            }
             // city level and higher
             Log.d(TAG, "Zoom level is " + currentZoom);
 
@@ -533,13 +544,13 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         });
     }
 
-    public void getProvinceCountryContinentOwns(Locality locality){
+    public void getProvinceOwn(Locality locality){
         if(locality.getProvince().isEmpty() || locality.getCountry().isEmpty()){
             return;
         }
         PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
-        Call<ResidentOwnForMapView> provinceCall = service.getProvinceOwnByProvinceName(locality.getProvince(), locality.getCountry());
-        provinceCall.enqueue(new Callback<ResidentOwnForMapView>(){
+        Call<ResidentOwnForMapView> call = service.getProvinceOwnByProvinceName(locality.getProvince(), locality.getCountry());
+        call.enqueue(new Callback<ResidentOwnForMapView>(){
             @Override
             public void onResponse(Call<ResidentOwnForMapView> call, Response<ResidentOwnForMapView> response) {
                 if(response.isSuccessful()){
@@ -566,11 +577,17 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                 Log.e(TAG, t.getMessage());
             }
         });
+    }
 
-        Call<ResidentOwnForMapView> countryCall = service.getCountryOwnByCountryName(locality.getCountry());
-        countryCall.enqueue(new Callback<ResidentOwnForMapView>(){
+    public void getCountryOwn(Locality locality){
+        if(locality.getCountry().isEmpty()){
+            return;
+        }
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<ResidentOwnForMapView> call = service.getCountryOwnByCountryName(locality.getCountry());
+        call.enqueue(new Callback<ResidentOwnForMapView>(){
             @Override
-            public void onResponse(Call<ResidentOwnForMapView> countryCall, Response<ResidentOwnForMapView> response) {
+            public void onResponse(Call<ResidentOwnForMapView> call, Response<ResidentOwnForMapView> response) {
                 if(response.isSuccessful()){
                     ResidentOwnForMapView residentOwn;
                     residentOwn = response.body();
@@ -591,15 +608,21 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             }
 
             @Override
-            public void onFailure(Call<ResidentOwnForMapView> countryCall, Throwable t) {
+            public void onFailure(Call<ResidentOwnForMapView> call, Throwable t) {
                 Log.e(TAG, t.getMessage());
             }
         });
+    }
 
-        Call<ResidentOwnForMapView> continentCall = service.getContinentOwnByCountryName(locality.getCountry());
-        countryCall.enqueue(new Callback<ResidentOwnForMapView>(){
+    public void getContinentOwn(Locality locality){
+        if(locality.getCountry().isEmpty()){
+            return;
+        }
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<ResidentOwnForMapView> call = service.getContinentOwnByCountryName(locality.getCountry());
+        call.enqueue(new Callback<ResidentOwnForMapView>(){
             @Override
-            public void onResponse(Call<ResidentOwnForMapView> continentCall, Response<ResidentOwnForMapView> response) {
+            public void onResponse(Call<ResidentOwnForMapView> call, Response<ResidentOwnForMapView> response) {
                 if(response.isSuccessful()){
                     ResidentOwnForMapView residentOwn;
                     residentOwn = response.body();
@@ -620,7 +643,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             }
 
             @Override
-            public void onFailure(Call<ResidentOwnForMapView> continentCall, Throwable t) {
+            public void onFailure(Call<ResidentOwnForMapView> call, Throwable t) {
                 Log.e(TAG, t.getMessage());
             }
         });
@@ -628,42 +651,68 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
     public void setCityOwnMarker(ResidentOwnForMapView residentOwn){
         if(residentOwn != null && mCurrentLatLng != null){
-            setOwnMarker(residentOwn, mCurrentLatLng);
+            setOwnMarker(residentOwn, mCurrentLatLng, ownLevel.CITY);
         }
     }
 
     public void setProvinceOwnMarker(ResidentOwnForMapView residentOwn){
         if(residentOwn != null && mCurrentLatLng != null){
-            // TODO: move the marker a bit higher so that it's not on top of City Marker
-            LatLng latlng = mCurrentLatLng;
-            setOwnMarker(residentOwn, latlng);
+            // move the marker a bit higher so that it's not on top of City Marker
+            LatLngBoundaries boundaries = getLatLngBoundaries(mCurrentLatLng, 130000);
+            LatLng latlng = new LatLng(boundaries.getMaxLat(), boundaries.getMinLng());
+            setOwnMarker(residentOwn, latlng, ownLevel.PROVINCE);
         }
     }
 
     public void setCountryOwnMarker(ResidentOwnForMapView residentOwn){
         if(residentOwn != null && mCurrentLatLng != null){
-            // TODO: move the marker a bit higher so that it's not on top of City Marker
-            LatLng latlng = mCurrentLatLng;
-            setOwnMarker(residentOwn, latlng);
+            // move the marker a bit higher so that it's not on top of other markers
+            LatLngBoundaries boundaries = getLatLngBoundaries(mCurrentLatLng, 300000);
+            double lngMiddle = boundaries.getMaxLng() - ((boundaries.getMaxLng() - boundaries.getMinLng()) / 2);
+            LatLng latlng = new LatLng(boundaries.getMaxLat(), lngMiddle );
+            setOwnMarker(residentOwn, latlng, ownLevel.COUNTRY);
         }
     }
 
     public void setContinentOwnMarker(ResidentOwnForMapView residentOwn){
         if(residentOwn != null && mCurrentLatLng != null){
-            // TODO: move the marker a bit higher so that it's not on top of City Marker
-            LatLng latlng = mCurrentLatLng;
-            setOwnMarker(residentOwn, latlng);
+            // move the marker a bit higher so that it's not on top of City Marker
+            LatLngBoundaries boundaries = getLatLngBoundaries(mCurrentLatLng, 300000);
+            double lngMiddle = boundaries.getMaxLng() - ((boundaries.getMaxLng() - boundaries.getMinLng()) / 2);
+            LatLng latlng = new LatLng(boundaries.getMinLat(), lngMiddle);
+            setOwnMarker(residentOwn, latlng, ownLevel.CONTINENT);
         }
     }
 
-    public void setOwnMarker(ResidentOwnForMapView residentOwn, LatLng latlng){
-        BitmapDescriptor throne = BitmapDescriptorFactory.fromResource(R.drawable.throne);
+    public void setOwnMarker(ResidentOwnForMapView residentOwn, LatLng latlng, ownLevel level){
 
-        mGoogleMap.addMarker(new MarkerOptions()
+        Marker marker = mGoogleMap.addMarker(new MarkerOptions()
                 .title(residentOwn.getResidentUserName())
                 .position(latlng)
-                .snippet(residentOwn.getTitle())
-                .icon(throne));
+                .snippet(residentOwn.getTitle()));
+        marker.setTag(residentOwn.getResidentId());
+
+
+        switch(level){
+            case CITY:
+                BitmapDescriptor throne = BitmapDescriptorFactory.fromResource(R.drawable.throne);
+                marker.setIcon(throne);
+                break;
+            case PROVINCE:
+                BitmapDescriptor scepter = BitmapDescriptorFactory.fromResource(R.drawable.scepter);
+                marker.setIcon(scepter);
+                break;
+            case COUNTRY:
+                BitmapDescriptor crown = BitmapDescriptorFactory.fromResource(R.drawable.crown);
+                marker.setIcon(crown);
+                break;
+            case CONTINENT:
+                BitmapDescriptor sun = BitmapDescriptorFactory.fromResource(R.drawable.sun);
+                marker.setIcon(sun);
+                break;
+            default:
+                break;
+        }
     }
 
     public boolean checkPermission(){
@@ -712,8 +761,10 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
                     LatLng latLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, customZoom));
+                    mLastZoomLevel = customZoom;
                 } else {
                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
+                    mLastZoomLevel = DEFAULT_ZOOM;
                 }
             } catch (SecurityException e) {
                 e.printStackTrace();
@@ -726,6 +777,14 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.frameLayout, AttractionDetailsFragment.newInstance(bundle),
                         Constants.FRAGMENT_TAG_ATTRACTION_DETAILS)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void openUserProfileView(int residentId){
+        UserFragment userFragment = UserFragment.newInstance(residentId);
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.frameLayout, userFragment)
                 .addToBackStack(null)
                 .commit();
     }
