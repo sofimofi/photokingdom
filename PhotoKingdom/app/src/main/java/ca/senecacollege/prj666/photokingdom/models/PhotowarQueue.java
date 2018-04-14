@@ -14,13 +14,13 @@ public class PhotowarQueue {
     private String queueDate;
     @SerializedName("AttractionId")
     private int attractionId;
-    @SerializedName("AttractionPhotowarUploadPhotoId")
+    @SerializedName("PhotoId")
     private int photoId;
-    @SerializedName("AttractionPhotowarUploadPhotoPhotoFilePath")
+    @SerializedName("PhotoPhotoFilePath")
     private String photoPath;
-    @SerializedName("AttractionPhotowarUploadPhotoResidentId")
+    @SerializedName("PhotoResidentId")
     private int residentId;
-    @SerializedName("AttractionPhotowarUploadPhotoResidentUserName")
+    @SerializedName("PhotoResidentUserName")
     private String residentName;
 
     public int getId() {

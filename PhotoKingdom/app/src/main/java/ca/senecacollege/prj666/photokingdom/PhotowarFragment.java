@@ -341,10 +341,11 @@ public class PhotowarFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     int attractionId = mAttractionPhotowar.getAttractionId();
+                    String attractionName = mAttractionPhotowar.getAttraction().getName();
 
                     // Move to PhotowarQueueFragment
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.frameLayout, PhotowarQueueFragment.newInstance(attractionId))
+                            .replace(R.id.frameLayout, PhotowarQueueFragment.newInstance(attractionId, attractionName))
                             .addToBackStack(null)
                             .commit();
                 }

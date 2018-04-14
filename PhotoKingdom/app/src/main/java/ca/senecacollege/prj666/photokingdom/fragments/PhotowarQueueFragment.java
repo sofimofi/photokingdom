@@ -37,9 +37,11 @@ public class PhotowarQueueFragment extends Fragment {
 
     // Argument key
     private static final String ATTRACTION_ID = "attractionId";
+    private static final String ATTRACTION_NAME = "attractionName";
 
     // Argument value
     private int mAttractionId;
+    private String mAttractionName;
     private List<PhotowarQueue> mPhotowarQueueds;
 
     // RecyclerView
@@ -52,13 +54,14 @@ public class PhotowarQueueFragment extends Fragment {
     public PhotowarQueueFragment() {
     }
 
-    public static PhotowarQueueFragment newInstance(int attractionId) {
+    public static PhotowarQueueFragment newInstance(int attractionId, String attractionName) {
         // Create an instance
         PhotowarQueueFragment fragment = new PhotowarQueueFragment();
 
         // Set arguments
         Bundle args = new Bundle();
         args.putInt(ATTRACTION_ID, attractionId);
+        args.putString(ATTRACTION_NAME, attractionName);
         fragment.setArguments(args);
 
         return fragment;
@@ -70,6 +73,7 @@ public class PhotowarQueueFragment extends Fragment {
 
         if (getArguments() != null) {
             mAttractionId = getArguments().getInt(ATTRACTION_ID);
+            mAttractionName = getArguments().getString(ATTRACTION_NAME);
         }
     }
 
@@ -80,8 +84,12 @@ public class PhotowarQueueFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_photowar_queue, container, false);
 
         // Set the title
+        String title = getString(R.string.photowar_queue);
+        if (mAttractionName != null && !mAttractionName.isEmpty()) {
+            title += " of " + mAttractionName;
+        }
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-        actionBar.setTitle(R.string.photowar_queue);
+        actionBar.setTitle(title);
 
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.progressBar);
 
