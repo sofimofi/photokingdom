@@ -129,6 +129,9 @@ public interface PhotoKingdomService {
     @POST("api/pings")
     Call<Ping> createPing(@Body Ping ping);
 
+    @POST("api/queues")
+    Call<PhotowarQueue> createPhotowarQueue(@Body PhotowarQueue photowarQueue);
+
     @POST("api/attractions")
     Call<Attraction> createAttraction(@Body Attraction attraction);
 

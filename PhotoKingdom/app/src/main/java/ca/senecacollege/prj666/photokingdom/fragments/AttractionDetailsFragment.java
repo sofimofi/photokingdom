@@ -42,6 +42,7 @@ import ca.senecacollege.prj666.photokingdom.models.AttractionWithWin;
 import ca.senecacollege.prj666.photokingdom.models.Constants;
 import ca.senecacollege.prj666.photokingdom.models.LatLngBoundaries;
 import ca.senecacollege.prj666.photokingdom.models.Locality;
+import ca.senecacollege.prj666.photokingdom.models.PhotowarQueue;
 import ca.senecacollege.prj666.photokingdom.models.Ping;
 import ca.senecacollege.prj666.photokingdom.services.GooglePlacesApiManager;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
@@ -59,7 +60,7 @@ import static android.view.View.VISIBLE;
 /**
  * Fragment for attraction details
  *
- * @author Wonho, Sofia
+ * @author Wonho, Sofia, Zhihao
  */
 public class AttractionDetailsFragment extends Fragment {
     private static final String TAG = "AttractionDetailsFrag";
@@ -100,6 +101,7 @@ public class AttractionDetailsFragment extends Fragment {
     private Button buttonUpload;
 
     private Attraction mAttraction;
+    private PhotowarQueue mNewPhotowarQueue;
     private Uri photoUri;
     private String photoPath;
     private LatLng photoLatLng;
@@ -317,7 +319,7 @@ public class AttractionDetailsFragment extends Fragment {
             // attraction existed
             if(mHasWar == true){
                 // case 1: have current photowar, then need a queue
-
+                createPhotowarQueue(photoPath, photoLatLng);
             }else if(mAttraction.getOwnerName() != null){
                 // case 2: no current war & has current owner, then start a war
                 AttractionPhotowarAddForm newAttractionPhotowar = new AttractionPhotowarAddForm(
@@ -347,6 +349,63 @@ public class AttractionDetailsFragment extends Fragment {
             }
         }
 
+    }
+
+    /**
+     * Call PhotoKingdomAPI to create photowar queue with uploaded photo
+     * @param photoPath
+     * @param photoLatLng
+     */
+    private void createPhotowarQueue(String photoPath, LatLng photoLatLng) {
+        if (mSessionManager.isLoggedIn() && mAttraction != null && photoPath != null) {
+            showProgressBar();
+
+            // Photowar queue
+            PhotowarQueue photowarQueue = new PhotowarQueue();
+            photowarQueue.setAttractionId(mAttraction.getId());
+            photowarQueue.setPhotoPath(photoPath);
+            photowarQueue.setPhotoLat(photoLatLng.latitude);
+            photowarQueue.setPhotoLng(photoLatLng.longitude);
+            photowarQueue.setResidentId(mSessionManager.getResident().getId());
+
+            Call<PhotowarQueue> photowarQueueCall = service.createPhotowarQueue(photowarQueue);
+            photowarQueueCall.enqueue(new Callback<PhotowarQueue>() {
+                @Override
+                public void onResponse(Call<PhotowarQueue> call, Response<PhotowarQueue> response) {
+                    hideProgressBar();
+
+                    if (response.isSuccessful()) {
+                        mNewPhotowarQueue = response.body();
+                        openPhotowarQueueView();
+                    } else {
+                        try {
+                            Log.d(TAG, "[createPhotowarQueue:onResponse] " + response.errorBody().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<PhotowarQueue> call, Throwable t) {
+                    hideProgressBar();
+                    Log.e(TAG, "[createPhotowarQueue:onFailure] " + t.getMessage());
+                }
+            });
+        }
+    }
+
+    /**
+     * Show photowar queue view with created photowar queue
+     */
+    private void openPhotowarQueueView() {
+        if (mNewPhotowarQueue != null) {
+            // Move to PhotowarQueueFragment
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.frameLayout, PhotowarQueueFragment.newInstance(mAttraction.getId(), mAttraction.getName()))
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
     private void attachImageToNewAttraction(Attraction newAttraction) {

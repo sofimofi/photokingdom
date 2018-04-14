@@ -18,6 +18,10 @@ public class PhotowarQueue {
     private int photoId;
     @SerializedName("PhotoPhotoFilePath")
     private String photoPath;
+    @SerializedName("PhotoLat")
+    private double photoLat;
+    @SerializedName("PhotoLng")
+    private double photoLng;
     @SerializedName("PhotoResidentId")
     private int residentId;
     @SerializedName("PhotoResidentUserName")
@@ -61,6 +65,22 @@ public class PhotowarQueue {
 
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
+    }
+
+    public double getPhotoLat() {
+        return photoLat;
+    }
+
+    public void setPhotoLat(double photoLat) {
+        this.photoLat = photoLat;
+    }
+
+    public double getPhotoLng() {
+        return photoLng;
+    }
+
+    public void setPhotoLng(double photoLng) {
+        this.photoLng = photoLng;
     }
 
     public int getResidentId() {
