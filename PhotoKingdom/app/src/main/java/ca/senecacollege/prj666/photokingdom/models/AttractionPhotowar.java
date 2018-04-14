@@ -19,6 +19,8 @@ public class AttractionPhotowar implements Comparable<AttractionPhotowar>{
     private String startDate;
     @SerializedName("EndDate")
     private String endDate;
+    @SerializedName("ExtendedDate")
+    private String extendedDate;
     @SerializedName("AttractionId")
     private int attractionId;
 
@@ -58,5 +60,13 @@ public class AttractionPhotowar implements Comparable<AttractionPhotowar>{
     public int compareTo(@NonNull AttractionPhotowar attractionPhotowar) {
         // return by descending order of startdate (from higher start date to lower start date)
         return attractionPhotowar.getStartDate().compareTo(this.getStartDate());
+    }
+
+    public String getExtendedDate() {
+        return extendedDate;
+    }
+
+    public void setExtendedDate(String extendedDate) {
+        this.extendedDate = extendedDate;
     }
 }

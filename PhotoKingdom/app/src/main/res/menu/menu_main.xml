@@ -6,10 +6,4 @@
     <item
         android:id="@+id/logout"
         android:title="@string/logout" />
-    <!-- TODO: Remove test menus -->
-    <item
-        android:title="------------------------------" />
-    <item
-        android:id="@+id/test_photowar_detail"
-        android:title="[TEST] Photowar Detail" />
 </menu>

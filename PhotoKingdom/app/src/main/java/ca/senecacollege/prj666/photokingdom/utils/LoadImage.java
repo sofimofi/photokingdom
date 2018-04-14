@@ -11,7 +11,7 @@ import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 
 
 /**
- * Created by sofia on 2018-03-30.
+ * Class to load image
  */
 
 public class LoadImage {

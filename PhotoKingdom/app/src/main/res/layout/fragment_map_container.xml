@@ -22,10 +22,17 @@
         android:background="@color/white">
 
         <RadioButton
-            android:id="@+id/optionMuseum"
+            android:id="@+id/optionAll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
+            android:text="@string/type_all"
+            android:textSize="12sp" />
+
+        <RadioButton
+            android:id="@+id/optionMuseum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/type_museum"
             android:textSize="12sp" />
 

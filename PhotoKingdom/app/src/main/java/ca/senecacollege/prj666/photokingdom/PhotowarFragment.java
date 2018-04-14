@@ -43,12 +43,9 @@ import static android.view.View.VISIBLE;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PhotowarFragment.OnPhotowarFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PhotowarFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment for Photowar
+ *
+ * @author sofia
  */
 public class PhotowarFragment extends Fragment {
     private static final String TAG = "PhotowarFragment";
@@ -177,9 +174,6 @@ public class PhotowarFragment extends Fragment {
                             mAttractionPhotowar.getAttraction().getName());
 
                     setAttractionPhotowarData();
-
-                    // Check Photowar queue
-                    checkHasQueue();
                 } else {
                     try {
                         Log.d(TAG, response.errorBody().toString());
@@ -202,7 +196,9 @@ public class PhotowarFragment extends Fragment {
             upload1 = mAttractionPhotowar.getAttractionPhotowarUploads().get(0);
             upload2 = mAttractionPhotowar.getAttractionPhotowarUploads().get(1);
 
-            if(warEnded(mAttractionPhotowar.getEndDate())){
+            boolean warOver = warEnded(mAttractionPhotowar.getEndDate());
+            if((warOver && mAttractionPhotowar.getExtendedDate() == null) ||
+                    (warOver && mAttractionPhotowar.getExtendedDate() != null && warEnded(mAttractionPhotowar.getExtendedDate()))){
                 // war is over
 
                 bannerTextView.setText(getString(R.string.photowar_ended, mAttractionPhotowar.getAttraction().getName()));
@@ -223,14 +219,27 @@ public class PhotowarFragment extends Fragment {
             } else {
                 // ongoing war
 
+                // Check Photowar queue
+                checkHasQueue();
+
+                boolean extendedWar = false;
+                // check whether it's an extended war
+                if(mAttractionPhotowar.getExtendedDate() != null && !warEnded(mAttractionPhotowar.getExtendedDate())){
+                    extendedWar = true;
+                }
+
                 // time countdown
-                startDateCountdown(mAttractionPhotowar.getEndDate());
+                startDateCountdown(extendedWar ? mAttractionPhotowar.getExtendedDate() : mAttractionPhotowar.getEndDate());
 
                 if(mSessionManager.isLoggedIn() && mAttractionPhotowar.getResidentInPhotowar() != 1){
                     // If Resident logged in and is not part of the Photowar, allowed to vote
                     Log.d(TAG, "Resident allowed to vote!");
 
-                    bannerTextView.setText(getString(R.string.photowar_vote_resident, mAttractionPhotowar.getAttraction().getName()));
+                    if(extendedWar){
+                        bannerTextView.setText(getString(R.string.photowar_extended_vote_resident, mAttractionPhotowar.getAttraction().getName()));
+                    } else {
+                        bannerTextView.setText(getString(R.string.photowar_vote_resident, mAttractionPhotowar.getAttraction().getName()));
+                    }
 
                     // set any already voted photo
                     setVotedPhoto();
@@ -244,7 +253,12 @@ public class PhotowarFragment extends Fragment {
                 } else {
                     // Visitor, or a Resident who is already part of this photowar - not allowed to vote
                     Log.d(TAG, "User not allowed to vote!");
-                    bannerTextView.setText(getString(R.string.photowar_vote_visitor, mAttractionPhotowar.getAttraction().getName()));
+
+                    if(extendedWar){
+                        bannerTextView.setText(getString(R.string.photowar_extended_vote_visitor, mAttractionPhotowar.getAttraction().getName()));
+                    } else {
+                        bannerTextView.setText(getString(R.string.photowar_vote_visitor, mAttractionPhotowar.getAttraction().getName()));
+                    }
 
                     // remove vote buttons
                     votePhoto1Button.setVisibility(INVISIBLE);

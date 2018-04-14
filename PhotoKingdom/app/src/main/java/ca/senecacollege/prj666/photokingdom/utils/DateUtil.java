@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Convert date string and calculate expiry date
  *
- * @author Wonho
+ * @author Wonho, sofia
  */
 
 public class DateUtil {

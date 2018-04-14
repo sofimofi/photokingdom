@@ -16,7 +16,8 @@ import ca.senecacollege.prj666.photokingdom.models.PhotoWinning;
 import ca.senecacollege.prj666.photokingdom.utils.LoadImage;
 
 /**
- * Created by sofia on 2018-04-07.
+ * Adapter for Attraction Winning Photo History
+ * @author sofia
  */
 public class AttractionWinningPhotoHistoryAdapter extends RecyclerView.Adapter<AttractionWinningPhotoHistoryAdapter.ViewHolder> {
     private static final String TAG = "winningPhotosAdapter";
