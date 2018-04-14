@@ -451,6 +451,10 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             Bundle bundle = (Bundle)marker.getTag();
             // Open attraction details view with attraction data
             openAttractionDetailsView(bundle);
+        } else {
+            int residentId = (int) marker.getTag();
+            Log.d(TAG, "Clicked on owner marker with id " + residentId);
+            openUserProfileView(residentId);
         }
     }
 
@@ -654,16 +658,16 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     public void setProvinceOwnMarker(ResidentOwnForMapView residentOwn){
         if(residentOwn != null && mCurrentLatLng != null){
             // move the marker a bit higher so that it's not on top of City Marker
-            LatLngBoundaries boundaries = getLatLngBoundaries(mCurrentLatLng, 70000);
+            LatLngBoundaries boundaries = getLatLngBoundaries(mCurrentLatLng, 130000);
             LatLng latlng = new LatLng(boundaries.getMaxLat(), boundaries.getMinLng());
-            setOwnMarker(residentOwn, latlng, ownLevel.CITY);
+            setOwnMarker(residentOwn, latlng, ownLevel.PROVINCE);
         }
     }
 
     public void setCountryOwnMarker(ResidentOwnForMapView residentOwn){
         if(residentOwn != null && mCurrentLatLng != null){
             // move the marker a bit higher so that it's not on top of other markers
-            LatLngBoundaries boundaries = getLatLngBoundaries(mCurrentLatLng, 200000);
+            LatLngBoundaries boundaries = getLatLngBoundaries(mCurrentLatLng, 300000);
             double lngMiddle = boundaries.getMaxLng() - ((boundaries.getMaxLng() - boundaries.getMinLng()) / 2);
             LatLng latlng = new LatLng(boundaries.getMaxLat(), lngMiddle );
             setOwnMarker(residentOwn, latlng, ownLevel.COUNTRY);
@@ -686,6 +690,8 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                 .title(residentOwn.getResidentUserName())
                 .position(latlng)
                 .snippet(residentOwn.getTitle()));
+        marker.setTag(residentOwn.getResidentId());
+
 
         switch(level){
             case CITY:
@@ -771,6 +777,14 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.frameLayout, AttractionDetailsFragment.newInstance(bundle),
                         Constants.FRAGMENT_TAG_ATTRACTION_DETAILS)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void openUserProfileView(int residentId){
+        UserFragment userFragment = UserFragment.newInstance(residentId);
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.frameLayout, userFragment)
                 .addToBackStack(null)
                 .commit();
     }
