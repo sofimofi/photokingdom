@@ -14,12 +14,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
 import ca.senecacollege.prj666.photokingdom.models.Locality;
-import ca.senecacollege.prj666.photokingdom.models.PlaceType;
+import ca.senecacollege.prj666.photokingdom.models.Constants;
 
 /**
  * Service to get place information from Google Places API Web Service
@@ -54,7 +53,7 @@ public class GooglePlacesApiManager {
         this.Lng = lng;
         this.metersToSearch = metersToSearch;
         this.googlePlaces = new HashSet<>();
-        this.placeType = PlaceType.ALL;
+        this.placeType = Constants.PLACE_TYPE_ALL;
     }
 
     public GooglePlacesApiManager(double lat, double lng, double metersToSearch, String placeType){
@@ -66,7 +65,7 @@ public class GooglePlacesApiManager {
     }
 
     public Set<GooglePlace> getGooglePlaces() throws ApiException{
-        if (placeType == PlaceType.ALL) {
+        if (placeType == Constants.PLACE_TYPE_ALL) {
             for (String place : placeTypes) {
                 makeRequest(place);
             }

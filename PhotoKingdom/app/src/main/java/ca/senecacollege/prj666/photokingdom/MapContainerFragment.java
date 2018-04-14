@@ -33,7 +33,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.Dash;
-import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -55,7 +54,7 @@ import ca.senecacollege.prj666.photokingdom.models.AttractionForMapView;
 import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
 import ca.senecacollege.prj666.photokingdom.models.LatLngBoundaries;
 import ca.senecacollege.prj666.photokingdom.models.Locality;
-import ca.senecacollege.prj666.photokingdom.models.PlaceType;
+import ca.senecacollege.prj666.photokingdom.models.Constants;
 import ca.senecacollege.prj666.photokingdom.models.ResidentOwnForMapView;
 import ca.senecacollege.prj666.photokingdom.services.AttractionsForMapViewManager;
 import ca.senecacollege.prj666.photokingdom.services.GooglePlacesApiManager;
@@ -173,25 +172,26 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         }
 
         // Place type
+        mPlaceType = Constants.PLACE_TYPE_ALL;
         RadioGroup options = rootView.findViewById(R.id.placeTypeOptions);
         options.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 switch (i) {
                     case R.id.optionMuseum:
-                        mPlaceType = PlaceType.MUSEUM;
+                        mPlaceType = Constants.PLACE_TYPE_MUSEUM;
                         break;
                     case R.id.optionPark:
-                        mPlaceType = PlaceType.PARK;
+                        mPlaceType = Constants.PLACE_TYPE_PARK;
                         break;
                     case R.id.optionNatural:
-                        mPlaceType = PlaceType.NATURAL_FEATURE;
+                        mPlaceType = Constants.PLACE_TYPE_NATURAL_FEATURE;
                         break;
                     case R.id.optionPremise:
-                        mPlaceType = PlaceType.PREMISE;
+                        mPlaceType = Constants.PLACE_TYPE_PREMISE;
                         break;
                     default:
-                        mPlaceType = PlaceType.ALL;
+                        mPlaceType = Constants.PLACE_TYPE_ALL;
                 }
 
                 if (mGoogleMap != null) {
@@ -720,7 +720,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                             android.Manifest.permission.ACCESS_FINE_LOCATION,
                             android.Manifest.permission.ACCESS_COARSE_LOCATION
                     },
-                    PERMISSIONS_REQUEST_ACCESS_LOCATION);
+                    Constants.PERMISSION_REQUEST_ACCESS_LOCATION);
 
             return false;
         }
@@ -769,7 +769,8 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private void openAttractionDetailsView(Bundle bundle) {
         // Move to AttractionDetailsFragment
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.frameLayout, AttractionDetailsFragment.newInstance(bundle))
+                .replace(R.id.frameLayout, AttractionDetailsFragment.newInstance(bundle),
+                        Constants.FRAGMENT_TAG_ATTRACTION_DETAILS)
                 .addToBackStack(null)
                 .commit();
     }
@@ -842,7 +843,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             this.lat = lat;
             this.lng = lng;
             this.metersToSearch = metersToSearch;
-            this.placeType = PlaceType.ALL;
+            this.placeType = Constants.PLACE_TYPE_ALL;
         }
 
         public GooglePlacesRequest(OnGooglePlacesApiTaskCompleted listener,
@@ -940,7 +941,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             this.lat = lat;
             this.lng = lng;
             this.metersToSearch = metersToSearch;
-            this.placeType = PlaceType.ALL;
+            this.placeType = Constants.PLACE_TYPE_ALL;
         }
 
         public GoogleLocalityRequest(double lat,

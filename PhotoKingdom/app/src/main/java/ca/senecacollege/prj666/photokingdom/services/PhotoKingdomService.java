@@ -3,7 +3,10 @@ package ca.senecacollege.prj666.photokingdom.services;
 import java.util.List;
 
 import ca.senecacollege.prj666.photokingdom.models.Attraction;
+import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowar;
+import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarAddForm;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarWithDetails;
+import ca.senecacollege.prj666.photokingdom.models.AttractionWithWin;
 import ca.senecacollege.prj666.photokingdom.models.Image;
 import ca.senecacollege.prj666.photokingdom.models.Continent;
 import ca.senecacollege.prj666.photokingdom.models.Country;
@@ -22,6 +25,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -71,7 +75,6 @@ public interface PhotoKingdomService {
     @GET("api/queues/{id}")
     Call<List<PhotowarQueue>> getQueueForAttraction(@Path("id") int attractionId);
 
-    // TODO: get residentId ?
     @GET("api/residents/{id}")
     Call<Resident> getResident(@Path("id") int residentId);
 
@@ -125,5 +128,14 @@ public interface PhotoKingdomService {
 
     @POST("api/pings")
     Call<Ping> createPing(@Body Ping ping);
+
+    @POST("api/attractions")
+    Call<Attraction> createAttraction(@Body Attraction attraction);
+
+    @PUT("api/attractions/{id}/details")
+    Call<Attraction> editAttractionWithWin(@Path("id") int id, @Body AttractionWithWin attractionWithWin);
+
+    @POST("api/attractionPhotowars")
+    Call<AttractionPhotowarWithDetails> createAttractionPhotowar(@Body AttractionPhotowarAddForm attractionPhotowarAddForm);
 }
 
