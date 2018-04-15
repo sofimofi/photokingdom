@@ -53,7 +53,7 @@ public class LiveFeedService extends Service {
             public void run() {
                 while (true) {
                     try {
-                        // Get Photowars and owns data every 30 seconds
+                        // Get Photowars and owns data every 10 seconds
                         getPhotowars();
                         getContinentOwns();
                         getCountryOwns();
@@ -61,7 +61,7 @@ public class LiveFeedService extends Service {
                         getCityOwns();
                         getProvinceOwns();
 
-                        Thread.sleep(30000);
+                        Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

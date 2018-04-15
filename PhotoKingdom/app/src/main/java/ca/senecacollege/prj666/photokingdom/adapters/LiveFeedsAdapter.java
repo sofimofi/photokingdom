@@ -1,6 +1,7 @@
 package ca.senecacollege.prj666.photokingdom.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,6 +59,10 @@ public class LiveFeedsAdapter extends RecyclerView.Adapter<LiveFeedsAdapter.View
         mFeeds = feeds;
     }
 
+    public void setFeeds(List<LiveFeed> feeds) {
+        this.mFeeds = feeds;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Layout inflation
@@ -73,9 +78,10 @@ public class LiveFeedsAdapter extends RecyclerView.Adapter<LiveFeedsAdapter.View
         holder.textViewDate.setText(mFeeds.get(position).getDate());
         holder.textViewMsg.setText(mFeeds.get(position).getMsg());
 
-        //if (mFeeds.get(position).getPhotoPath1().isEmpty()) {
         if (mFeeds.get(position).getType() == FeedEntry.TYPE_PHOTOWAR) {
             // Photowar feed
+            holder.textViewMsg.setTextSize(14);
+            holder.textViewMsg.setTextColor(Color.GRAY);
             loadImage(holder.imageView1, mFeeds.get(position).photowar.getPhotoPath1());
             loadImage(holder.imageView2, mFeeds.get(position).photowar.getPhotoPath2());
             holder.textViewName1.setText(mFeeds.get(position).photowar.getResidentName1());
@@ -93,6 +99,20 @@ public class LiveFeedsAdapter extends RecyclerView.Adapter<LiveFeedsAdapter.View
             });
         } else {
             // Own feed
+            holder.textViewMsg.setTextSize(18);
+            String msg = mFeeds.get(position).getMsg().toLowerCase();
+            if (msg.contains("emperor") || msg.contains("empress")) {
+                holder.textViewMsg.setTextColor(mContext.getResources().getColor(R.color.titlePurple));
+            } else if (msg.contains("king") || msg.contains("queen")) {
+                holder.textViewMsg.setTextColor(mContext.getResources().getColor(R.color.titleOrange));
+            } else if (msg.contains("prince") || msg.contains("princess")) {
+                holder.textViewMsg.setTextColor(mContext.getResources().getColor(R.color.titleBlue));
+            } else if (msg.contains("duke") || msg.contains("duchess")) {
+                holder.textViewMsg.setTextColor(mContext.getResources().getColor(R.color.titleTeal));
+            } else if (msg.contains("lord") || msg.contains("lady")) {
+                holder.textViewMsg.setTextColor(mContext.getResources().getColor(R.color.titleLime));
+            }
+
             hidePhotowarViews(holder);
 
             // Own click
