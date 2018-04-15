@@ -14,6 +14,7 @@ public class FeedEntry implements BaseColumns {
 
     // Photowar
     public static final String TABLE_NAME_PHOTOWARS = "photowars";
+    public static final String COLUMN_CREATED_DATE = "created_date";
     public static final String COLUMN_PHOTOWAR_ID = "photowar_id";
     public static final String COLUMN_START_DATE = "start_date";
     public static final String COLUMN_ATTRACTION_NAME = "attraction_name";

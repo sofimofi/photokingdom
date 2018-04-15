@@ -8,6 +8,8 @@ import android.support.annotation.NonNull;
  * @author Wonho
  */
 public class LiveFeed implements Comparable<LiveFeed> {
+    private int id;
+    private String created;
     private int type;
     private String date;
     private String msg;
@@ -26,6 +28,22 @@ public class LiveFeed implements Comparable<LiveFeed> {
                 own = new Own();
                 break;
         }
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getCreated() {
+        return created;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
     }
 
     public int getType() {
@@ -50,7 +68,12 @@ public class LiveFeed implements Comparable<LiveFeed> {
 
     @Override
     public int compareTo(@NonNull LiveFeed liveFeed) {
-        return liveFeed.date.compareTo(date);
+        int result = liveFeed.date.compareTo(date);
+        if (result == 0) {
+            result = liveFeed.created.compareTo(created);
+        }
+
+        return result;
     }
 
     // Photowar
