@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import ca.senecacollege.prj666.photokingdom.R;
 import ca.senecacollege.prj666.photokingdom.models.Photo;
 
+/**
+ * @author zhihao
+ */
 public class PhotoAlbumAdapter extends RecyclerView.Adapter<PhotoAlbumAdapter.ViewHolder>{
     private ArrayList<Photo> photoLists;
     private Context context;

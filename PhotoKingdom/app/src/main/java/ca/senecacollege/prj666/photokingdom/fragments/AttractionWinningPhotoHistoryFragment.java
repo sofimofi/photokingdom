@@ -28,12 +28,9 @@ import retrofit2.Response;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AttractionWinningPhotoHistoryFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AttractionWinningPhotoHistoryFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment for Attraction Winning Photos History
+ *
+ * @author sofia
  */
 public class AttractionWinningPhotoHistoryFragment extends Fragment {
     private static final String TAG = "winningPhotoHistory";

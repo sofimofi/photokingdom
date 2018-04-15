@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -22,20 +23,20 @@ import ca.senecacollege.prj666.photokingdom.R;
 import ca.senecacollege.prj666.photokingdom.adapters.AttractionPhotowarHistoryAdapter;
 import ca.senecacollege.prj666.photokingdom.adapters.PingsAdapter;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarWithDetails;
+import ca.senecacollege.prj666.photokingdom.models.PhotowarQueue;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.view.View.VISIBLE;
+
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AttractionPhotowarHistoryFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AttractionPhotowarHistoryFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment for Attraction Photowar History
+ *
+ * @author sofia
  */
 public class AttractionPhotowarHistoryFragment extends Fragment {
     private static final String TAG = "PhotowarHistoryFragment";
@@ -47,6 +48,7 @@ public class AttractionPhotowarHistoryFragment extends Fragment {
     private List<AttractionPhotowarWithDetails> mAttractionPhotowarList;
 
     private TextView banner;
+    private Button mButtonQueue;
 
     // RecyclerView
     private RecyclerView mRecyclerView;
@@ -96,6 +98,7 @@ public class AttractionPhotowarHistoryFragment extends Fragment {
         actionBar.setTitle(R.string.photowar_history);
 
         banner = (TextView) view.findViewById(R.id.photoWarHistoryBannerTextView);
+        mButtonQueue = view.findViewById(R.id.buttonQueue);
 
         // RecyclerView
         mRecyclerView = (RecyclerView)view.findViewById(R.id.recyclerView);
@@ -122,6 +125,7 @@ public class AttractionPhotowarHistoryFragment extends Fragment {
                     Log.d(TAG, "Photowar History List came back: " + mAttractionPhotowarList);
                     Log.d(TAG, "PhotowarHistory List count: " + mAttractionPhotowarList.size());
                     setPhotowarHistoryData();
+                    checkHasQueue();
                 } else {
                     try {
                         Log.d(TAG, response.errorBody().toString());
@@ -160,6 +164,50 @@ public class AttractionPhotowarHistoryFragment extends Fragment {
             });
 
             mRecyclerView.setAdapter(mAdapter);
+        }
+    }
+
+    private void checkHasQueue() {
+        PhotoKingdomService service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<List<PhotowarQueue>> call = service.getQueueForAttraction(mAttractionId);
+        call.enqueue(new Callback<List<PhotowarQueue>>() {
+            @Override
+            public void onResponse(Call<List<PhotowarQueue>> call, Response<List<PhotowarQueue>> response) {
+                if (response.isSuccessful()) {
+                    List<PhotowarQueue> photowarQueues = response.body();
+                    if (photowarQueues.size() > 0) {
+                        enableQueueButton();
+                    }
+                } else {
+                    try {
+                        Log.d(TAG, "[checkHasQueue:onResponse] " + response.errorBody().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<PhotowarQueue>> call, Throwable t) {
+                Log.e(TAG, "[checkHasQueue:onFailure] " + t.getMessage());
+            }
+        });
+    }
+
+    private void enableQueueButton() {
+        if (mButtonQueue != null) {
+            mButtonQueue.setVisibility(VISIBLE);
+            mButtonQueue.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    // Move to PhotowarQueueFragment
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frameLayout, PhotowarQueueFragment.newInstance(mAttractionId, mAttractionName))
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
         }
     }
 

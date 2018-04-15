@@ -31,12 +31,9 @@ import static android.view.View.VISIBLE;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PhotoFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PhotoFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment for Photo
+ *
+ * @author sofia
  */
 public class PhotoFragment extends Fragment {
     private static final String TAG = "PhotoFragment";
@@ -172,7 +169,12 @@ public class PhotoFragment extends Fragment {
                 // Set Photo Name to most recent Attraction Name
                 mPhotoAttractionName.setText(mMostRecentAttractionPhotowar.getAttractionPhotowarAttractionName());
 
-                String endDate = mMostRecentAttractionPhotowar.getAttractionPhotowar().getEndDate();
+                String endDate;
+                if(mMostRecentAttractionPhotowar.getAttractionPhotowar().getExtendedDate() != null){
+                    endDate = mMostRecentAttractionPhotowar.getAttractionPhotowar().getExtendedDate();
+                } else {
+                    endDate = mMostRecentAttractionPhotowar.getAttractionPhotowar().getEndDate();
+                }
 
                 if(!DateUtil.isBeforeNow(endDate)){
                     // AttractionPhotowar is still going on

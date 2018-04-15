@@ -44,8 +44,10 @@ import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -83,6 +85,8 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private String mParam2;
 
     private static final String TAG = "MapContainerFragment";
+    private static final String OWN_ID = "ownId";
+    private static final String RESIDENT_ID = "residentID";
     static final int PERMISSIONS_REQUEST_ACCESS_LOCATION = 1;
     private enum ownLevel {CITY, PROVINCE, COUNTRY, CONTINENT}
 
@@ -114,7 +118,13 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private OnFragmentInteractionListener mListener;
 
     // handle opening and closing marker
-    Marker lastOpened = null;
+    private Marker lastOpened = null;
+
+    // keep track of High-Own Markers
+    HashMap<Integer, Marker> mCityOwnMarkers;
+    HashMap<Integer, Marker> mProvinceOwnMarkers;
+    HashMap<Integer, Marker> mCountryOwnMarkers;
+    HashMap<Integer, Marker> mContinentOwnMarkers;
 
     public MapContainerFragment() {
         // Required empty public constructor
@@ -156,6 +166,12 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         DisplayMetrics metrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
         screenWidthPixels = metrics.widthPixels;
+
+        // initialize class variables
+        mCityOwnMarkers = new HashMap<>();
+        mProvinceOwnMarkers = new HashMap<>();
+        mCountryOwnMarkers = new HashMap<>();
+        mContinentOwnMarkers = new HashMap<>();
     }
 
     @Override
@@ -178,6 +194,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 switch (i) {
+                    case R.id.optionAll:
+                        mPlaceType = Constants.PLACE_TYPE_ALL;
+                        break;
                     case R.id.optionMuseum:
                         mPlaceType = Constants.PLACE_TYPE_MUSEUM;
                         break;
@@ -452,7 +471,8 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             // Open attraction details view with attraction data
             openAttractionDetailsView(bundle);
         } else {
-            int residentId = (int) marker.getTag();
+            HashMap<String, Integer> markerMap = (HashMap<String, Integer>) marker.getTag();
+            int residentId = markerMap.get(RESIDENT_ID);
             Log.d(TAG, "Clicked on owner marker with id " + residentId);
             openUserProfileView(residentId);
         }
@@ -476,6 +496,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         float currentZoom = mGoogleMap.getCameraPosition().zoom;
         if(currentZoom > CITY_ZOOM){
             mGoogleMap.clear(); // remove previous markers
+            mLastZoomLevel = currentZoom;
 
             LatLng radius = getScreenRadius();
             Double radiusMeters = toRadiusMeters(center, radius);
@@ -486,6 +507,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             if(mLastZoomLevel > CITY_ZOOM){ // only clear markers if it was previously city level view
                 mGoogleMap.clear();
             }
+            mLastZoomLevel = currentZoom;
             // city level and higher
             Log.d(TAG, "Zoom level is " + currentZoom);
 
@@ -651,7 +673,10 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
     public void setCityOwnMarker(ResidentOwnForMapView residentOwn){
         if(residentOwn != null && mCurrentLatLng != null){
-            setOwnMarker(residentOwn, mCurrentLatLng, ownLevel.CITY);
+            // if marker already exists, don't add another one
+            if(!mCityOwnMarkers.containsKey(residentOwn.getId())){
+                setOwnMarker(residentOwn, mCurrentLatLng, ownLevel.CITY);
+            }
         }
     }
 
@@ -660,6 +685,14 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             // move the marker a bit higher so that it's not on top of City Marker
             LatLngBoundaries boundaries = getLatLngBoundaries(mCurrentLatLng, 130000);
             LatLng latlng = new LatLng(boundaries.getMaxLat(), boundaries.getMinLng());
+
+            // if marker exists, remove it because we will place a new marker to follow along with shifted map view
+            if(mProvinceOwnMarkers.containsKey(residentOwn.getId())){
+                Marker marker = mProvinceOwnMarkers.get(residentOwn.getId());
+                marker.remove();
+                mProvinceOwnMarkers.remove(residentOwn.getId());
+            }
+
             setOwnMarker(residentOwn, latlng, ownLevel.PROVINCE);
         }
     }
@@ -670,6 +703,14 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             LatLngBoundaries boundaries = getLatLngBoundaries(mCurrentLatLng, 300000);
             double lngMiddle = boundaries.getMaxLng() - ((boundaries.getMaxLng() - boundaries.getMinLng()) / 2);
             LatLng latlng = new LatLng(boundaries.getMaxLat(), lngMiddle );
+
+            // if marker exists, remove it because we will place a new marker to follow along with shifted map view
+            if(mCountryOwnMarkers.containsKey(residentOwn.getId())){
+                Marker marker = mCountryOwnMarkers.get(residentOwn.getId());
+                marker.remove();
+                mCountryOwnMarkers.remove(residentOwn.getId());
+            }
+
             setOwnMarker(residentOwn, latlng, ownLevel.COUNTRY);
         }
     }
@@ -680,6 +721,14 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             LatLngBoundaries boundaries = getLatLngBoundaries(mCurrentLatLng, 300000);
             double lngMiddle = boundaries.getMaxLng() - ((boundaries.getMaxLng() - boundaries.getMinLng()) / 2);
             LatLng latlng = new LatLng(boundaries.getMinLat(), lngMiddle);
+
+            // if marker exists, remove it because we will place a new marker to follow along with shifted map view
+            if(mContinentOwnMarkers.containsKey(residentOwn.getId())){
+                Marker marker = mContinentOwnMarkers.get(residentOwn.getId());
+                marker.remove();
+                mContinentOwnMarkers.remove(residentOwn.getId());
+            }
+
             setOwnMarker(residentOwn, latlng, ownLevel.CONTINENT);
         }
     }
@@ -690,25 +739,33 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                 .title(residentOwn.getResidentUserName())
                 .position(latlng)
                 .snippet(residentOwn.getTitle()));
-        marker.setTag(residentOwn.getResidentId());
 
+        Map<String, Integer> markerMap = new HashMap<>();
+        markerMap.put(OWN_ID, residentOwn.getId());
+        markerMap.put(RESIDENT_ID, residentOwn.getResidentId());
+
+        marker.setTag(markerMap);
 
         switch(level){
             case CITY:
                 BitmapDescriptor throne = BitmapDescriptorFactory.fromResource(R.drawable.throne);
                 marker.setIcon(throne);
+                mCityOwnMarkers.put(residentOwn.getId(), marker);
                 break;
             case PROVINCE:
                 BitmapDescriptor scepter = BitmapDescriptorFactory.fromResource(R.drawable.scepter);
                 marker.setIcon(scepter);
+                mProvinceOwnMarkers.put(residentOwn.getId(), marker);
                 break;
             case COUNTRY:
                 BitmapDescriptor crown = BitmapDescriptorFactory.fromResource(R.drawable.crown);
                 marker.setIcon(crown);
+                mCountryOwnMarkers.put(residentOwn.getId(), marker);
                 break;
             case CONTINENT:
                 BitmapDescriptor sun = BitmapDescriptorFactory.fromResource(R.drawable.sun);
                 marker.setIcon(sun);
+                mContinentOwnMarkers.put(residentOwn.getId(), marker);
                 break;
             default:
                 break;

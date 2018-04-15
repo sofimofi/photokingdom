@@ -72,7 +72,7 @@ public interface PhotoKingdomService {
     @GET("api/attractions/{id}/Photowars")
     Call<List<AttractionPhotowarWithDetails>> getAttractionPhotowarHistory(@Path("id") int attractionId);
 
-    @GET("api/queues/{id}")
+    @GET("api/attractions/{id}/queues/details")
     Call<List<PhotowarQueue>> getQueueForAttraction(@Path("id") int attractionId);
 
     @GET("api/residents/{id}")
@@ -128,6 +128,9 @@ public interface PhotoKingdomService {
 
     @POST("api/pings")
     Call<Ping> createPing(@Body Ping ping);
+
+    @POST("api/queues")
+    Call<PhotowarQueue> createPhotowarQueue(@Body PhotowarQueue photowarQueue);
 
     @POST("api/attractions")
     Call<Attraction> createAttraction(@Body Attraction attraction);

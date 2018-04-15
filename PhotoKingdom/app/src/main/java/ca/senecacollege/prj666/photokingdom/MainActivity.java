@@ -27,7 +27,7 @@ import ca.senecacollege.prj666.photokingdom.utils.ResidentSessionManager;
  *
  * @author Wonho, Zhihao
  */
-public class MainActivity extends AppCompatActivity implements PhotowarFragment.OnPhotowarFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity {
     // Fragments
     private LiveFeedFragment mLiveFeedFragment;
     private MapContainerFragment mMapContainerFragment;
@@ -182,15 +182,6 @@ public class MainActivity extends AppCompatActivity implements PhotowarFragment.
                 finish();
 
                 return true;
-            // TODO: Remove test menus
-            case R.id.test_photowar_detail:
-                PhotowarFragment photowarFragment = PhotowarFragment.newInstance(34);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frameLayout, photowarFragment )
-                        .addToBackStack(null)
-                        .commit();
-
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -225,11 +216,6 @@ public class MainActivity extends AppCompatActivity implements PhotowarFragment.
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-    }
-
-    @Override
-    public void onFragmentInteraction() {
-
     }
 
     @Override

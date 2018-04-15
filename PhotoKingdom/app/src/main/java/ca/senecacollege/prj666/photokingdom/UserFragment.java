@@ -40,12 +40,9 @@ import static android.app.Activity.RESULT_OK;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link UserFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link UserFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment for User
+ *
+ * @author zhihao
  */
 public class UserFragment extends Fragment {
     private static final String TAG = "UserFragment";

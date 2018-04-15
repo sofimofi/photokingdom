@@ -22,6 +22,8 @@ import ca.senecacollege.prj666.photokingdom.models.Constants;
 
 /**
  * Service to get place information from Google Places API Web Service
+ *
+ * @author sofia
  */
 public class GooglePlacesApiManager {
     private final String TAG = "GooglePlacesApiManager";

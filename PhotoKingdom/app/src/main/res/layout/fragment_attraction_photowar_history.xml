@@ -5,14 +5,34 @@
     android:orientation="vertical"
     tools:context="ca.senecacollege.prj666.photokingdom.fragments.AttractionPhotowarHistoryFragment">
 
-    <TextView
-        android:id="@+id/photoWarHistoryBannerTextView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/banner"
-        android:padding="5dp"
-        android:textAlignment="center"
-        android:textSize="20sp" />
+        android:orientation="horizontal"
+        android:background="@color/banner">
+
+        <TextView
+            android:id="@+id/photoWarHistoryBannerTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:textAlignment="center"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/buttonQueue"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="5dp"
+            android:background="@drawable/button"
+            android:text="Queue"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"

@@ -14,13 +14,17 @@ public class PhotowarQueue {
     private String queueDate;
     @SerializedName("AttractionId")
     private int attractionId;
-    @SerializedName("AttractionPhotowarUploadPhotoId")
+    @SerializedName("PhotoId")
     private int photoId;
-    @SerializedName("AttractionPhotowarUploadPhotoPhotoFilePath")
+    @SerializedName("PhotoPhotoFilePath")
     private String photoPath;
-    @SerializedName("AttractionPhotowarUploadPhotoResidentId")
+    @SerializedName("PhotoLat")
+    private double photoLat;
+    @SerializedName("PhotoLng")
+    private double photoLng;
+    @SerializedName("PhotoResidentId")
     private int residentId;
-    @SerializedName("AttractionPhotowarUploadPhotoResidentUserName")
+    @SerializedName("PhotoResidentUserName")
     private String residentName;
 
     public int getId() {
@@ -61,6 +65,22 @@ public class PhotowarQueue {
 
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
+    }
+
+    public double getPhotoLat() {
+        return photoLat;
+    }
+
+    public void setPhotoLat(double photoLat) {
+        this.photoLat = photoLat;
+    }
+
+    public double getPhotoLng() {
+        return photoLng;
+    }
+
+    public void setPhotoLng(double photoLng) {
+        this.photoLng = photoLng;
     }
 
     public int getResidentId() {

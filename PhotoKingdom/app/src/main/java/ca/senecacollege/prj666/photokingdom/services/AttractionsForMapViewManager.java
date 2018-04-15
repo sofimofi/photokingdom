@@ -23,6 +23,8 @@ import ca.senecacollege.prj666.photokingdom.models.LatLngBoundaries;
 
 /**
  * Service to get Attractions from database for use in map view
+ *
+ * @author sofia
  */
 public class AttractionsForMapViewManager {
     private static final String TAG = "AttractionsMapViewMgr";

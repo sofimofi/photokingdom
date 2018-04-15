@@ -20,12 +20,9 @@ import ca.senecacollege.prj666.photokingdom.adapters.PhotoAlbumAdapter;
 import ca.senecacollege.prj666.photokingdom.models.Photo;
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PhotoAlbumFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PhotoAlbumFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment for Photo Album
+ *
+ * @author zhihao
  */
 public class PhotoAlbumFragment extends Fragment {
     private static final String TAG = "PhotoAlbumFragment";
