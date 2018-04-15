@@ -627,8 +627,7 @@ public class PhotowarFragment extends Fragment {
         if (context instanceof OnPhotowarFragmentInteractionListener) {
             mListener = (OnPhotowarFragmentInteractionListener) context;
         } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnPhotowarFragmentInteractionListener");
+            Log.d(TAG,"Photowar fragment created");
         }
     }
 

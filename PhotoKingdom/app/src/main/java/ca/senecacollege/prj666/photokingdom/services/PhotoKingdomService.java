@@ -140,5 +140,8 @@ public interface PhotoKingdomService {
 
     @POST("api/attractionPhotowars")
     Call<AttractionPhotowarWithDetails> createAttractionPhotowar(@Body AttractionPhotowarAddForm attractionPhotowarAddForm);
+
+    @GET("api/residents/{id}/photos")
+    Call<List<PhotoWithDetails>> getPhotosByResidentId(@Path("id") int residentId);
 }
 

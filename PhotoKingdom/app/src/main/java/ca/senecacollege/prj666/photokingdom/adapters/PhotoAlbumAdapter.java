@@ -1,6 +1,7 @@
 package ca.senecacollege.prj666.photokingdom.adapters;
 
 import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +14,10 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import ca.senecacollege.prj666.photokingdom.PhotoFragment;
 import ca.senecacollege.prj666.photokingdom.R;
 import ca.senecacollege.prj666.photokingdom.models.Photo;
+import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 
 /**
  * @author zhihao
@@ -36,17 +39,22 @@ public class PhotoAlbumAdapter extends RecyclerView.Adapter<PhotoAlbumAdapter.Vi
 
     @Override
     public void onBindViewHolder(PhotoAlbumAdapter.ViewHolder viewHolder, final int position) {
-         //viewHolder.title.setText(photoLists.get(position).getTitle());
-         viewHolder.img.setScaleType(ImageView.ScaleType.CENTER_CROP);
-         //viewHolder.img.setImageResource((photoLists.get(position).getId()));
+        viewHolder.img.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        //viewHolder.img.setImageResource((photoLists.get(position).getId()));
 
-         Picasso.with(context).load(photoLists.get(position).getId()).into(viewHolder.img);
+        String path = RetrofitServiceGenerator.getBaseUrl() + photoLists.get(position).getPhotoFilePath();
+        Picasso.with(context).load(path).into(viewHolder.img);
 
         viewHolder.img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: open photo detail ?
-                Toast.makeText(context, photoLists.get(position).getTitle(),Toast.LENGTH_SHORT).show();
+                PhotoFragment photoFragment = PhotoFragment.newInstance(photoLists.get(position).getId());
+                // move to photo fragment
+                ((AppCompatActivity)context).getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.frameLayout, photoFragment)
+                        .addToBackStack(null)
+                        .commit();
             }
         });
     }
@@ -61,7 +69,6 @@ public class PhotoAlbumAdapter extends RecyclerView.Adapter<PhotoAlbumAdapter.Vi
         private ImageView img;
         public ViewHolder(View view) {
             super(view);
-            //title = (TextView)view.findViewById(R.id.title);
             img = (ImageView) view.findViewById(R.id.img);
         }
     }

@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by zhihao on 2018-04-06.
+ * @author zhihao
  */
 
 public class GpsMetadataUtil {
