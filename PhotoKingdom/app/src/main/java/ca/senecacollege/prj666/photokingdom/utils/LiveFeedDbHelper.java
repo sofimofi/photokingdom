@@ -14,14 +14,15 @@ import ca.senecacollege.prj666.photokingdom.models.FeedEntry;
  */
 public class LiveFeedDbHelper extends SQLiteOpenHelper {
     // Database
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "LiveFeed.db";
 
     // Photowar table create
     private static final String SQL_CREATE_PHOTOWARS =
             "CREATE TABLE " + FeedEntry.TABLE_NAME_PHOTOWARS + " (" +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.COLUMN_PHOTOWAR_ID + " TEXT," +
+                    FeedEntry.COLUMN_CREATED_DATE + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    FeedEntry.COLUMN_PHOTOWAR_ID + " INTEGER," +
                     FeedEntry.COLUMN_START_DATE + " TEXT," +
                     FeedEntry.COLUMN_ATTRACTION_NAME + " TEXT," +
                     FeedEntry.COLUMN_PHOTO_PATH1 + " TEXT," +
@@ -36,7 +37,8 @@ public class LiveFeedDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ATTRACTION_OWNS =
             "CREATE TABLE " + FeedEntry.TABLE_NAME_ATTRACTION_OWNS + " (" +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.COLUMN_OWN_ID + " TEXT," +
+                    FeedEntry.COLUMN_CREATED_DATE + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    FeedEntry.COLUMN_OWN_ID + " INTEGER," +
                     FeedEntry.COLUMN_START_DATE + " TEXT," +
                     FeedEntry.COLUMN_RESIDENT_ID + " TEXT," +
                     FeedEntry.COLUMN_RESIDENT_NAME + " TEXT," +
@@ -49,7 +51,8 @@ public class LiveFeedDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_CITY_OWNS =
             "CREATE TABLE " + FeedEntry.TABLE_NAME_CITY_OWNS + " (" +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.COLUMN_OWN_ID + " TEXT," +
+                    FeedEntry.COLUMN_CREATED_DATE + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    FeedEntry.COLUMN_OWN_ID + " INTEGER," +
                     FeedEntry.COLUMN_START_DATE + " TEXT," +
                     FeedEntry.COLUMN_RESIDENT_ID + " TEXT," +
                     FeedEntry.COLUMN_RESIDENT_NAME + " TEXT," +
@@ -62,7 +65,8 @@ public class LiveFeedDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_PROVINCE_OWNS =
             "CREATE TABLE " + FeedEntry.TABLE_NAME_PROVINCE_OWNS + " (" +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.COLUMN_OWN_ID + " TEXT," +
+                    FeedEntry.COLUMN_CREATED_DATE + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    FeedEntry.COLUMN_OWN_ID + " INTEGER," +
                     FeedEntry.COLUMN_START_DATE + " TEXT," +
                     FeedEntry.COLUMN_RESIDENT_ID + " TEXT," +
                     FeedEntry.COLUMN_RESIDENT_NAME + " TEXT," +
@@ -75,7 +79,8 @@ public class LiveFeedDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_COUNTRY_OWNS =
             "CREATE TABLE " + FeedEntry.TABLE_NAME_COUNTRY_OWNS + " (" +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.COLUMN_OWN_ID + " TEXT," +
+                    FeedEntry.COLUMN_CREATED_DATE + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    FeedEntry.COLUMN_OWN_ID + " INTEGER," +
                     FeedEntry.COLUMN_START_DATE + " TEXT," +
                     FeedEntry.COLUMN_RESIDENT_ID + " TEXT," +
                     FeedEntry.COLUMN_RESIDENT_NAME + " TEXT," +
@@ -88,7 +93,8 @@ public class LiveFeedDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_CONTINENT_OWNS =
             "CREATE TABLE " + FeedEntry.TABLE_NAME_CONTINENT_OWNS + " (" +
                     FeedEntry._ID + " INTEGER PRIMARY KEY," +
-                    FeedEntry.COLUMN_OWN_ID + " TEXT," +
+                    FeedEntry.COLUMN_CREATED_DATE + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                    FeedEntry.COLUMN_OWN_ID + " INTEGER," +
                     FeedEntry.COLUMN_START_DATE + " TEXT," +
                     FeedEntry.COLUMN_RESIDENT_ID + " TEXT," +
                     FeedEntry.COLUMN_RESIDENT_NAME + " TEXT," +

@@ -22,8 +22,6 @@ import ca.senecacollege.prj666.photokingdom.PhotowarFragment;
 import ca.senecacollege.prj666.photokingdom.R;
 import ca.senecacollege.prj666.photokingdom.UserFragment;
 import ca.senecacollege.prj666.photokingdom.adapters.LiveFeedsAdapter;
-import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarUploadForPhotowarView;
-import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarWithDetails;
 import ca.senecacollege.prj666.photokingdom.models.FeedEntry;
 import ca.senecacollege.prj666.photokingdom.models.LiveFeed;
 import ca.senecacollege.prj666.photokingdom.utils.LiveFeedDbHelper;
@@ -42,9 +40,6 @@ public class LiveFeedFragment extends Fragment {
     private RecyclerView.LayoutManager mLayoutManager;
 
     // Photowar
-    private List<AttractionPhotowarWithDetails> mPhotowars;
-    private AttractionPhotowarUploadForPhotowarView mPhotowarUpload1;
-    private AttractionPhotowarUploadForPhotowarView mPhotowarUpload2;
     private List<LiveFeed> mFeeds;
 
     // Refresh LiveFeed data
@@ -106,7 +101,7 @@ public class LiveFeedFragment extends Fragment {
             @Override
             public void run() {
                 // Load Photowars and owns data
-                loadPhotowarsData();
+                loadPhotowarsData(FeedEntry.TABLE_NAME_PHOTOWARS);
                 loadOwnsData(FeedEntry.TABLE_NAME_CONTINENT_OWNS);
                 loadOwnsData(FeedEntry.TABLE_NAME_COUNTRY_OWNS);
                 loadOwnsData(FeedEntry.TABLE_NAME_PROVINCE_OWNS);
@@ -116,7 +111,7 @@ public class LiveFeedFragment extends Fragment {
                 mHandler.postDelayed(mRefreshData, 1000);
             }
         };
-        mHandler.post(mRefreshData);
+        mHandler.postDelayed(mRefreshData, 100);
 
         return rootView;
     }
@@ -140,13 +135,17 @@ public class LiveFeedFragment extends Fragment {
      * Load Photowars data from local database
      * Set the data to RecyclerView
      */
-    private void loadPhotowarsData() {
-        if (hasNewData(FeedEntry.TABLE_NAME_PHOTOWARS, FeedEntry.COLUMN_PHOTOWAR_ID)) {
+    private void loadPhotowarsData(String table) {
+        long currentId = getCurrentId(table);
+        long lastId = hasNewData(table, FeedEntry.COLUMN_PHOTOWAR_ID);
+
+        if (currentId < lastId) {
             SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
             // Projection
             String[] projection = {
                     FeedEntry._ID,
+                    FeedEntry.COLUMN_CREATED_DATE,
                     FeedEntry.COLUMN_PHOTOWAR_ID,
                     FeedEntry.COLUMN_START_DATE,
                     FeedEntry.COLUMN_ATTRACTION_NAME,
@@ -156,6 +155,10 @@ public class LiveFeedFragment extends Fragment {
                     FeedEntry.COLUMN_RESIDENT_NAME2
             };
 
+            // Selection
+            String selection = FeedEntry.COLUMN_PHOTOWAR_ID + " > ?";
+            String[] selectionArgs = { String.valueOf(currentId) };
+
             // Sort
             String sortOrder = FeedEntry.COLUMN_PHOTOWAR_ID + " DESC";
 
@@ -163,10 +166,10 @@ public class LiveFeedFragment extends Fragment {
             Cursor cursor = null;
             try {
                 cursor = db.query(
-                        FeedEntry.TABLE_NAME_PHOTOWARS,
+                        table,
                         projection,
-                        null,
-                        null,
+                        selection,
+                        selectionArgs,
                         null,
                         null,
                         sortOrder
@@ -174,7 +177,8 @@ public class LiveFeedFragment extends Fragment {
 
                 // Add data
                 while (cursor.moveToNext()) {
-                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry._ID));
+                    //long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry._ID));
+                    String created = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_CREATED_DATE));
                     int photowarId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_PHOTOWAR_ID));
                     String startDate = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_START_DATE));
                     String attractionName = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_ATTRACTION_NAME));
@@ -185,6 +189,8 @@ public class LiveFeedFragment extends Fragment {
 
                     // LiveFeed
                     LiveFeed feed = new LiveFeed(FeedEntry.TYPE_PHOTOWAR);
+                    //feed.setId(mFeeds.size());
+                    feed.setCreated(created);
                     feed.setDate(startDate);
                     feed.setMsg("New Photowar on " + attractionName);
                     feed.photowar.setPhotowarId(photowarId);
@@ -210,18 +216,26 @@ public class LiveFeedFragment extends Fragment {
      * Set the data to RecyclerView
      */
     private void loadOwnsData(String table) {
-        if (hasNewData(table, FeedEntry.COLUMN_OWN_ID)) {
+        long currentId = getCurrentId(table);
+        long lastId = hasNewData(table, FeedEntry.COLUMN_OWN_ID);
+
+        if (currentId < lastId) {
             SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
             // Projection
             String[] projection = {
                     FeedEntry._ID,
+                    FeedEntry.COLUMN_CREATED_DATE,
                     FeedEntry.COLUMN_OWN_ID,
                     FeedEntry.COLUMN_START_DATE,
                     FeedEntry.COLUMN_RESIDENT_ID,
                     FeedEntry.COLUMN_RESIDENT_NAME,
                     FeedEntry.COLUMN_TITLE
             };
+
+            // Selection
+            String selection = FeedEntry.COLUMN_OWN_ID + " > ?";
+            String[] selectionArgs = { String.valueOf(currentId) };
 
             // Sort
             String sortOrder = FeedEntry.COLUMN_OWN_ID + " DESC";
@@ -232,8 +246,8 @@ public class LiveFeedFragment extends Fragment {
                 cursor = db.query(
                         table,
                         projection,
-                        null,
-                        null,
+                        selection,
+                        selectionArgs,
                         null,
                         null,
                         sortOrder
@@ -241,7 +255,8 @@ public class LiveFeedFragment extends Fragment {
 
                 // Add data
                 while (cursor.moveToNext()) {
-                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry._ID));
+                    //long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry._ID));
+                    String created = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_CREATED_DATE));
                     int ownId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_OWN_ID));
                     String startDate = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_START_DATE));
                     int residentId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_RESIDENT_ID));
@@ -250,6 +265,8 @@ public class LiveFeedFragment extends Fragment {
 
                     // LiveFeed
                     LiveFeed feed = new LiveFeed(FeedEntry.TYPE_OWN);
+                    feed.setCreated(created);
+                    //feed.setId(mFeeds.size());
                     feed.setDate(startDate);
                     feed.setMsg(residentName + " is " + title);
                     feed.own.setOwnId(ownId);
@@ -267,59 +284,68 @@ public class LiveFeedFragment extends Fragment {
         }
     }
 
+    private long getCurrentId(String table) {
+        switch (table) {
+            case FeedEntry.TABLE_NAME_PHOTOWARS:
+                return mCurrentPhotowarId;
+            case FeedEntry.TABLE_NAME_ATTRACTION_OWNS:
+                return mCurrentAttractionOwnId;
+            case FeedEntry.TABLE_NAME_CITY_OWNS:
+                return mCurrentCityOwnId;
+            case FeedEntry.TABLE_NAME_PROVINCE_OWNS:
+                return mCurrentProvinceOwnId;
+            case FeedEntry.TABLE_NAME_COUNTRY_OWNS:
+                return mCurrentCountryOwnId;
+            case FeedEntry.TABLE_NAME_CONTINENT_OWNS:
+                return mCurrentContinentOwnId;
+            default:
+                return 0;
+        }
+    }
+
     /**
-     * Check new data exists
-     * @return boolean
+     * Check new data exists and return last id in the table
+     * @return long
      */
-    private boolean hasNewData(String table, String column) {
+    private long hasNewData(String table, String column) {
         long lastId = mDbHelper.getLastId(table, column);
 
         switch (table) {
             case FeedEntry.TABLE_NAME_PHOTOWARS:
                 if (mCurrentPhotowarId < lastId) {
                     mCurrentPhotowarId = lastId;
-                    return true;
-                } else {
-                    return false;
                 }
+                break;
             case FeedEntry.TABLE_NAME_ATTRACTION_OWNS:
                 if (mCurrentAttractionOwnId < lastId) {
                     mCurrentAttractionOwnId = lastId;
-                    return true;
-                } else {
-                    return false;
                 }
+                break;
             case FeedEntry.TABLE_NAME_CITY_OWNS:
                 if (mCurrentCityOwnId < lastId) {
                     mCurrentCityOwnId = lastId;
-                    return true;
-                } else {
-                    return false;
                 }
+                break;
             case FeedEntry.TABLE_NAME_PROVINCE_OWNS:
                 if (mCurrentProvinceOwnId < lastId) {
                     mCurrentProvinceOwnId = lastId;
-                    return true;
-                } else {
-                    return false;
                 }
+                break;
             case FeedEntry.TABLE_NAME_COUNTRY_OWNS:
                 if (mCurrentCountryOwnId < lastId) {
                     mCurrentCountryOwnId = lastId;
-                    return true;
-                } else {
-                    return false;
                 }
+                break;
             case FeedEntry.TABLE_NAME_CONTINENT_OWNS:
                 if (mCurrentContinentOwnId < lastId) {
                     mCurrentContinentOwnId = lastId;
-                    return true;
-                } else {
-                    return false;
                 }
+                break;
             default:
-                return false;
+                return 0;
         }
+
+        return lastId;
     }
 
     /**
@@ -329,9 +355,15 @@ public class LiveFeedFragment extends Fragment {
         if (mFeeds.size() > 0) {
             Collections.sort(mFeeds);
 
-            mAdapter = new LiveFeedsAdapter(getContext(), mFeeds);
+            //mAdapter = new LiveFeedsAdapter(getContext(), mFeeds);
+            if (mAdapter == null) {
+                mAdapter = new LiveFeedsAdapter(getContext(), mFeeds);
+            } else {
+                mAdapter.setFeeds(mFeeds);
+                mAdapter.notifyDataSetChanged();
+            }
 
-            // Photowar click
+            // LiveFeed item click
             mAdapter.setOnItemClickListener(new LiveFeedsAdapter.OnItemClickListener() {
                 @Override
                 public void onPhotowarItemClick(View view, int photowarId) {
