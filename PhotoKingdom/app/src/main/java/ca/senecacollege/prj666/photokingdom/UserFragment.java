@@ -25,6 +25,8 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.Locale;
+
 import ca.senecacollege.prj666.photokingdom.fragments.PhotoAlbumFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.PingsFragment;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
@@ -153,7 +155,7 @@ public class UserFragment extends Fragment {
         }
         mTextViewCity.setText(mResident.getCity());
         mTextViewTitle.setText(mResident.getTitle());
-        mTextViewPoint.setText("0");
+        mTextViewPoint.setText(String.format(Locale.CANADA, "%d", mResident.getTotalPoints()));
 
         if (mResident.getAvatarImagePath() != null) {
             loadImage(mResident.getAvatarImagePath());

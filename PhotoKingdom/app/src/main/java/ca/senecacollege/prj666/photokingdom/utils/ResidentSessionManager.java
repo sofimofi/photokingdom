@@ -23,6 +23,7 @@ public class ResidentSessionManager {
     private static final String KEY_CITY_ID = "cityId";
     private static final String KEY_CITY_NAME = "cityName";
     private static final String KEY_TITLE = "title";
+    private static final String KEY_TOTAL_POINTS = "totalPoints";
 
     private SharedPreferences mSharedPref;
     private SharedPreferences.Editor mEditor;
@@ -53,6 +54,7 @@ public class ResidentSessionManager {
         mEditor.putInt(KEY_CITY_ID, resident.getCityId());
         mEditor.putString(KEY_CITY_NAME, resident.getCity());
         mEditor.putString(KEY_TITLE, resident.getTitle());
+        mEditor.putLong(KEY_TOTAL_POINTS, resident.getTotalPoints());
 
         mEditor.commit();
     }
@@ -67,6 +69,7 @@ public class ResidentSessionManager {
         resident.setCityId(mSharedPref.getInt(KEY_CITY_ID, 0));
         resident.setCity(mSharedPref.getString(KEY_CITY_NAME, null));
         resident.setTitle(mSharedPref.getString(KEY_TITLE, null));
+        resident.setTotalPoints(mSharedPref.getLong(KEY_TOTAL_POINTS, 0));
 
         return resident;
     }
