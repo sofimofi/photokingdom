@@ -229,7 +229,7 @@ public class UserFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frameLayout, new PhotoAlbumFragment())
+                        .replace(R.id.frameLayout, PhotoAlbumFragment.newInstance(mResident.getId()))
                         .addToBackStack(null)
                         .commit();
             }

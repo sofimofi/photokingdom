@@ -595,7 +595,7 @@ public class AttractionDetailsFragment extends Fragment {
             });
 
             // new attraction's photo war history will only has 1 photo upload
-            if(mAttraction.getCurrentAttractionPhotowarUploadsCount() > 1){
+            //if(mAttraction.getCurrentAttractionPhotowarUploadsCount() > 1){
                 mPhotowarButton.setVisibility(VISIBLE);
                 final AttractionPhotowarHistoryFragment photowarHistoryFragment = AttractionPhotowarHistoryFragment.newInstance(mAttraction.getId(), mAttraction.getName());
                 mPhotowarButton.setOnClickListener(new View.OnClickListener() {
@@ -607,7 +607,7 @@ public class AttractionDetailsFragment extends Fragment {
                                 .commit();
                     }
                 });
-            }
+            //}
 
         } else {
             Log.d(TAG, "Attraction is null!");

@@ -21,7 +21,7 @@ import retrofit2.Response;
 /**
  * Manager class for image upload
  *
- * @author Wonho
+ * @author Wonho, zhihao
  */
 
 public class UploadManager {

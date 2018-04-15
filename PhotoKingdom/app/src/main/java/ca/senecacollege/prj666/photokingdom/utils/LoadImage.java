@@ -12,10 +12,13 @@ import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
 
 /**
  * Class to load image
+ *
+ * @author sofia, zhihao
  */
 
 public class LoadImage {
     public static void loadImage(Context context, ImageView imageView, final String imagePath){
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         String imageUrl = RetrofitServiceGenerator.getBaseUrl() + imagePath;
         Picasso.with(context).load(imageUrl)
                 .error(R.mipmap.ic_launcher)
