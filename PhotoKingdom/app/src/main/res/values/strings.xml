@@ -65,6 +65,7 @@
 
     <!-- Errors -->
     <string name="error_avatar_upload">Avatar image upload failed</string>
+    <string name="error_photo_upload">Photo image upload failed</string>
     <string name="error_user_register">Register failed</string>
     <string name="error_login">Login failed, try again</string>
     <string name="error_invalid_email">Invalid email address</string>

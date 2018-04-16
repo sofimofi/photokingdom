@@ -636,12 +636,11 @@ public class PhotowarFragment extends Fragment {
         Log.d(TAG, "Detaching Fragment!");
         Activity activity = getActivity();
         if(activity != null && isAdded()){
-
-            countDownTimer.cancel();
+            if(countDownTimer != null){
+                countDownTimer.cancel();
+            }
         }
-//        if(countDownTimer != null){
-//            countDownTimer.cancel();
-//        }
+        
         super.onDetach();
         mListener = null;
     }

@@ -58,7 +58,7 @@ public class PingsAdapter extends RecyclerView.Adapter<PingsAdapter.ViewHolder> 
 
         // Set views
         holder.textViewPingDate.setText(DateUtil.parseDateString(pingDate));
-        holder.textViewExpiryDate.setText(DateUtil.getExpiresIn(pingDate, expiryDate));
+        holder.textViewExpiryDate.setText(DateUtil.getExpiresIn(expiryDate));
         holder.textViewAttractionName.setText(mPings.get(position).getAttractionName());
 
         // Item click

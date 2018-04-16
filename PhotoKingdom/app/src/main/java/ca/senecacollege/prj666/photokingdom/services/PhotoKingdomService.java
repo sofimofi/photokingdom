@@ -22,6 +22,7 @@ import ca.senecacollege.prj666.photokingdom.models.ResidentOwnForMapView;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -128,6 +129,9 @@ public interface PhotoKingdomService {
 
     @POST("api/pings")
     Call<Ping> createPing(@Body Ping ping);
+
+    @DELETE("api/pings/{id}")
+    Call<Ping> removePing(@Path("id") int id);
 
     @POST("api/queues")
     Call<PhotowarQueue> createPhotowarQueue(@Body PhotowarQueue photowarQueue);

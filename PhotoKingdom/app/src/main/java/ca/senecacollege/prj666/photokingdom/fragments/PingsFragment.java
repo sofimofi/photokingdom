@@ -50,6 +50,9 @@ public class PingsFragment extends Fragment {
 
     private ProgressBar mProgressBar;
 
+    public PingsFragment() {
+    }
+
     public static PingsFragment newInstance(int id) {
         // Create an instance
         PingsFragment fragment = new PingsFragment();
@@ -146,11 +149,17 @@ public class PingsFragment extends Fragment {
                 public void onItemClick(View view, int position) {
                     String attractionName = mPings.get(position).getAttractionName();
                     String placeId = mPings.get(position).getPlaceId();
+                    double lat = mPings.get(position).getLat();
+                    double lng = mPings.get(position).getLng();
+                    int pingId = mPings.get(position).getId();
 
                     Bundle bundle = new Bundle();
                     bundle.putString("name", attractionName);
                     bundle.putString("placeId", placeId);
+                    bundle.putDouble("lat", lat);
+                    bundle.putDouble("lng", lng);
                     bundle.putBoolean("isPinged", true);
+                    bundle.putInt("pingId", pingId);
                     // Move to AttractionDetailsFragment
                     AttractionDetailsFragment fragment = AttractionDetailsFragment.newInstance(bundle);
                     getActivity().getSupportFragmentManager().beginTransaction()
