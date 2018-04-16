@@ -6,9 +6,10 @@ import android.view.View;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
-// TODO
 /**
  * Custom InfoWindowAdapter for Map Places
+ *
+ * @author Sofia
  */
 public class MapMarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
     private static final String TAG = "MapMarkerInfoWindowAdp";

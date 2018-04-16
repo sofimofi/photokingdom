@@ -556,8 +556,6 @@ public class AttractionDetailsFragment extends Fragment {
                                     "code: " + response.code() + "\n" +
                                     "headers: " + response.headers();
                             Log.d(TAG, msg);
-
-                            //Log.d(TAG, "[getAttractionDetails:onResponse] " + response.errorBody().string());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -640,21 +638,17 @@ public class AttractionDetailsFragment extends Fragment {
                 }
             });
 
-            // new attraction's photo war history will only has 1 photo upload
-            //if(mAttraction.getCurrentAttractionPhotowarUploadsCount() > 1){
-                mPhotowarButton.setVisibility(VISIBLE);
-                final AttractionPhotowarHistoryFragment photowarHistoryFragment = AttractionPhotowarHistoryFragment.newInstance(mAttraction.getId(), mAttraction.getName());
-                mPhotowarButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.frameLayout, photowarHistoryFragment)
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                });
-            //}
-
+            mPhotowarButton.setVisibility(VISIBLE);
+            final AttractionPhotowarHistoryFragment photowarHistoryFragment = AttractionPhotowarHistoryFragment.newInstance(mAttraction.getId(), mAttraction.getName());
+            mPhotowarButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frameLayout, photowarHistoryFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
         } else {
             Log.d(TAG, "Attraction is null!");
         }

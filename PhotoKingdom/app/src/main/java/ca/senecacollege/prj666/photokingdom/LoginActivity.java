@@ -24,6 +24,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Login view
+ * This is the first view
+ * Open Main view and close this view if user logged-in
+ *
+ * @author Wonho
+ */
 public class LoginActivity extends Activity {
     private static final String TAG = "LoginActivity";
 
@@ -75,7 +82,7 @@ public class LoginActivity extends Activity {
                 @Override
                 public void onClick(View view) {
                     Log.d(TAG, "Visitor button clicked");
-                    // TODO: Need to go to a view for visitors
+
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     startActivity(intent);
                 }

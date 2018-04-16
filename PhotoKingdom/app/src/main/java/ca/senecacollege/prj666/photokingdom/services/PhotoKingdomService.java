@@ -147,5 +147,8 @@ public interface PhotoKingdomService {
 
     @GET("api/residents/{id}/photos")
     Call<List<PhotoWithDetails>> getPhotosByResidentId(@Path("id") int residentId);
+
+    @PUT("api/residents/{id}/avatar")
+    Call<Resident> updateResidentAvatar(@Path("id") int residentId, @Body Resident resident);
 }
 

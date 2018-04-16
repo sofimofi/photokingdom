@@ -2,6 +2,8 @@ package ca.senecacollege.prj666.photokingdom.models;
 
 /**
  * Place from Google Places API Web Service
+ *
+ * @author Sofia
  */
 public class GooglePlace {
     private String place_id;

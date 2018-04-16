@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
-            // TODO: Select an item on navigation when selected fragment created to go to back
             // switch to selected fragment
             switch (item.getItemId()) {
                 case R.id.navigation_livefeed:
@@ -208,6 +207,16 @@ public class MainActivity extends AppCompatActivity {
                     if (fragment != null) {
                         // Get a photo if requested permission granted
                         fragment.preparePhoto();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.msg_storage_permission_denied, Toast.LENGTH_LONG).show();
+                }
+                break;
+            case Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE_AVATAR:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (mUserFragment != null) {
+                        // Update resident's avatar image
+                        mUserFragment.updateAvatar();
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.msg_storage_permission_denied, Toast.LENGTH_LONG).show();

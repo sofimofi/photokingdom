@@ -7,6 +7,8 @@ import java.util.List;
 
 /**
  * Model class for a continent
+ *
+ * @author Wonho
  */
 public class Continent {
     @SerializedName("Id")

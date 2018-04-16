@@ -16,10 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 public class DateUtil {
     public static String parseDateString(String date) {
-        String year = date.substring(0, date.indexOf('-'));
         String monthDays = date.substring(date.indexOf('-') + 1, date.indexOf('T'));
 
-        //return year + '\n' + monthDays;
         return monthDays;
     }
 

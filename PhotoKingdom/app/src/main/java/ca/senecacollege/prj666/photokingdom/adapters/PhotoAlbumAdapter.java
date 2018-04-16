@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -40,7 +39,6 @@ public class PhotoAlbumAdapter extends RecyclerView.Adapter<PhotoAlbumAdapter.Vi
     @Override
     public void onBindViewHolder(PhotoAlbumAdapter.ViewHolder viewHolder, final int position) {
         viewHolder.img.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        //viewHolder.img.setImageResource((photoLists.get(position).getId()));
 
         String path = RetrofitServiceGenerator.getBaseUrl() + photoLists.get(position).getPhotoFilePath();
         Picasso.with(context).load(path).into(viewHolder.img);
@@ -72,6 +70,4 @@ public class PhotoAlbumAdapter extends RecyclerView.Adapter<PhotoAlbumAdapter.Vi
             img = (ImageView) view.findViewById(R.id.img);
         }
     }
-
-
 }

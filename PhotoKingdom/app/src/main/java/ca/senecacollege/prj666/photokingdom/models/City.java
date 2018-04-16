@@ -4,6 +4,8 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Model class for a city
+ *
+ * @author Wonho
  */
 public class City {
     @SerializedName("Id")

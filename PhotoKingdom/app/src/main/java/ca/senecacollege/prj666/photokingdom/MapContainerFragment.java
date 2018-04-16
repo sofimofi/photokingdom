@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -75,19 +74,10 @@ import retrofit2.Response;
 public class MapContainerFragment extends Fragment implements OnMapReadyCallback, OnGooglePlacesApiTaskCompleted,
         GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnCameraIdleListener {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private static final String TAG = "MapContainerFragment";
     private static final String OWN_ID = "ownId";
     private static final String RESIDENT_ID = "residentID";
-    static final int PERMISSIONS_REQUEST_ACCESS_LOCATION = 1;
     private enum ownLevel {CITY, PROVINCE, COUNTRY, CONTINENT}
 
     // Current location
@@ -115,7 +105,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
     private String mPlaceType;
 
     private GoogleMap mGoogleMap;
-    private OnFragmentInteractionListener mListener;
 
     // handle opening and closing marker
     private Marker lastOpened = null;
@@ -130,31 +119,9 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MapContainerFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MapContainerFragment newInstance(String param1, String param2) {
-        MapContainerFragment fragment = new MapContainerFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
 
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         actionBar.setTitle(R.string.map);
@@ -181,7 +148,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         View rootView = inflater.inflate(R.layout.fragment_map_container, container, false);
 
         // Initialize a map if permissions are granted
-        //initMap();
         if (checkPermission()) {
             Log.d(TAG, "PERMISSION GIVEN");
             initMapWithCurrentLocation();
@@ -279,18 +245,14 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
         getNearbyAttractions(MAP_WIDTH_METERS, mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
 
-        // TODO: custom Info Window (to include avatar image?)
-//        mGoogleMap.setInfoWindowAdapter(new MapMarkerInfoWindowAdapter());
         mGoogleMap.setOnInfoWindowClickListener(this);
         mGoogleMap.setOnMarkerClickListener(this);
-        //mGoogleMap.setOnCameraMoveListener(this);
         mGoogleMap.setOnCameraIdleListener(this);
     }
 
     private void getNearbyAttractions(double radiusMeters, double lat, double lng){
 
         // get the nearby google places
-        //GooglePlacesRequest task = new GooglePlacesRequest(this, getActivity().getApplicationContext(), lat, lng, radiusMeters);
         GooglePlacesRequest task = new GooglePlacesRequest(
                 this, getActivity().getApplicationContext(), lat, lng, radiusMeters, mPlaceType);
 
@@ -308,7 +270,7 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         Log.d(TAG, "LatLng boundaries to search attractions: " + latlngbounds.toString());
 
         // get attractions that exist in database in same boundaries
-        AttractionsForMapViewRequest attractionTask = new AttractionsForMapViewRequest(/*this,*/ /*getActivity().getApplicationContext(),*/ latlngbounds);
+        AttractionsForMapViewRequest attractionTask = new AttractionsForMapViewRequest(latlngbounds);
         attractionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         List<AttractionForMapView> existingAttractions = null;
         try{
@@ -317,9 +279,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
         } catch (InterruptedException | ExecutionException e){
             Log.e(TAG, e.getMessage());
         }
-
-        // Clear old markers and shapes
-//        mGoogleMap.clear();
 
         // Add markers on map
         BitmapDescriptor cape = BitmapDescriptorFactory.fromResource(R.drawable.cape);
@@ -399,7 +358,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
     private void getGeographicOwns(double lat, double lng){
         // get the current locality
-        //GoogleLocalityRequest task = new GoogleLocalityRequest(lat, lng, 5000);
         GoogleLocalityRequest task = new GoogleLocalityRequest(lat, lng, 5000, mPlaceType);
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -441,9 +399,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
     @Override
     public boolean onMarkerClick(final Marker marker){
-        //String googlePlaceId = (String) marker.getTag();
-        //Log.d(TAG, "---> Clicked on Marker for place " + googlePlaceId);
-
         if(lastOpened != null){
             // close the info window from last marker
             lastOpened.hideInfoWindow();
@@ -463,9 +418,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
     @Override
     public void onInfoWindowClick(Marker marker){
-        //String googlePlaceId = (String) marker.getTag();
-        //Log.d(TAG, "---> Clicked on Info Window for place " + googlePlaceId);
-
         if (marker.getTag() instanceof Bundle) {
             Bundle bundle = (Bundle)marker.getTag();
             // Open attraction details view with attraction data
@@ -477,17 +429,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
             openUserProfileView(residentId);
         }
     }
-
-//    @Override
-//    public void onCameraMove(){
-//        LatLng center = mGoogleMap.getCameraPosition().target;
-//        LatLng radius = getScreenRadius();
-//        Double radiusMeters = toRadiusMeters(center, radius);
-//
-//        Log.d(TAG, "OnCameraMove ---> new radius meters : " + radiusMeters);
-//
-//        getNearbyAttractions(radiusMeters, center.latitude, center.longitude);
-//    }
 
     @Override
     public void onCameraIdle() {
@@ -846,46 +787,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
                 .commit();
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            Log.d(TAG,"Map container fragment created");
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
     @Override
     public void OnTaskCompleted(Set<GooglePlace> googlePlaces) {
         Log.d(TAG, "Completed GooglePlacesAPI Task");
@@ -936,7 +837,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
             Set<GooglePlace> googlePlaces = new HashSet<GooglePlace>();
             try{
-                //GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, this.metersToSearch);
                 GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, this.metersToSearch, this.placeType);
                 googlePlaces = manager.getGooglePlaces();
             } catch (ApiException e){
@@ -1030,7 +930,6 @@ public class MapContainerFragment extends Fragment implements OnMapReadyCallback
 
             Locality locality = null;
             try{
-                //GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, metersToSearch);
                 GooglePlacesApiManager manager = new GooglePlacesApiManager(this.lat, this.lng, metersToSearch);
                 locality = manager.getCurrentLocality();
             } catch (ApiException e){

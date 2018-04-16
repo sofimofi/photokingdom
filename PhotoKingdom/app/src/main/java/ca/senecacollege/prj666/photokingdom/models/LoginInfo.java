@@ -2,6 +2,8 @@ package ca.senecacollege.prj666.photokingdom.models;
 
 /**
  * Model class for resident login
+ *
+ * @author Wonho
  */
 public class LoginInfo {
     private String email;

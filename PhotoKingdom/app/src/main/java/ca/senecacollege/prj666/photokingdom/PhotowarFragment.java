@@ -82,8 +82,6 @@ public class PhotowarFragment extends Fragment {
     private boolean photo1Clicked = false;
     private boolean photo2Clicked = false;
 
-    private OnPhotowarFragmentInteractionListener mListener;
-
     private CountDownTimer countDownTimer;
 
     public PhotowarFragment() {
@@ -97,7 +95,6 @@ public class PhotowarFragment extends Fragment {
      * @param attractionPhotowarId Id of AttractionPhotowar
      * @return A new instance of fragment PhotowarFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static PhotowarFragment newInstance(int attractionPhotowarId) {
         PhotowarFragment fragment = new PhotowarFragment();
         Bundle args = new Bundle();
@@ -378,10 +375,8 @@ public class PhotowarFragment extends Fragment {
 
     private void startDateCountdown(String dateString){
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-//        formatter.setTimeZone(TimeZone.getDefault());
         Date endDate = null;
         Calendar calendar = Calendar.getInstance();
-//        Date now = new Date();
         Date now = calendar.getTime();
         try{
             endDate = formatter.parse(dateString);
@@ -437,7 +432,6 @@ public class PhotowarFragment extends Fragment {
 
                     @Override
                     public void onError() {
-                        //Toast.makeText(getContext(), R.string.error_avatar_upload, Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "Failed photo upload of " + imagePath);
                     }
                 });
@@ -614,21 +608,9 @@ public class PhotowarFragment extends Fragment {
         }
     };
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed() {
-        if (mListener != null) {
-            mListener.onFragmentInteraction();
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnPhotowarFragmentInteractionListener) {
-            mListener = (OnPhotowarFragmentInteractionListener) context;
-        } else {
-            Log.d(TAG,"Photowar fragment created");
-        }
     }
 
     @Override
@@ -636,27 +618,10 @@ public class PhotowarFragment extends Fragment {
         Log.d(TAG, "Detaching Fragment!");
         Activity activity = getActivity();
         if(activity != null && isAdded()){
-            if(countDownTimer != null){
+            if(countDownTimer != null) {
                 countDownTimer.cancel();
             }
         }
-        
         super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnPhotowarFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction();
     }
 }

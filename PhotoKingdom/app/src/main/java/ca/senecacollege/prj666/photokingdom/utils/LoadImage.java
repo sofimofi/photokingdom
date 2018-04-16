@@ -25,13 +25,10 @@ public class LoadImage {
                 .into(imageView, new com.squareup.picasso.Callback() {
                     @Override
                     public void onSuccess() {
-//                        Log.d(TAG, "Succeeded photo upload of " + imagePath);
                     }
 
                     @Override
                     public void onError() {
-                        //Toast.makeText(getContext(), R.string.error_avatar_upload, Toast.LENGTH_SHORT).show();
-//                        Log.d(TAG, "Failed photo upload of " + imagePath);
                     }
                 });
     }
