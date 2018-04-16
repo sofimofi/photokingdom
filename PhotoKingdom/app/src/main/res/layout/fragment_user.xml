@@ -147,7 +147,7 @@
                     android:layout_weight="1"
                     android:contentDescription="avatar"
                     android:scaleType="fitStart"
-                    android:src="@mipmap/ic_launcher" />
+                    android:src="@drawable/noimage" />
             </LinearLayout>
 
         </android.support.v7.widget.CardView>
