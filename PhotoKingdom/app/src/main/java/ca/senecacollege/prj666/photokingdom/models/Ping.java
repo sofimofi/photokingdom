@@ -14,6 +14,10 @@ public class Ping {
     private String pingDate;
     @SerializedName("ExpiryDate")
     private String expiryDate;
+    @SerializedName("Lat")
+    private double lat;
+    @SerializedName("Lng")
+    private double lng;
     @SerializedName("ResidentId")
     private int residentId;
     @SerializedName("AttractionName")
@@ -43,6 +47,22 @@ public class Ping {
 
     public void setExpiryDate(String expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public double getLng() {
+        return lng;
+    }
+
+    public void setLng(double lng) {
+        this.lng = lng;
     }
 
     public int getResidentId() {

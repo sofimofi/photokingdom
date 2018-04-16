@@ -177,8 +177,7 @@ public class UserFragment extends Fragment {
         // load user
         if (mSessionManager != null && mSessionManager.isLoggedIn()) {
             // Current resident
-            mResident = mSessionManager.getResident();
-            setUserProfile();
+            getResident(mSessionManager.getResident().getId());
         } else {
             // Other resident
             getResident(mResidentId);

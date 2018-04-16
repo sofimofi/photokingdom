@@ -21,10 +21,14 @@ public class DateUtil {
         return monthDays;
     }
 
-    public static String getExpiresIn(String begin, String end) {
-        Date dateBegin = ISO8601toDate(begin);
+    public static String getExpiresIn(String end) {
+        // Now
+        Calendar calendar = Calendar.getInstance();
+        Date now = calendar.getTime();
+        // Expiry
         Date dateEnd = ISO8601toDate(end);
-        long diff = dateEnd.getTime() - dateBegin.getTime();
+
+        long diff = dateEnd.getTime() - now.getTime();
         long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
 
         String result = "Expires in ";

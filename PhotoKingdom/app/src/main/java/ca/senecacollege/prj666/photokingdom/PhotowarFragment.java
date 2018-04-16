@@ -622,7 +622,6 @@ public class PhotowarFragment extends Fragment {
                 countDownTimer.cancel();
             }
         }
-
         super.onDetach();
     }
 }
