@@ -2,6 +2,10 @@ package ca.senecacollege.prj666.photokingdom.models;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Model class for Photo Album
+ * @author Zhihao
+ */
 public class Photo {
     @SerializedName("Id")
     private int id;

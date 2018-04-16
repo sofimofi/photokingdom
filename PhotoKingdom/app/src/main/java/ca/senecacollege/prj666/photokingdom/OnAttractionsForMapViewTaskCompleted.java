@@ -7,6 +7,8 @@ import ca.senecacollege.prj666.photokingdom.models.AttractionForMapView;
 
 /**
  * Interface for AttractionsForMapView API async Task Completion
+ *
+ * @author Sofia
  */
 public interface OnAttractionsForMapViewTaskCompleted {
     void OnTaskCompleted(List<AttractionForMapView> googlePlaces);

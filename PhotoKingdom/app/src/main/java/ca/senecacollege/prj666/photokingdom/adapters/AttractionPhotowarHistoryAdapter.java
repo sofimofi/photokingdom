@@ -1,14 +1,10 @@
 package ca.senecacollege.prj666.photokingdom.adapters;
 
-import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -16,11 +12,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import ca.senecacollege.prj666.photokingdom.PhotowarFragment;
 import ca.senecacollege.prj666.photokingdom.R;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarUploadForPhotowarView;
 import ca.senecacollege.prj666.photokingdom.models.AttractionPhotowarWithDetails;
-import ca.senecacollege.prj666.photokingdom.models.Ping;
 import ca.senecacollege.prj666.photokingdom.utils.DateUtil;
 import ca.senecacollege.prj666.photokingdom.utils.LoadImage;
 

@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
 
-            // TODO: Select an item on navigation when selected fragment created to go to back
             // switch to selected fragment
             switch (item.getItemId()) {
                 case R.id.navigation_livefeed:

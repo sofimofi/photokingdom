@@ -23,7 +23,7 @@ import ca.senecacollege.prj666.photokingdom.models.Constants;
 /**
  * Service to get place information from Google Places API Web Service
  *
- * @author sofia
+ * @author sofia, Wonho
  */
 public class GooglePlacesApiManager {
     private final String TAG = "GooglePlacesApiManager";
@@ -190,7 +190,6 @@ public class GooglePlacesApiManager {
     }
 
     public void makeRequest(String place) throws ApiException{
-        //for(String place : placeTypes){
         try{
             boolean nextToken = true;
             while(nextToken){
@@ -232,7 +231,6 @@ public class GooglePlacesApiManager {
         } catch (Exception e){
             Log.e(TAG, e.getMessage());
         }
-        //}
     }
 
     private boolean parseJson(JSONObject json) throws Exception {

@@ -9,7 +9,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -177,7 +176,6 @@ public class LiveFeedFragment extends Fragment {
 
                 // Add data
                 while (cursor.moveToNext()) {
-                    //long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry._ID));
                     String created = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_CREATED_DATE));
                     int photowarId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_PHOTOWAR_ID));
                     String startDate = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_START_DATE));
@@ -189,7 +187,6 @@ public class LiveFeedFragment extends Fragment {
 
                     // LiveFeed
                     LiveFeed feed = new LiveFeed(FeedEntry.TYPE_PHOTOWAR);
-                    //feed.setId(mFeeds.size());
                     feed.setCreated(created);
                     feed.setDate(startDate);
                     feed.setMsg("New Photowar on " + attractionName);
@@ -255,7 +252,6 @@ public class LiveFeedFragment extends Fragment {
 
                 // Add data
                 while (cursor.moveToNext()) {
-                    //long id = cursor.getLong(cursor.getColumnIndexOrThrow(FeedEntry._ID));
                     String created = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_CREATED_DATE));
                     int ownId = cursor.getInt(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_OWN_ID));
                     String startDate = cursor.getString(cursor.getColumnIndexOrThrow(FeedEntry.COLUMN_START_DATE));
@@ -266,7 +262,6 @@ public class LiveFeedFragment extends Fragment {
                     // LiveFeed
                     LiveFeed feed = new LiveFeed(FeedEntry.TYPE_OWN);
                     feed.setCreated(created);
-                    //feed.setId(mFeeds.size());
                     feed.setDate(startDate);
                     feed.setMsg(residentName + " is " + title);
                     feed.own.setOwnId(ownId);
@@ -355,7 +350,6 @@ public class LiveFeedFragment extends Fragment {
         if (mFeeds.size() > 0) {
             Collections.sort(mFeeds);
 
-            //mAdapter = new LiveFeedsAdapter(getContext(), mFeeds);
             if (mAdapter == null) {
                 mAdapter = new LiveFeedsAdapter(getContext(), mFeeds);
             } else {

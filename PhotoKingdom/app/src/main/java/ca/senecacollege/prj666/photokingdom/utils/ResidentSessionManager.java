@@ -8,6 +8,8 @@ import ca.senecacollege.prj666.photokingdom.models.Resident;
 /**
  * Save and load resident information
  * Login and logout a resident
+ *
+ * @author Wonho
  */
 public class ResidentSessionManager {
     private static final String TAG = "LoginSessionManager";

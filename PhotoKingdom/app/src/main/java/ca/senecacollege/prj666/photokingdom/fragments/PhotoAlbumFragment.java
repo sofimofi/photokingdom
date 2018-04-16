@@ -1,7 +1,5 @@
 package ca.senecacollege.prj666.photokingdom.fragments;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -40,8 +38,6 @@ public class PhotoAlbumFragment extends Fragment {
     private ArrayList<Photo> albumList;
     private RecyclerView mRecyclerView;
 
-    private OnFragmentInteractionListener mListener;
-
     public PhotoAlbumFragment() {
         // Required empty public constructor
     }
@@ -51,7 +47,6 @@ public class PhotoAlbumFragment extends Fragment {
      * this fragment using the provided parameters.
      * @return A new instance of fragment PhotoAlbumFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static PhotoAlbumFragment newInstance(int residentId) {
         PhotoAlbumFragment fragment = new PhotoAlbumFragment();
         Bundle args = new Bundle();
@@ -120,43 +115,5 @@ public class PhotoAlbumFragment extends Fragment {
             list.add(p);
         }
         return list;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            Log.d(TAG,"User fragment created");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

@@ -7,6 +7,8 @@ import ca.senecacollege.prj666.photokingdom.models.GooglePlace;
 
 /**
  * Interface for GooglePlacesAPI async Task Completion
+ *
+ * @author Sofia
  */
 
 public interface OnGooglePlacesApiTaskCompleted {
