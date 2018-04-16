@@ -29,6 +29,7 @@ import java.util.Locale;
 
 import ca.senecacollege.prj666.photokingdom.fragments.PhotoAlbumFragment;
 import ca.senecacollege.prj666.photokingdom.fragments.PingsFragment;
+import ca.senecacollege.prj666.photokingdom.models.Constants;
 import ca.senecacollege.prj666.photokingdom.models.Resident;
 import ca.senecacollege.prj666.photokingdom.services.PhotoKingdomService;
 import ca.senecacollege.prj666.photokingdom.services.RetrofitServiceGenerator;
@@ -44,7 +45,7 @@ import static android.app.Activity.RESULT_OK;
 /**
  * Fragment for User
  *
- * @author zhihao
+ * @author zhihao, Wonho
  */
 public class UserFragment extends Fragment {
     private static final String TAG = "UserFragment";
@@ -53,7 +54,6 @@ public class UserFragment extends Fragment {
 
     // Resident
     private static final String ARG_RESIDENT_ID = "residentId";
-    private static final int PERMISSION_REQUEST_READ_EXTERNAL_STORAGE = 0;
     private static final int ACTION_PICK_REQUEST = 1;
 
 
@@ -212,7 +212,6 @@ public class UserFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
                                 requestImagePermission();
-                                updateAvatar();
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -245,21 +244,11 @@ public class UserFragment extends Fragment {
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE },
-                    PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
+                    Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE_AVATAR);
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_REQUEST_READ_EXTERNAL_STORAGE) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                updateAvatar();
-            }
-        }
-    }
-
-    private void updateAvatar(){
+    public void updateAvatar(){
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         startActivityForResult(intent, ACTION_PICK_REQUEST);
@@ -282,20 +271,10 @@ public class UserFragment extends Fragment {
             manager.setOnUploadListener(new UploadManager.OnUploadListener() {
                 @Override
                 public void onUploaded(String path) {
-                    // TODO: remove current avatar file on server, saving new path to db
-
-                    if(mResident.getAvatarImagePath() != null) {
-                        String curAvatarPath = mResident.getAvatarImagePath();
-                        Log.i("Current Avatar Path ", curAvatarPath);
-
-                        String curAvatarUrl = RetrofitServiceGenerator.getBaseUrl() + curAvatarPath;
-                        Log.i("Current Avatar Url ", curAvatarUrl);
-
+                    // Update resident's avatar image
+                    if (path != null && !path.isEmpty()) {
+                        updateResidentAvatar(path);
                     }
-                    // store in shared preference
-                    mResident.setAvatarImagePath(path);
-                    mSessionManager.setResident(mResident);
-                    loadImage(path);
                 }
 
                 @Override
@@ -308,6 +287,38 @@ public class UserFragment extends Fragment {
         } else {
             Toast.makeText(getContext(), R.string.error_avatar_upload, Toast.LENGTH_LONG).show();
         }
+    }
+
+    /**
+     * Call PhotoKingdomAPI to update resident's avatar image
+     * @param path
+     */
+    private void updateResidentAvatar(String path) {
+        Resident resident = new Resident();
+        resident.setId(mResident.getId());
+        resident.setAvatarImagePath(path);
+
+        service = RetrofitServiceGenerator.createService(PhotoKingdomService.class);
+        Call<Resident> call = service.updateResidentAvatar(mResident.getId(), resident);
+        call.enqueue(new Callback<Resident>() {
+            @Override
+            public void onResponse(Call<Resident> call, Response<Resident> response) {
+                if (response.isSuccessful()) {
+                    // store in shared preference and load updated avatar
+                    String path = response.body().getAvatarImagePath();
+                    mResident.setAvatarImagePath(path);
+                    mSessionManager.setResident(mResident);
+                    loadImage(path);
+                } else {
+                    Toast.makeText(getContext(), R.string.error_avatar_update, Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Resident> call, Throwable t) {
+                Toast.makeText(getContext(), R.string.error_avatar_update, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void loadImage(String imagePath){

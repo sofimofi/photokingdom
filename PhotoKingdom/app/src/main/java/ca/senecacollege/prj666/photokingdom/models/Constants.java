@@ -15,6 +15,7 @@ public class Constants {
 
     // Permission
     public static final int PERMISSION_REQUEST_READ_EXTERNAL_STORAGE = 0;
+    public static final int PERMISSION_REQUEST_READ_EXTERNAL_STORAGE_AVATAR = 2;
     public static final int PERMISSION_REQUEST_ACCESS_LOCATION = 1;
 
     // Fragment TAG

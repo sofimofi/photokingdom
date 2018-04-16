@@ -213,6 +213,16 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), R.string.msg_storage_permission_denied, Toast.LENGTH_LONG).show();
                 }
                 break;
+            case Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE_AVATAR:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (mUserFragment != null) {
+                        // Update resident's avatar image
+                        mUserFragment.updateAvatar();
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.msg_storage_permission_denied, Toast.LENGTH_LONG).show();
+                }
+                break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
