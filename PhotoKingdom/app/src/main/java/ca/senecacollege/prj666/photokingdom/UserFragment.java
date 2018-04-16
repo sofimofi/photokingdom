@@ -242,6 +242,9 @@ public class UserFragment extends Fragment {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE },
                     Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE_AVATAR);
+        } else {
+            // Permission has granted
+            updateAvatar();
         }
     }
 
