@@ -28,6 +28,8 @@ public class Resident {
     private String city;
     @SerializedName("Title")
     private String title;
+    @SerializedName("totalPoints")
+    private Long totalPoints;
 
     public Resident() {
     }
@@ -116,4 +118,12 @@ public class Resident {
     }
 
     public void setTitle(String title) { this.title = title; }
+
+    public Long getTotalPoints() {
+        return totalPoints;
+    }
+
+    public void setTotalPoints(Long totalPoints) {
+        this.totalPoints = totalPoints;
+    }
 }

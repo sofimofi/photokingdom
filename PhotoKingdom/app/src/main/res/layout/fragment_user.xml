@@ -175,7 +175,7 @@
                         android:layout_width="143dp"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/activity_vertical_margin"
-                        android:text="Title:"
+                        android:text="Titles:"
                         android:paddingStart="30dp"
                         android:textSize="18sp" />
 
@@ -196,7 +196,7 @@
                         android:layout_width="143dp"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/activity_vertical_margin"
-                        android:text="Point:"
+                        android:text="Points:"
                         android:paddingStart="30dp"
                         android:textSize="18sp" />
 
@@ -216,11 +216,11 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Stats" />
+            <!--<Button-->
+                <!--android:id="@+id/button"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Stats" />-->
 
             <Button
                 android:id="@+id/buttonPingList"
