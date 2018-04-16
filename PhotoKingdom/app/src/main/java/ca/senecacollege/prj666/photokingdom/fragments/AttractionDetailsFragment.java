@@ -73,6 +73,7 @@ public class AttractionDetailsFragment extends Fragment {
     private static final String PLACE_ID = "placeId";
     private static final String IS_EXISTED = "isExisted";
     private static final String IS_PINGED = "isPinged";
+    private static final String PING_ID = "pingId";
     private static final String HAS_WAR = "hasWar";
     private static final String IS_LIT_UP = "isLitUp";
 
@@ -82,6 +83,7 @@ public class AttractionDetailsFragment extends Fragment {
     private String mPlaceId;
     private boolean mIsExisted;
     private boolean mIsPinged;
+    private int mPingId;
     private boolean mHasWar;
     private boolean mIsLitUp;
 
@@ -128,6 +130,7 @@ public class AttractionDetailsFragment extends Fragment {
             mPlaceId = getArguments().getString(PLACE_ID);
             mIsExisted = getArguments().getBoolean(IS_EXISTED);
             mIsPinged = getArguments().getBoolean(IS_PINGED);
+            mPingId = getArguments().getInt(PING_ID);
             mHasWar = getArguments().getBoolean(HAS_WAR);
             mIsLitUp = getArguments().getBoolean(IS_LIT_UP);
 
@@ -181,7 +184,7 @@ public class AttractionDetailsFragment extends Fragment {
             }
         }
 
-        if (!mPlaceId.isEmpty()) {
+        if (mPlaceId != null && !mPlaceId.isEmpty()) {
             getAttractionDetails(mPlaceId);
         }
 
@@ -253,7 +256,7 @@ public class AttractionDetailsFragment extends Fragment {
                                 @Override
                                 public void onFailure(String error) {
                                     photoPath = "";
-                                    Toast.makeText(getContext(), R.string.error_avatar_upload, Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getContext(), R.string.error_photo_upload, Toast.LENGTH_LONG).show();
                                 }
                             });
                             uploadManager.uploadImage(photoUri);
@@ -297,6 +300,11 @@ public class AttractionDetailsFragment extends Fragment {
                         if (response.isSuccessful()) {
                             Log.i("attraction upload", response.body().getId()+"");
 
+                            // Remove a ping if upload on pinged attraction
+                            if (mIsPinged) {
+                                removePing();
+                            }
+
                             newAttraction.setId(response.body().getId());
                             attachImageToNewAttraction(newAttraction);
                         }else {
@@ -333,6 +341,11 @@ public class AttractionDetailsFragment extends Fragment {
                     public void onResponse(Call<AttractionPhotowarWithDetails> call, Response<AttractionPhotowarWithDetails> response) {
                         Log.i("new photowar created", response.body().getId()+"");
 
+                        // Remove a ping if upload on pinged attraction
+                        if (mIsPinged) {
+                            removePing();
+                        }
+
                         // switch to photowar view
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.frameLayout, PhotowarFragment.newInstance(response.body().getId()))
@@ -349,6 +362,32 @@ public class AttractionDetailsFragment extends Fragment {
             }
         }
 
+    }
+
+    /**
+     * Call PhotoKingdomAPI to remove ping
+     */
+    private void removePing() {
+        if (mPingId > 0) {
+            Call<Ping> pingCall = service.removePing(mPingId);
+            pingCall.enqueue(new Callback<Ping>() {
+                @Override
+                public void onResponse(Call<Ping> call, Response<Ping> response) {
+                    if (!response.isSuccessful()) {
+                        try {
+                            Log.d(TAG, "[removePing:onResponse] " + response.errorBody().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Ping> call, Throwable t) {
+                    Log.e(TAG, "[removePing:onFailure] " + t.getMessage());
+                }
+            });
+        }
     }
 
     /**
@@ -375,6 +414,11 @@ public class AttractionDetailsFragment extends Fragment {
                     hideProgressBar();
 
                     if (response.isSuccessful()) {
+                        // Remove a ping if upload on pinged attraction
+                        if (mIsPinged) {
+                            removePing();
+                        }
+
                         mNewPhotowarQueue = response.body();
                         openPhotowarQueueView();
                     } else {
@@ -539,6 +583,8 @@ public class AttractionDetailsFragment extends Fragment {
         Ping ping = new Ping();
         ping.setResidentId(mSessionManager.getResident().getId());
         ping.setAttractionName(mName);
+        ping.setLat(mLatLng.latitude);
+        ping.setLng(mLatLng.longitude);
         ping.setPlaceId(mPlaceId);
 
         Call<Ping> call = service.createPing(ping);
